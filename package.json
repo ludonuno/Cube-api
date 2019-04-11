@@ -1,27 +1,27 @@
 {
-  "name": "cube",
+  "name": "cube-api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "pg": "^7.9.0",
+    "request": "^2.88.0"
+  },
+  "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ludonuno/Cube.git"
+    "url": "git+https://github.com/ludonuno/Cube-api.git"
   },
   "author": "Nuno Ludovice",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ludonuno/Cube/issues"
+    "url": "https://github.com/ludonuno/Cube-api/issues"
   },
-  "homepage": "https://github.com/ludonuno/Cube#readme",
-  "dependencies": {
-    "express": "^4.16.4",
-    "pg": "^7.9.0",
-    "reac-dom": "^1000.0.0",
-    "react": "^16.8.6",
-    "request": "^2.88.0"
-  },
-  "devDependencies": {}
+  "homepage": "https://github.com/ludonuno/Cube-api#readme"
 }
