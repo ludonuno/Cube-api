@@ -6,7 +6,7 @@ const db = require('./db')
 
 const { Client } = require('pg')
 
-var connectionString = process.env.DATABASE_URL || ''
+var connectionString = process.env.DATABASE_URL
 
 const client = new Client({
     connectionString,
@@ -24,6 +24,7 @@ app.use(
 )
 
 app.get('/', (req, res, next) => {
+    res.send('hello world')
     console.log('teste')
     
     client.connect();
