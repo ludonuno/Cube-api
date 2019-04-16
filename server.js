@@ -2,7 +2,6 @@ const express = require('express')
 const bodyParser = require('body-parser')
 
 const api = require('./API/api.js')
-const db = require('./db')
 
 const app = express()
 const port = process.env.PORT || 3000 
@@ -15,16 +14,12 @@ app.use(
 )
 
 app.get('/', (req, res, next) => {
-    db.connect()
-    db.query('SELECT * FROM my_categoria', (err, res) => {
-        if (err) {
-            return next(err)
-        }
-        console.table(res.rows)
-    })
+    //api.categoria.GetAllCategorias()
+    var retorno = api.categoria.InsertCategoria('Horror')
+    console.log(retorno) //undefined
 })
 
-app.get('/test', (req, res) => {
+app.get('/test', (req, res, next) => {
     res.send('test')
     console.log('test')
 })
