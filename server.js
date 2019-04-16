@@ -8,6 +8,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 
 const api = require('./API/api.js')
+const query = require('./queries.js')
 
 const app = express()
 const port = process.env.PORT || 3000 // alterar para adaptar com o heroku
@@ -19,49 +20,26 @@ app.use(
     })
 )
 
-//API
-
-app.get('/api/:table', (req, res) => {
-    res.json({
-        userId: api.users.GetUser(req.query.id)
-    })
-    
+app.get('/', (req, res) => {
+    res.send('/')
+    console.log('/')
 })
 
-app.post('/api/:table', (req, res) => {
-
+app.get('/test', (req, res) => {
+    res.send('test')
+    console.log('test')
 })
 
-app.put('/api/:table', (req, res) => {
 
-})
 
-app.delete('/api/:table', (req, res) => {
 
-})
 
-//Gerir rotas não existentes
 
-app.get('*', (req, res) => {
-    res.json({
-        error: api.ApiErrorMessage()
-    })
-})
-app.post('*', (req, res) => {
-    res.json({
-        error: api.ApiErrorMessage()
-    })
-})
-app.put('*', (req, res) => {
-    res.json({
-        error: api.ApiErrorMessage()
-    })
-})
-app.delete('*', (req, res) => {
-    res.json({
-        error: api.ApiErrorMessage()
-    })
-})
+
+
+
+
+
 
 
 
