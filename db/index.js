@@ -1,14 +1,29 @@
-const { Pool } = require('pg')
+const {Pool} = require('pg')
 
-var connectionString = process.env.DATABASE_URL || 'postgres://teivyhilsxitmg:2c6b96200b45e98bb0a152c9d43629ca11e9c76f3d978eebdf7d840646d51c5c@ec2-54-75-230-253.eu-west-1.compute.amazonaws.com:5432/dcje70fjpt6ht6'
+var pool
 
-const pool = new Pool({
-    connectionString,
-    ssl: true
-})
-
+if (process.env.DATABASE_URL) {
+    pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+        ssl: true
+    })
+} else {
+    pool = new Pool({
+        user: 'postgres',
+        password: 'asop3396',
+        port: 5432,
+        host: 'localhost',
+        database: 'cube'
+    })
+}
 
 module.exports = {
+    connect: () => {
+        pool.connect()
+        .then(() => console.log("Connected sucessfuly"))
+        .catch(e => console.error(e))
+        .finally(() => pool.end())
+    },
     query: (text, params, callback) => {
         return pool.query(text, params, callback)
     }
