@@ -24,7 +24,5 @@ module.exports = {
         .catch(e => console.error(e))
         .finally(() => pool.end())
     },
-    query: (text, params, callback) => {
-        return pool.query(text, params, callback)
-    }
+    query: (text, callback) => pool.query(text, callback),
 }
