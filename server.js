@@ -7,6 +7,42 @@ const errorRota = {error: 'Rota não encontrada'}
 const errorParametros = {error: 'Parametros inválidos ou em falta'}
 const errorIndisponivel = {error: 'Esta Rota encontra-se indisponível'}
 
+const routeList = {
+    categoria:                  'Categoria',
+    desenvolvedor:              'Desenvolvedor',
+    editora:                    'Editora',
+    engine:                     'Engine',
+    episodioGaleria:            'EpisodioGaleria',
+    episodio:                   'Episodio',
+    filmePg:                    'FilmePG',
+    filme:                      'Filme',
+    funcao:                     'Funcao',
+    livro:                      'Livro',
+    pessoaGaleria:              'PessoaGaleria',
+    pessoa:                     'Pessoa',
+    publicador:                 'Publicador',
+    saga:                       'Saga',
+    serie:                      'Serie',
+    slfjGaleria:                'SlfjGaleria',
+    slfjPessoaFuncao:           'SlfjPessoaFuncao',
+    slfjTipo:                   'SlfjTipo',
+    slfjVideo:                  'SlfjVideo',
+    slfj:                       'Slfj',
+    TemporadaGaleria:           'TemporadaGaleria',
+    temporadaVideo:             'TemporadaVideo',
+    temporada:                  'Temporada',
+    tipo:                       'Tipo',
+    tvPG:                       'TvPG',
+    userEpisodioRating:         'UserEpisodioRating',
+    userFilmeRating:            'UserFilmeRating',
+    userJogoRating:             'UserJogoRating',
+    userLivroRating:            'UserLivroRating',
+    userPessoaHistorico:        'UserPessoaHistorico',
+    userSlfjComentarioRating:   'UserSlfjComentarioRating',
+    userSlfjComentario:         'UserSlfjComentario',
+    userSlfjHistorico:          'UserSlfjHistorico'
+}
+
 const app = express()
 const port = process.env.PORT || 3000
 
@@ -15,106 +51,106 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 app.get('/API/:tabela', (req, res, next) => { //Search
     switch (req.params.tabela) {
-        case 'Categoria':
+        case routeList.categoria:
             if (req.query.id) api.categoria.GetCategoriaById(Number(req.query.id), (error, result) => res.json((error) ? {error} : {result}))
             else if(req.query.descricao) api.categoria.GetCategoriaByDescricao(String(req.query.descricao), (error, result) => res.json((error) ? {error} : {result}))
             else if (!sizeOf(req.query)) api.categoria.GetAllCategorias((error, result) => res.json((error) ? {error} : {result}))
             else res.json(errorParametros) 
             break
-        case 'Desenvolvedor':
+        case routeList.desenvolvedor:
             res.json(errorIndisponivel)
             break
-        case 'Editora':
+        case routeList.editora:
             res.json(errorIndisponivel)
             break
-        case 'Engine':          
+        case routeList.engine:          
             res.json(errorIndisponivel)
             break
-        case 'EpisodioGaleria':
+        case routeList.episodioGaleria:
             res.json(errorIndisponivel)
             break
-        case 'Episodio':
+        case routeList.episodio:
             res.json(errorIndisponivel)
             break
-        case 'FilmePG':
+        case routeList.filmePG:
             res.json(errorIndisponivel)
             break
-        case 'Filme':
+        case routeList.filme:
             res.json(errorIndisponivel)
             break
-        case 'Funcao':
+        case routeList.funcao:
             res.json(errorIndisponivel)
             break
-        case 'Livro':
+        case routeList.livro:
             res.json(errorIndisponivel)
             break
-        case 'PessoaGaleria':
+        case routeList.pessoaGaleria:
             res.json(errorIndisponivel)
             break
-        case 'Pessoa':
+        case routeList.pessoa:
             res.json(errorIndisponivel)
             break
-        case 'Publicador':
+        case routeList.publicador:
             res.json(errorIndisponivel)
             break
-        case 'Saga':
+        case routeList.saga:
             res.json(errorIndisponivel)
             break
-        case 'Serie':
+        case routeList.serie:
             res.json(errorIndisponivel)
             break
-        case 'SlfjGaleria':
+        case routeList.slfjGaleria:
             res.json(errorIndisponivel)
             break
-        case 'SlfjPessoaFuncao':
+        case routeList.slfjPessoaFuncao:
             res.json(errorIndisponivel)
             break
-        case 'SlfjTipo':
+        case routeList.slfjTipo:
             res.json(errorIndisponivel)
             break
-        case 'SlfjVideo':
+        case routeList.slfjVideo:
             res.json(errorIndisponivel)
             break
-        case 'Slfj':
+        case routeList.slfj:
             res.json(errorIndisponivel)
             break
-        case 'TemporadaGaleria':
+        case routeList.temporadaGaleria:
             res.json(errorIndisponivel)
             break
-        case 'TemporadaVideo':
+        case routeList.temporadaVideo:
             res.json(errorIndisponivel)
             break
-        case 'Temporada':
+        case routeList.temporada:
             res.json(errorIndisponivel)
             break
-        case 'Tipo':
+        case routeList.tipo:
             res.json(errorIndisponivel)
             break
-        case 'TvPG':
+        case routeList.tvPG:
             res.json(errorIndisponivel)
             break
-        case 'UserEpisodioRating':
+        case routeList.userEpisodioRating:
             res.json(errorIndisponivel)
             break
-        case 'UserFilmeRating':
+        case routeList.userFilmeRating:
             res.json(errorIndisponivel)
             break
-        case 'UserJogoRating':
+        case routeList.userJogoRating:
             res.json(errorIndisponivel)
             break
-        case 'UserLivroRating':
+        case routeList.userLivroRating:
             res.json(errorIndisponivel)
             break
-        case 'UserPessoaHistorico':
+        case routeList.userPessoaHistorico:
             res.json(errorIndisponivel)
             break
-        case 'UserSlfjComentarioRating':
+        case routeList.userSlfjComentarioRating:
             res.json(errorIndisponivel)
             break
-        case 'UserSlfjComentario':
+        case routeList.userSlfjComentario:
             res.json(errorIndisponivel)
             break
-        case 'UserSlfjHistorico':
+        case routeList.userSlfjHistorico:
             res.json(errorIndisponivel)
             break
         default:
@@ -123,104 +159,104 @@ app.get('/API/:tabela', (req, res, next) => { //Search
     }
 }).post('/API/:tabela', (req, res, next) => { //Create
     switch (req.params.tabela) {
-        case 'Categoria':
+        case routeList.categoria:
             if(req.query.descricao) api.categoria.CreateCategoria(String(req.query.descricao), (error, result) => res.json((error) ? {error} : {result}))
             else res.json(errorParametros) 
             break
-        case 'Desenvolvedor':
+        case routeList.desenvolvedor:
             res.json(errorIndisponivel)
             break
-        case 'Editora':
+        case routeList.editora:
             res.json(errorIndisponivel)
             break
-        case 'Engine':
+        case routeList.engine:          
             res.json(errorIndisponivel)
             break
-        case 'EpisodioGaleria':
+        case routeList.episodioGaleria:
             res.json(errorIndisponivel)
             break
-        case 'Episodio':
+        case routeList.episodio:
             res.json(errorIndisponivel)
             break
-        case 'FilmePG':
+        case routeList.filmePG:
             res.json(errorIndisponivel)
             break
-        case 'Filme':
+        case routeList.filme:
             res.json(errorIndisponivel)
             break
-        case 'Funcao':
+        case routeList.funcao:
             res.json(errorIndisponivel)
             break
-        case 'Livro':
+        case routeList.livro:
             res.json(errorIndisponivel)
             break
-        case 'PessoaGaleria':
+        case routeList.pessoaGaleria:
             res.json(errorIndisponivel)
             break
-        case 'Pessoa':
+        case routeList.pessoa:
             res.json(errorIndisponivel)
             break
-        case 'Publicador':
+        case routeList.publicador:
             res.json(errorIndisponivel)
             break
-        case 'Saga':
+        case routeList.saga:
             res.json(errorIndisponivel)
             break
-        case 'Serie':
+        case routeList.serie:
             res.json(errorIndisponivel)
             break
-        case 'SlfjGaleria':
+        case routeList.slfjGaleria:
             res.json(errorIndisponivel)
             break
-        case 'SlfjPessoaFuncao':
+        case routeList.slfjPessoaFuncao:
             res.json(errorIndisponivel)
             break
-        case 'SlfjTipo':
+        case routeList.slfjTipo:
             res.json(errorIndisponivel)
             break
-        case 'SlfjVideo':
+        case routeList.slfjVideo:
             res.json(errorIndisponivel)
             break
-        case 'Slfj':
+        case routeList.slfj:
             res.json(errorIndisponivel)
             break
-        case 'TemporadaGaleria':
+        case routeList.temporadaGaleria:
             res.json(errorIndisponivel)
             break
-        case 'TemporadaVideo':
+        case routeList.temporadaVideo:
             res.json(errorIndisponivel)
             break
-        case 'Temporada':
+        case routeList.temporada:
             res.json(errorIndisponivel)
             break
-        case 'Tipo':
+        case routeList.tipo:
             res.json(errorIndisponivel)
             break
-        case 'TvPG':
+        case routeList.tvPG:
             res.json(errorIndisponivel)
             break
-        case 'UserEpisodioRating':
+        case routeList.userEpisodioRating:
             res.json(errorIndisponivel)
             break
-        case 'UserFilmeRating':
+        case routeList.userFilmeRating:
             res.json(errorIndisponivel)
             break
-        case 'UserJogoRating':
+        case routeList.userJogoRating:
             res.json(errorIndisponivel)
             break
-        case 'UserLivroRating':
+        case routeList.userLivroRating:
             res.json(errorIndisponivel)
             break
-        case 'UserPessoaHistorico':
+        case routeList.userPessoaHistorico:
             res.json(errorIndisponivel)
             break
-        case 'UserSlfjComentarioRating':
+        case routeList.userSlfjComentarioRating:
             res.json(errorIndisponivel)
             break
-        case 'UserSlfjComentario':
+        case routeList.userSlfjComentario:
             res.json(errorIndisponivel)
             break
-        case 'UserSlfjHistorico':
+        case routeList.userSlfjHistorico:
             res.json(errorIndisponivel)
             break
         default:
@@ -229,104 +265,104 @@ app.get('/API/:tabela', (req, res, next) => { //Search
     }
 }).put('/API/:tabela', (req, res, next) => { //Update
     switch (req.params.tabela) {
-        case 'Categoria':
+        case routeList.categoria:
             if (req.query.id && req.query.descricao) api.categoria.UpdateCategoria(Number(req.query.id), String(req.query.descricao), (error, result) => res.json((error) ? {error} : {result}))
             else res.json(errorParametros) 
             break
-        case 'Desenvolvedor':
+        case routeList.desenvolvedor:
             res.json(errorIndisponivel)
             break
-        case 'Editora':
+        case routeList.editora:
             res.json(errorIndisponivel)
             break
-        case 'Engine':
+        case routeList.engine:          
             res.json(errorIndisponivel)
             break
-        case 'EpisodioGaleria':
+        case routeList.episodioGaleria:
             res.json(errorIndisponivel)
             break
-        case 'Episodio':
+        case routeList.episodio:
             res.json(errorIndisponivel)
             break
-        case 'FilmePG':
+        case routeList.filmePG:
             res.json(errorIndisponivel)
             break
-        case 'Filme':
+        case routeList.filme:
             res.json(errorIndisponivel)
             break
-        case 'Funcao':
+        case routeList.funcao:
             res.json(errorIndisponivel)
             break
-        case 'Livro':
+        case routeList.livro:
             res.json(errorIndisponivel)
             break
-        case 'PessoaGaleria':
+        case routeList.pessoaGaleria:
             res.json(errorIndisponivel)
             break
-        case 'Pessoa':
+        case routeList.pessoa:
             res.json(errorIndisponivel)
             break
-        case 'Publicador':
+        case routeList.publicador:
             res.json(errorIndisponivel)
             break
-        case 'Saga':
+        case routeList.saga:
             res.json(errorIndisponivel)
             break
-        case 'Serie':
+        case routeList.serie:
             res.json(errorIndisponivel)
             break
-        case 'SlfjGaleria':
+        case routeList.slfjGaleria:
             res.json(errorIndisponivel)
             break
-        case 'SlfjPessoaFuncao':
+        case routeList.slfjPessoaFuncao:
             res.json(errorIndisponivel)
             break
-        case 'SlfjTipo':
+        case routeList.slfjTipo:
             res.json(errorIndisponivel)
             break
-        case 'SlfjVideo':
+        case routeList.slfjVideo:
             res.json(errorIndisponivel)
             break
-        case 'Slfj':
+        case routeList.slfj:
             res.json(errorIndisponivel)
             break
-        case 'TemporadaGaleria':
+        case routeList.temporadaGaleria:
             res.json(errorIndisponivel)
             break
-        case 'TemporadaVideo':
+        case routeList.temporadaVideo:
             res.json(errorIndisponivel)
             break
-        case 'Temporada':
+        case routeList.temporada:
             res.json(errorIndisponivel)
             break
-        case 'Tipo':
+        case routeList.tipo:
             res.json(errorIndisponivel)
             break
-        case 'TvPG':
+        case routeList.tvPG:
             res.json(errorIndisponivel)
             break
-        case 'UserEpisodioRating':
+        case routeList.userEpisodioRating:
             res.json(errorIndisponivel)
             break
-        case 'UserFilmeRating':
+        case routeList.userFilmeRating:
             res.json(errorIndisponivel)
             break
-        case 'UserJogoRating':
+        case routeList.userJogoRating:
             res.json(errorIndisponivel)
             break
-        case 'UserLivroRating':
+        case routeList.userLivroRating:
             res.json(errorIndisponivel)
             break
-        case 'UserPessoaHistorico':
+        case routeList.userPessoaHistorico:
             res.json(errorIndisponivel)
             break
-        case 'UserSlfjComentarioRating':
+        case routeList.userSlfjComentarioRating:
             res.json(errorIndisponivel)
             break
-        case 'UserSlfjComentario':
+        case routeList.userSlfjComentario:
             res.json(errorIndisponivel)
             break
-        case 'UserSlfjHistorico':
+        case routeList.userSlfjHistorico:
             res.json(errorIndisponivel)
             break
         default:
@@ -335,104 +371,104 @@ app.get('/API/:tabela', (req, res, next) => { //Search
     }
 }).delete('/API/:tabela', (req, res, next) => { //Delete
     switch (req.params.tabela) {
-        case 'Categoria':
+        case routeList.categoria:
             if (req.query.id) api.categoria.DeleteCategoria(Number(req.query.id), (error, result) => res.json((error) ? {error} : {result}))
             else res.json(errorParametros) 
             break
-        case 'Desenvolvedor':
+        case routeList.desenvolvedor:
             res.json(errorIndisponivel)
             break
-        case 'Editora':
+        case routeList.editora:
             res.json(errorIndisponivel)
             break
-        case 'Engine':
+        case routeList.engine:          
             res.json(errorIndisponivel)
             break
-        case 'EpisodioGaleria':
+        case routeList.episodioGaleria:
             res.json(errorIndisponivel)
             break
-        case 'Episodio':
+        case routeList.episodio:
             res.json(errorIndisponivel)
             break
-        case 'FilmePG':
+        case routeList.filmePG:
             res.json(errorIndisponivel)
             break
-        case 'Filme':
+        case routeList.filme:
             res.json(errorIndisponivel)
             break
-        case 'Funcao':
+        case routeList.funcao:
             res.json(errorIndisponivel)
             break
-        case 'Livro':
+        case routeList.livro:
             res.json(errorIndisponivel)
             break
-        case 'PessoaGaleria':
+        case routeList.pessoaGaleria:
             res.json(errorIndisponivel)
             break
-        case 'Pessoa':
+        case routeList.pessoa:
             res.json(errorIndisponivel)
             break
-        case 'Publicador':
+        case routeList.publicador:
             res.json(errorIndisponivel)
             break
-        case 'Saga':
+        case routeList.saga:
             res.json(errorIndisponivel)
             break
-        case 'Serie':
+        case routeList.serie:
             res.json(errorIndisponivel)
             break
-        case 'SlfjGaleria':
+        case routeList.slfjGaleria:
             res.json(errorIndisponivel)
             break
-        case 'SlfjPessoaFuncao':
+        case routeList.slfjPessoaFuncao:
             res.json(errorIndisponivel)
             break
-        case 'SlfjTipo':
+        case routeList.slfjTipo:
             res.json(errorIndisponivel)
             break
-        case 'SlfjVideo':
+        case routeList.slfjVideo:
             res.json(errorIndisponivel)
             break
-        case 'Slfj':
+        case routeList.slfj:
             res.json(errorIndisponivel)
             break
-        case 'TemporadaGaleria':
+        case routeList.temporadaGaleria:
             res.json(errorIndisponivel)
             break
-        case 'TemporadaVideo':
+        case routeList.temporadaVideo:
             res.json(errorIndisponivel)
             break
-        case 'Temporada':
+        case routeList.temporada:
             res.json(errorIndisponivel)
             break
-        case 'Tipo':
+        case routeList.tipo:
             res.json(errorIndisponivel)
             break
-        case 'TvPG':
+        case routeList.tvPG:
             res.json(errorIndisponivel)
             break
-        case 'UserEpisodioRating':
+        case routeList.userEpisodioRating:
             res.json(errorIndisponivel)
             break
-        case 'UserFilmeRating':
+        case routeList.userFilmeRating:
             res.json(errorIndisponivel)
             break
-        case 'UserJogoRating':
+        case routeList.userJogoRating:
             res.json(errorIndisponivel)
             break
-        case 'UserLivroRating':
+        case routeList.userLivroRating:
             res.json(errorIndisponivel)
             break
-        case 'UserPessoaHistorico':
+        case routeList.userPessoaHistorico:
             res.json(errorIndisponivel)
             break
-        case 'UserSlfjComentarioRating':
+        case routeList.userSlfjComentarioRating:
             res.json(errorIndisponivel)
             break
-        case 'UserSlfjComentario':
+        case routeList.userSlfjComentario:
             res.json(errorIndisponivel)
             break
-        case 'UserSlfjHistorico':
+        case routeList.userSlfjHistorico:
             res.json(errorIndisponivel)
             break
         default:
