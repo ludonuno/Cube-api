@@ -21,7 +21,7 @@ const episodioGaleria           = require('./tabelas/episodio_galeria.js')
 const temporada                 = require('./tabelas/temporada.js')
 const temporadaGaleria          = require('./tabelas/temporada_galeria.js')
 const temporadaVideo            = require('./tabelas/temporada_video.js')
-const tvPg                      = require('./tabelas/tv_pg.js')
+const tvPG                      = require('./tabelas/tv_pg.js')
 
 //livro
 const livro                     = require('./tabelas/livro.js')
@@ -29,7 +29,7 @@ const editora                   = require('./tabelas/editora.js')
 
 //filme
 const filme                     = require('./tabelas/filme.js')
-const filmePg                   = require('./tabelas/filme_pg.js')
+const filmePG                   = require('./tabelas/filme_pg.js')
 
 //jogo
 const jogo                      = require('./tabelas/jogo.js')
@@ -64,7 +64,7 @@ module.exports = {
     episodio,
     episodioGaleria,
     filme,
-    filmePg,
+    filmePG,
     funcao,
     jogo,
     livro,
@@ -82,7 +82,7 @@ module.exports = {
     temporadaGaleria,
     temporadaVideo,
     tipo,
-    tvPg,
+    tvPG,
     user,
     userEpisodioRating,
     userFilmeRating,

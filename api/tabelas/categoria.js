@@ -1,61 +1,64 @@
-//Handle the Categoria(s) data with the API
+//Handle the Categoria(s) data from the table my_categoria
 
 const db = require('./../../db')
 const sizeOf = require('object-sizeof')
 
-const errorMessageDB = 'Ocorreu um problema na base de dados'
-const noDataMessageDB = 'Não foram encontrados registos com o id pretendido'
-const dataExistsMessageDB = 'Categoria existente'
+//TODO: Adicionar a verificação de formatação dos dados nos handlers scripts das tabelas !!!! Atenção aos textos para serem url friendly (ex: terem ? para nao dar erro dos parametros)
+
+const tabela = {
+    tabela: 'my_categoria',
+    id: 'categoria_id',
+    descricao: 'categoria_descricao'
+}
 
 var GetAllCategorias = (callback) => {
-    db.query('SELECT * FROM my_categoria', (error, result) => {
-        if (error) callback(errorMessageDB, undefined)
-        else if (!sizeOf(result.rows)) callback('Sem registos', undefined)
+    db.query(`SELECT * FROM ${tabela.tabela}`, (error, result) => {
+        if (error) callback(db.message.error, undefined)
+        else if (!sizeOf(result.rows)) callback(db.message.dataNotFound, undefined)
         else callback(undefined, result.rows)
     })
 }
 
 var GetCategoriaById = (id, callback) => {
     if (!isNaN(id)) {
-        db.query(`SELECT * FROM my_categoria WHERE categoria_id = ${id}`, (error, result) => {
-            if (error) callback(errorMessageDB, undefined)
-            else if (!sizeOf(result.rows[0])) callback(noDataMessageDB, undefined) //sizeOf is 0?
+        db.query(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`, (error, result) => {
+            if (error) callback(db.message.error, undefined)
+            else if (!sizeOf(result.rows[0])) callback(db.message.dataNotFound, undefined) //sizeOf is 0?
             else callback(undefined, result.rows[0]) 
         })
     } else callback('O tipo de dado fornecido não é válido', undefined)
 }
 
 var GetCategoriaByDescricao = (descricao, callback) => {
-    //TODO: verificar a SQL injection
-    db.query(`SELECT * FROM my_categoria WHERE categoria_descricao = '${descricao.toLowerCase()}'`, (error, result) => {
-        if (error) callback(errorMessageDB, undefined)
-        else if (!sizeOf(result.rows[0])) callback(noDataMessageDB, undefined) //sizeOf is 0?
+    db.query(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.descricao} LIKE '${descricao.toLowerCase()}'`, (error, result) => {
+        if (error) callback(db.message.error, undefined)
+        else if (!sizeOf(result.rows[0])) callback(db.message.dataNotFound, undefined) //sizeOf is 0?
         else callback(undefined, result.rows[0]) 
     })
 }
 
 var CreateCategoria = (descricao, callback) => {
     GetCategoriaByDescricao(descricao, (error, result) => {
-        if (error == noDataMessageDB) {
-            db.query(`INSERT INTO my_categoria (categoria_descricao) VALUES ('${descricao.toLowerCase()}')`, (error, result) => {
-                if (error) callback(errorMessageDB, undefined)
-                else callback(undefined, 'Categoria inserida com sucesso')
+        if (error == db.message.dataNotFound) {
+            db.query(`INSERT INTO ${tabela.tabela} (${tabela.descricao}) VALUES ('${descricao.toLowerCase()}')`, (error, result) => {
+                if (error) callback(db.message.error, undefined)
+                else callback(undefined, 'Registo inserido com sucesso')
             })
         } else if (error) callback(error, undefined)
-        else if (result) callback(dataExistsMessageDB, undefined)
+        else if (result) callback(db.message.dataFound, undefined)
     })
 }
 
 var UpdateCategoria = (id, descricao, callback) => {
     GetCategoriaByDescricao(descricao, (error, result) => {
-        if (result) callback(dataExistsMessageDB, undefined)
-        else if (error == noDataMessageDB){
+        if (result) callback(db.message.dataFound, undefined)
+        else if (error == db.message.dataNotFound){
             GetCategoriaById(id, (error, result) => {
                 if (error) callback(error, undefined)
                 else {
-                    db.query(`UPDATE my_categoria SET categoria_descricao = '${descricao.toLowerCase()}' WHERE categoria_id = ${id}`, (error, result) => {
-                        if (error) callback(errorMessageDB, undefined)
-                        else callback(undefined, 'Categoria alterada com sucesso')
+                    db.query(`UPDATE ${tabela.tabela} SET ${tabela.descricao} = '${descricao.toLowerCase()}' WHERE ${tabela.id} = ${id}`, (error, result) => {
+                        if (error) callback(db.message.error, undefined)
+                        else callback(undefined, 'Registo alterado com sucesso')
                     })
                 }
             })
@@ -67,9 +70,9 @@ var DeleteCategoria = (id, callback) => {
     GetCategoriaById(id, (error, result) => {
         if (error) callback(error, undefined)
         else {
-            db.query(`DELETE FROM my_categoria WHERE categoria_id = ${id}`, (error, result) => {
-                if (error) callback(errorMessageDB, undefined)
-                else callback(undefined, 'Categoria apagada com sucesso')
+            db.query(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`, (error, result) => {
+                if (error) callback(db.message.error, undefined)
+                else callback(undefined, 'Registo apagado com sucesso')
             })
         }
     })

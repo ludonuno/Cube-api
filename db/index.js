@@ -25,4 +25,9 @@ module.exports = {
         .finally(() => pool.end())
     },
     query: (text, callback) => pool.query(text, callback),
+    message: {
+        error: 'Ocorreu um problema na base de dados',
+        dataNotFound: 'Não foram encontrados registos com o(s) parametro(s) pretendido(s)',
+        dataFound: 'Foram encontrados registos com o(s) parametro(s) pretendido(s)'
+    }
 }
