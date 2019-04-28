@@ -130,9 +130,7 @@ app
         } else res.json(errorList.indisponivel);
         break;
       case routeList.pessoa.nome:
-        console.log("ola");
         if (routeList.pessoa.disponibilidade.get) {
-          res.json({ ola: "ola" });
         } else res.json(errorList.indisponivel);
         break;
       case routeList.publicador.nome:

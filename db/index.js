@@ -1,32 +1,11 @@
-const {Pool} = require('pg')
+const { Client } = require('pg');
 
-var pool
+const client = (process.env.DATABASE_URL) ? new Client({ connectionString: process.env.DATABASE_URL, ssl: true}) : new Client({ user: 'postgres', password: 'asop3396', port: 5432, host: 'localhost', database: 'cube'})
 
-if (process.env.DATABASE_URL) {
-    pool = new Pool({
-        connectionString: process.env.DATABASE_URL,
-        ssl: true
-    })
-} else {
-    pool = new Pool({
-        user: 'postgres',
-        password: 'asop3396',
-        port: 5432,
-        host: 'localhost',
-        database: 'cube'
-    })
-}
-
-console.log(pool)
+client.connect();
 
 module.exports = {
-    connect: () => {
-        pool.connect()
-        .then(() => console.log("Connected sucessfuly"))
-        .catch(e => console.error(e))
-        .finally(() => pool.end())
-    },
-    query: (text, callback) => pool.query(text, callback),
+    query: (text, callback) => client.query(text, callback),
     message: {
         error: 'Ocorreu um problema na base de dados',
         dataNotFound: 'Não foram encontrados registos com o(s) parametro(s) pretendido(s)',
