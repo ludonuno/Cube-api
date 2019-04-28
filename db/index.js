@@ -17,6 +17,8 @@ if (process.env.DATABASE_URL) {
     })
 }
 
+console.log(pool)
+
 module.exports = {
     connect: () => {
         pool.connect()

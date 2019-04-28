@@ -9,8 +9,6 @@ const errorList = {
   indisponivel: { error: "Esta URL encontra-se indisponível" }
 };
 
-console.log('teste')
-
 //O campo disponibilidade é para prevenir que os utilizadores utilizem uma rota que tenha erros que possa danificar a base de dados ou a aplicação
 const routeList = {
   categoria:                  { nome: "Categoria",                  disponibilidade: { get: true, post: true, put: true, delete: true } },
