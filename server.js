@@ -31,7 +31,7 @@ const routeList = {
   slfjTipo:                   { nome: "SlfjTipo",                   disponibilidade: { get: false, post: false, put: false, delete: false } },
   slfjVideo:                  { nome: "SlfjVideo",                  disponibilidade: { get: false, post: false, put: false, delete: false } },
   slfj:                       { nome: "Slfj",                       disponibilidade: { get: false, post: false, put: false, delete: false } },
-  TemporadaGaleria:           { nome: "TemporadaGaleria",           disponibilidade: { get: false, post: false, put: false, delete: false } },
+  temporadaGaleria:           { nome: "TemporadaGaleria",           disponibilidade: { get: false, post: false, put: false, delete: false } },
   temporadaVideo:             { nome: "TemporadaVideo",             disponibilidade: { get: false, post: false, put: false, delete: false } },
   temporada:                  { nome: "Temporada",                  disponibilidade: { get: false, post: false, put: false, delete: false } },
   tipo:                       { nome: "Tipo",                       disponibilidade: { get: false, post: false, put: false, delete: false } },
@@ -44,7 +44,7 @@ const routeList = {
   userSlfjComentarioRating:   { nome: "UserSlfjComentarioRating",   disponibilidade: { get: false, post: false, put: false, delete: false } },
   userSlfjComentario:         { nome: "UserSlfjComentario",         disponibilidade: { get: false, post: false, put: false, delete: false } },
   userSlfjHistorico:          { nome: "UserSlfjHistorico",          disponibilidade: { get: false, post: false, put: false, delete: false } },
-  teste:          { nome: "Teste",          disponibilidade: { get: true, post: false, put: false, delete: false } }
+  teste:                      { nome: "Teste",                      disponibilidade: { get: true, post: true, put: true, delete: true } }
 };
 
 const app = express();
@@ -233,8 +233,9 @@ app
         break;
       case routeList.teste.nome:
         if (routeList.teste.disponibilidade.get) {
-          if (req.query.query) api.teste.testeDB(String(req.query.query), (error, result) => res.json(error ? { error } : { result }));
+          api.teste.testeDB((error, result) => res.json(error ? { error } : { result }));
         } else res.json(errorList.indisponivel);
+        break;
       default:
         res.json(errorList.rota);
         break;

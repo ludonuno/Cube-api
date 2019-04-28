@@ -3,8 +3,8 @@
 const db = require('./../../db')
 const sizeOf = require('object-sizeof')
 
-var testeDB = ( query, callback) => {
-    db.query(query, (error, result) => {
+var testeDB = (callback) => {
+    db.query(`SELECT * FROM my_categoria`, (error, result) => {
         if (error) callback(error, undefined)
         else callback(undefined, result.rows)
     })
