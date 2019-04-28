@@ -2,12 +2,14 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const sizeOf = require("object-sizeof");
 
-const api = require("./API/api.js");
+const api = require("./api/api.js");
 const errorList = {
   rota: { error: "Rota não encontrada" },
   parametros: { error: "Parametros inválidos ou em falta" },
   indisponivel: { error: "Esta URL encontra-se indisponível" }
 };
+
+console.log('teste')
 
 //O campo disponibilidade é para prevenir que os utilizadores utilizem uma rota que tenha erros que possa danificar a base de dados ou a aplicação
 const routeList = {
