@@ -1,4 +1,4 @@
-//Handle the TvPG(s) data from the table my_funcao
+//Handle the TvPG(s) data from the table my_tv_pg
 
 const db = require('./../../db')
 const sizeOf = require('object-sizeof')
