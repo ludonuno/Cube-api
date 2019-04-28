@@ -12,21 +12,35 @@ const tabela = {
 }
 
 var GetAllCategorias = (callback) => {
-    db.query(`SELECT * FROM ${tabela.tabela}`, (error, result) => {
-        if (error) callback(db.message.error, undefined)
-        else if (!sizeOf(result.rows)) callback(db.message.dataNotFound, undefined)
-        else callback(undefined, result.rows)
+    return new Promise ((resolve, reject) => {
+        db.query(`SELECT * FROM ${tabela.tabela}`, (error, result) => {
+            if (error) reject({mensagem: db.message.error, descricao: error})
+            else if (!sizeOf(result)) reject({mensagem: db.message.dataNotFound, descricao: error})
+            else resolve(result)
+        })
+    }).then((resolve) => {
+        callback(undefined, resolve)
+    }, (err) => {
+        callback(err, undefined)
     })
+    
 }
 
 var GetCategoriaById = (id, callback) => {
-    if (!isNaN(id)) {
-        db.query(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`, (error, result) => {
-            if (error) callback(db.message.error, undefined)
-            else if (!sizeOf(result.rows[0])) callback(db.message.dataNotFound, undefined) //sizeOf is 0?
-            else callback(undefined, result.rows[0]) 
-        })
-    } else callback('O tipo de dado fornecido não é válido', undefined)
+    return new Promise((resolve, reject) => {
+        if (!isNaN(id)) {
+            db.query(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`, (error, result) => {
+                if (error) reject({mensagem: db.message.error, descricao: error})
+                else if (!sizeOf(result)) reject({mensagem: db.message.dataNotFound, descricao: error}) //sizeOf is 0?
+                else resolve(result)
+            })
+        } else reject({mensagem: 'O tipo de dado fornecido não é válido'})
+    }).then((resolve) => {
+        callback(undefined, resolve)
+    }, (err) => {
+        callback(err, undefined)
+    })
+    
 }
 
 var GetCategoriaByDescricao = (descricao, callback) => {

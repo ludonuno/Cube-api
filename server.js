@@ -57,9 +57,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //TODO: Eliminar a tabela SlfjSaga e passar o campo saga_id para a tabela my_slfj
 //TODO: Adicionar a verificação de formatação dos dados nos handlers scripts das tabelas !!!! Atenção aos textos para serem url friendly (ex: terem ? para nao dar erro dos parametros)
 
-app
-  .get("/API/:tabela", (req, res, next) => {
-    //Search
+app.get("/API/:tabela", (req, res, next) => { //Search
     switch (req.params.tabela) {
       case routeList.categoria.nome:
         if (routeList.categoria.disponibilidade.get) {
