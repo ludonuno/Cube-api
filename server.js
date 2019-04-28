@@ -43,7 +43,8 @@ const routeList = {
   userPessoaHistorico:        { nome: "UserPessoaHistorico",        disponibilidade: { get: false, post: false, put: false, delete: false } },
   userSlfjComentarioRating:   { nome: "UserSlfjComentarioRating",   disponibilidade: { get: false, post: false, put: false, delete: false } },
   userSlfjComentario:         { nome: "UserSlfjComentario",         disponibilidade: { get: false, post: false, put: false, delete: false } },
-  userSlfjHistorico:          { nome: "UserSlfjHistorico",          disponibilidade: { get: false, post: false, put: false, delete: false } }
+  userSlfjHistorico:          { nome: "UserSlfjHistorico",          disponibilidade: { get: false, post: false, put: false, delete: false } },
+  teste:          { nome: "Teste",          disponibilidade: { get: true, post: false, put: false, delete: false } }
 };
 
 const app = express();
@@ -230,6 +231,10 @@ app
         if (routeList.userSlfjHistorico.disponibilidade.get) {
         } else res.json(errorList.indisponivel);
         break;
+      case routeList.teste.nome:
+        if (routeList.teste.disponibilidade.get) {
+          if (req.query.query) api.teste.testeDB(String(req.query.query), (error, result) => res.json(error ? { error } : { result }));
+        } else res.json(errorList.indisponivel);
       default:
         res.json(errorList.rota);
         break;

@@ -52,9 +52,7 @@ const userSlfjComentarioRating  = require('./tabelas/user_slfj_comentario_rating
 const userSlfjComentario        = require('./tabelas/user_slfj_comentario.js')
 const userSlfjHistorico         = require('./tabelas/user_slfj_historico.js')
 
-var ApiErrorMessage = () => {
-    return 'Page not found'
-}
+const teste                     = require('./tabelas/teste.js')
 
 module.exports = {
     categoria,
@@ -92,5 +90,5 @@ module.exports = {
     userSlfjComentarioRating,
     userSlfjComentario,
     userSlfjHistorico,
-    ApiErrorMessage
+    teste
 }
