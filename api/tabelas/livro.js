@@ -1,4 +1,7 @@
 //Handle the Livro(s) data with the API
+
+const slfj = require('./slfj.js')
+
 var GetAllLivros = () => {
     console.log('GetAllLivros')
 }

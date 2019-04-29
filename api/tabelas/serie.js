@@ -1,7 +1,6 @@
 //Handle the Serie(s) data with the API
-var GetAllSeries = () => {
-    console.log('GetAllSeries')
-}
+
+const slfj = require('./slfj.js')
 
 var GetSerie = (id) => {
     return `GetSerie(id:${id})`
@@ -19,7 +18,6 @@ var DeleteSerie = () => {
 }
 
 module.exports = {
-    GetAllSeries,
     GetSerie,
     CreateSerie,
     UpdateSerie,

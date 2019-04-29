@@ -1,4 +1,7 @@
 //Handle the Filme(s) data with the API
+
+const slfj = require('./slfj.js')
+
 var GetAllFilmes = () => {
     console.log('GetAllFilmes')
 }

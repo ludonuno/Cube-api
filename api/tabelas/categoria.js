@@ -11,91 +11,91 @@ const tabela = {
     descricao: 'categoria_descricao'
 }
 
-var GetAllCategorias = (callback) => {
+var GetCategoria = (id, descricao, callback) => {
     return new Promise ((resolve, reject) => {
-        db.query(`SELECT * FROM ${tabela.tabela}`, (error, result) => {
-            if (error) reject({mensagem: db.message.error, descricao: error})
-            else if (!sizeOf(result)) reject({mensagem: db.message.dataNotFound, descricao: error})
-            else resolve(result)
+        let query
+        
+        if ( id || descricao ) {
+            if(id && isNaN(id)) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`
+            else if(descricao) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.descricao} like '%${descricao}%'`
+        } else query = `SELECT * FROM ${tabela.tabela}`
+
+        if(query) {
+            db.query(query, (error, result) => {
+                if (error) reject(db.message.internalError)
+                else if (!sizeOf(result)) reject(db.message.dataNotFound)
+                else resolve(result)
+            })
+        } else reject(db.message.dataError)
+
+    }).then((resolve) => {
+        callback(undefined, resolve)
+    }, (err) => {
+        callback(err, undefined)
+    })
+}
+
+var CreateCategoria = (descricao, callback) => {
+    return new Promise((resolve, reject) => {
+        GetCategoria(undefined, descricao, (error, result) => {
+            if (error == db.message.dataNotFound) {
+                db.query(`INSERT INTO ${tabela.tabela} (${tabela.descricao}) VALUES ('${descricao}')`, (error, result) => {
+                    if (error) reject(db.message.internalError)
+                    else resolve('Registo inserido com sucesso')
+                })
+            } else if (error) reject(error)
+            else if (result) reject(db.message.dataFound)
         })
     }).then((resolve) => {
         callback(undefined, resolve)
     }, (err) => {
         callback(err, undefined)
     })
-    
 }
 
-var GetCategoriaById = (id, callback) => {
+var UpdateCategoria = (id, descricao, callback) => {
     return new Promise((resolve, reject) => {
-        if (!isNaN(id)) {
-            db.query(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`, (error, result) => {
-                if (error) reject({mensagem: db.message.error, descricao: error})
-                else if (!sizeOf(result)) reject({mensagem: db.message.dataNotFound, descricao: error}) //sizeOf is 0?
-                else resolve(result)
-            })
-        } else reject({mensagem: 'O tipo de dado fornecido não é válido'})
+        GetCategoria(undefined, descricao, (error, result) => {
+            if (result) reject(db.message.dataFound)
+            else if (error == db.message.dataNotFound){
+                GetCategoria(id, undefined, (error, result) => {
+                    if (error) reject(error)
+                    else {
+                        db.query(`UPDATE ${tabela.tabela} SET ${tabela.descricao} = '${descricao}' WHERE ${tabela.id} = ${id}`, (error, result) => {
+                            if (error) reject(db.message.internalError)
+                            else resolve('Registo alterado com sucesso')
+                        })
+                    }
+                })
+            } else reject(error)
+        })
     }).then((resolve) => {
         callback(undefined, resolve)
     }, (err) => {
         callback(err, undefined)
     })
-    
-}
-
-var GetCategoriaByDescricao = (descricao, callback) => {
-    db.query(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.descricao} LIKE '${descricao.toLowerCase()}'`, (error, result) => {
-        if (error) callback(db.message.error, undefined)
-        else if (!sizeOf(result.rows[0])) callback(db.message.dataNotFound, undefined) //sizeOf is 0?
-        else callback(undefined, result.rows[0]) 
-    })
-}
-
-var CreateCategoria = (descricao, callback) => {
-    GetCategoriaByDescricao(descricao, (error, result) => {
-        if (error == db.message.dataNotFound) {
-            db.query(`INSERT INTO ${tabela.tabela} (${tabela.descricao}) VALUES ('${descricao.toLowerCase()}')`, (error, result) => {
-                if (error) callback(db.message.error, undefined)
-                else callback(undefined, 'Registo inserido com sucesso')
-            })
-        } else if (error) callback(error, undefined)
-        else if (result) callback(db.message.dataFound, undefined)
-    })
-}
-
-var UpdateCategoria = (id, descricao, callback) => {
-    GetCategoriaByDescricao(descricao, (error, result) => {
-        if (result) callback(db.message.dataFound, undefined)
-        else if (error == db.message.dataNotFound){
-            GetCategoriaById(id, (error, result) => {
-                if (error) callback(error, undefined)
-                else {
-                    db.query(`UPDATE ${tabela.tabela} SET ${tabela.descricao} = '${descricao.toLowerCase()}' WHERE ${tabela.id} = ${id}`, (error, result) => {
-                        if (error) callback(db.message.error, undefined)
-                        else callback(undefined, 'Registo alterado com sucesso')
-                    })
-                }
-            })
-        } else callback(error, undefined)
-    })
 }
 
 var DeleteCategoria = (id, callback) => {
-    GetCategoriaById(id, (error, result) => {
-        if (error) callback(error, undefined)
-        else {
-            db.query(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`, (error, result) => {
-                if (error) callback(db.message.error, undefined)
-                else callback(undefined, 'Registo apagado com sucesso')
-            })
-        }
+    return new Promise((resolve, reject) => {
+        GetCategoria(id, undefined, (error, result) => {
+            if (error) reject(error)
+            else {
+                db.query(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`, (error, result) => {
+                    if (error) reject(db.message.internalError)
+                    else resolve('Registo apagado com sucesso')
+                })
+            }
+        })
+    }).then((resolve) => {
+        callback(undefined, resolve)
+    }, (err) => {
+        callback(err, undefined)
     })
 }
 
 module.exports = {
-    GetAllCategorias,
-    GetCategoriaById,
-    GetCategoriaByDescricao,
+    GetCategoria,
     CreateCategoria,
     UpdateCategoria,
     DeleteCategoria

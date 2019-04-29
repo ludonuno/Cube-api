@@ -12,36 +12,41 @@ const tabela = {
     rate: 'tv_pg_rate',
     descricao: 'tv_pg_descricao'
 }
-var GetAllTvPGs = (callback) => {
-    db.query(`SELECT * FROM ${tabela.tabela}`, (error, result) => {
-        if (error) callback(db.message.error, undefined)
-        else if (!sizeOf(result.rows)) callback(db.message.dataNotFound, undefined)
-        else callback(undefined, result.rows)
-    })
-}
 
-var GetTvPGById = (id, callback) => {
-    if (!isNaN(id)) {
-        db.query(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`, (error, result) => {
-            if (error) callback(db.message.error, undefined)
-            else if (!sizeOf(result.rows[0])) callback(db.message.dataNotFound, undefined) //sizeOf is 0?
-            else callback(undefined, result.rows[0]) 
-        })
-    } else callback('O tipo de dado fornecido não é válido', undefined)
-}
+var GetTvPG = (id, rate, callback) => {
+    return new Promise ((resolve, reject) => {
+        let query
 
-var GetTvPGByRate = (rate, callback) => {
-    db.query(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.rate} LIKE '${rate.toLowerCase()}'`, (error, result) => {
-        if (error) callback(db.message.error, undefined)
-        else if (!sizeOf(result.rows[0])) callback(db.message.dataNotFound, undefined) //sizeOf is 0?
-        else callback(undefined, result.rows[0]) 
+        if ( id || rate ) {
+            if(id && isNaN(id)) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`
+            else if(rate) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.rate} like '%${rate}%'`
+        } else query = `SELECT * FROM ${tabela.tabela}`
+        
+        if(query) {
+            db.query(query, (error, result) => {
+                if (error) reject(db.message.internalError)
+                else if (!sizeOf(result)) reject(db.message.dataNotFound)
+                else resolve(result)
+            })
+        } else reject(db.message.dataError)
+
+    }).then((resolve) => {
+        callback(undefined, resolve)
+    }, (err) => {
+        callback(err, undefined)
     })
 }
 
 var CreateTvPG = (rate, descricao, callback) => {
-    GetTvPGByRate(rate, (error, result) => {
+    GetTvPG(undefined, rate, (error, result) => {
         if (error == db.message.dataNotFound) {
-            db.query(`INSERT INTO ${tabela.tabela} (${tabela.rate},${tabela.descricao}) VALUES ('${rate.toLowerCase()}','${descricao.toLowerCase()}')`, (error, result) => {
+            let query =`INSERT INTO ${tabela.tabela}`
+            if(descricao) {
+                query += ` (${tabela.rate},${tabela.descricao}) VALUES ('${rate}','${descricao}')`
+            } else {
+                query += ` (${tabela.rate}) VALUES ('${rate}')`            
+            }
+            db.query(query, (error, result) => {
                 if (error) callback(db.message.error, undefined)
                 else callback(undefined, 'Registo inserido com sucesso')
             })
@@ -50,49 +55,43 @@ var CreateTvPG = (rate, descricao, callback) => {
     })
 }
 
-var CreateTvPGRate = (rate, callback) => {
-    GetTvPGByRate(rate, (error, result) => {
-        if (error == db.message.dataNotFound) {
-            db.query(`INSERT INTO ${tabela.tabela} (${tabela.rate}) VALUES ('${rate.toLowerCase()}')`, (error, result) => {
-                if (error) callback(db.message.error, undefined)
-                else callback(undefined, 'Registo inserido com sucesso')
-            })
-        } else if (error) callback(error, undefined)
-        else if (result) callback(db.message.dataFound, undefined)
-    })
-}
-
-var UpdateTvPGRate = (id, rate, callback) => {
-    GetTvPGByRate(rate, (error, result) => {
-        if (result) callback(db.message.dataFound, undefined)
-        else if (error == db.message.dataNotFound){
-            GetTvPGById(id, (error, result) => {
-                if (error) callback(error, undefined)
-                else {
-                    db.query(`UPDATE ${tabela.tabela} SET ${tabela.rate} = '${rate.toLowerCase()}' WHERE ${tabela.id} = ${id}`, (error, result) => {
-                        if (error) callback(db.message.error, undefined)
-                        else callback(undefined, 'Registo alterado com sucesso')
+var UpdateTvPG = (id, rate, callback) => {
+    return new Promise((resolve, reject) => {
+        GetTvPG(id, undefined, (error, result) => {
+            if (error) reject(error)
+            else {
+                let query = `UPDATE ${tabela.tabela} SET `
+                let numeroParametros = 0
+                if (rate) {
+                    GetTvPG(undefined, rate, (error, result) => {
+                        if(result) reject(db.message.dataFound)
+                        else if (error == db.message.dataNotFound){
+                            query += `${tabela.rate} = '${rate}'`
+                            numeroParametros++
+                        } else reject(error)
                     })
                 }
-            })
-        } else callback(error, undefined)
-    })
-}
-
-var UpdateTvPGDescricao = (id, descricao, callback) => {
-    GetTvPGById(id, (error, result) => {
-        if (error) callback(error, undefined)
-        else {
-            db.query(`UPDATE ${tabela.tabela} SET ${tabela.descricao} = '${descricao.toLowerCase()}' WHERE ${tabela.id} = ${id}`, (error, result) => {
-                if (error) callback(db.message.error, undefined)
-                else callback(undefined, 'Registo alterado com sucesso')
-            })
-        }
+                if (descricao) {
+                    if (numeroParametros) query += ', '
+                    query += `${tabela.descricao} = '${descricao}'`
+                    numeroParametros++
+                }
+                query += ` WHERE ${tabela.id} = ${id}`
+                db.query(query, (error, result) => {
+                    if (error) reject(db.message.error)
+                    else resolve('Registo alterado com sucesso')
+                })
+            }
+        })        
+    }).then((resolve) => {
+        callback(undefined, resolve)
+    }, (err) => {
+        callback(err, undefined)
     })
 }
 
 var DeleteTvPG = (id, callback) => {
-    GetTvPGById(id, (error, result) => {
+    GetTvPG(id, undefined, (error, result) => {
         if (error) callback(error, undefined)
         else {
             db.query(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`, (error, result) => {
@@ -104,12 +103,8 @@ var DeleteTvPG = (id, callback) => {
 }
 
 module.exports = {
-    GetAllTvPGs,
-    GetTvPGById,
-    GetTvPGByRate,
+    GetTvPG,
     CreateTvPG,
-    CreateTvPGRate,
-    UpdateTvPGRate,
-    UpdateTvPGDescricao,
+    UpdateTvPG,
     DeleteTvPG
 }

@@ -52,8 +52,6 @@ const userSlfjComentarioRating  = require('./tabelas/user_slfj_comentario_rating
 const userSlfjComentario        = require('./tabelas/user_slfj_comentario.js')
 const userSlfjHistorico         = require('./tabelas/user_slfj_historico.js')
 
-const teste                     = require('./tabelas/teste.js')
-
 module.exports = {
     categoria,
     desenvolvedor,
@@ -89,6 +87,5 @@ module.exports = {
     userPessoaHistorico,
     userSlfjComentarioRating,
     userSlfjComentario,
-    userSlfjHistorico,
-    teste
+    userSlfjHistorico
 }

@@ -18,8 +18,9 @@ query = (text, callback) => {
 module.exports = {
     query,
     message: {
-        error: 'Ocorreu um problema na base de dados',
-        dataNotFound: 'Não foram encontrados registos com o(s) parametro(s) pretendido(s)',
-        dataFound: 'Foram encontrados registos com o(s) parametro(s) pretendido(s)'
+        internalError: 'Ocorreu um problema na base de dados.',
+        dataNotFound: 'Não foram encontrados registos com o(s) parametro(s) pretendido(s).',
+        dataFound: 'Foram encontrados registos com o(s) parametro(s) pretendido(s).',
+        dataError: 'Os tipos de dados não são válidos.'
     }
 }

@@ -11,77 +11,92 @@ const tabela = {
     descricao: 'funcao_descricao'
 }
 
-var GetAllFuncoes = (callback) => {
-    db.query(`SELECT * FROM ${tabela.tabela}`, (error, result) => {
-        if (error) callback(db.message.error, undefined)
-        else if (!sizeOf(result.rows)) callback(db.message.dataNotFound, undefined)
-        else callback(undefined, result.rows)
-    })
-}
+var GetFuncao = (id, descricao, callback) => {
+    return new Promise ((resolve, reject) => {
+        let query
 
-var GetFuncaoById = (id, callback) => {
-    if (!isNaN(id)) {
-        db.query(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`, (error, result) => {
-            if (error) callback(db.message.error, undefined)
-            else if (!sizeOf(result.rows[0])) callback(db.message.dataNotFound, undefined) //sizeOf is 0?
-            else callback(undefined, result.rows[0]) 
-        })
-    } else callback('O tipo de dado fornecido não é válido', undefined)
-}
+        if ( id || descricao ) {
+            if(id && isNaN(id)) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`
+            else if(descricao) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.descricao} like '%${descricao}%'`
+        } else query = `SELECT * FROM ${tabela.tabela}`
 
-var GetFuncaoByDescricao = (descricao, callback) => {
-    db.query(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.descricao} LIKE '${descricao.toLowerCase()}'`, (error, result) => {
-        if (error) callback(db.message.error, undefined)
-        else if (!sizeOf(result.rows[0])) callback(db.message.dataNotFound, undefined) //sizeOf is 0?
-        else callback(undefined, result.rows[0]) 
+        if(query) {
+            db.query(query, (error, result) => {
+                if (error) reject(db.message.internalError)
+                else if (!sizeOf(result)) reject(db.message.dataNotFound)
+                else resolve(result)
+            })
+        } else reject(db.message.dataError)
+
+    }).then((resolve) => {
+        callback(undefined, resolve)
+    }, (err) => {
+        callback(err, undefined)
     })
 }
 
 var CreateFuncao = (descricao, callback) => {
-    GetFuncaoByDescricao(descricao, (error, result) => {
-        if (error == db.message.dataNotFound) {
-            db.query(`INSERT INTO ${tabela.tabela} (${tabela.descricao}) VALUES ('${descricao.toLowerCase()}')`, (error, result) => {
-                if (error) callback(db.message.error, undefined)
-                else callback(undefined, 'Registo inserido com sucesso')
-            })
-        } else if (error) callback(error, undefined)
-        else if (result) callback(db.message.dataFound, undefined)
+    return new Promise((resolve, reject) => {
+        GetFuncao(undefined, descricao, (error, result) => {
+            if (error == db.message.dataNotFound) {
+                db.query(`INSERT INTO ${tabela.tabela} (${tabela.descricao}) VALUES ('${descricao}')`, (error, result) => {
+                    if (error) reject(db.message.error)
+                    else resolve('Registo inserido com sucesso')
+                })
+            } else if (error) reject(error)
+            else if (result) reject(db.message.dataFound)
+        })
+    }).then((resolve) => {
+        callback(undefined, resolve)
+    }, (err) => {
+        callback(err, undefined)
     })
 }
 
 var UpdateFuncao = (id, descricao, callback) => {
-    GetFuncaoByDescricao(descricao, (error, result) => {
-        if (result) callback(db.message.dataFound, undefined)
-        else if (error == db.message.dataNotFound){
-            GetFuncaoById(id, (error, result) => {
-                if (error) callback(error, undefined)
-                else {
-                    db.query(`UPDATE ${tabela.tabela} SET ${tabela.descricao} = '${descricao.toLowerCase()}' WHERE ${tabela.id} = ${id}`, (error, result) => {
-                        if (error) callback(db.message.error, undefined)
-                        else callback(undefined, 'Registo alterado com sucesso')
-                    })
-                }
-            })
-        } else callback(error, undefined)
+    return new Promise((resolve, reject) => {
+        GetFuncao(undefined, descricao, (error, result) => {
+            if (result) reject(db.message.dataFound)
+            else if (error == db.message.dataNotFound){
+                GetFuncao(id, undefined, (error, result) => {
+                    if (error) reject(error)
+                    else {
+                        db.query(`UPDATE ${tabela.tabela} SET ${tabela.descricao} = '${descricao}' WHERE ${tabela.id} = ${id}`, (error, result) => {
+                            if (error) reject(db.message.error)
+                            else resolve('Registo alterado com sucesso')
+                        })
+                    }
+                })
+            } else callback(error, undefined)
+        })
+    }).then((resolve) => {
+        callback(undefined, resolve)
+    }, (err) => {
+        callback(err, undefined)
     })
+    
 }
 
-var DeleteFuncao = (id, callback) => {
-    GetFuncaoById(id, (error, result) => {
-        if (error) callback(error, undefined)
-        else {
-            db.query(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`, (error, result) => {
-                if (error) callback(db.message.error, undefined)
-                else callback(undefined, 'Registo apagado com sucesso')
-            })
-        }
+var DeleteFuncao = (id, callback) => {    
+    return new Promise((resolve, reject) => {
+        GetFuncao(id, undefined, (error, result) => {
+            if (error) reject(error)
+            else {
+                db.query(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`, (error, result) => {
+                    if (error) reject(db.message.error)
+                    else resolve('Registo apagado com sucesso')
+                })
+            }
+        })            
+    }).then((resolve) => {
+        callback(undefined, resolve)
+    }, (err) => {
+        callback(err, undefined)
     })
 }
 
 module.exports = {
-    GetAllFuncoes,
-    GetFuncaoById,
-    GetFuncaoByDescricao,
+    GetFuncao,
     CreateFuncao,
     UpdateFuncao,
     DeleteFuncao

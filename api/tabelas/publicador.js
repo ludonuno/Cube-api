@@ -1,46 +1,39 @@
-//Handle the Publicador(s) data from the table my_publicador
-
 const db = require('./../../db')
 const sizeOf = require('object-sizeof')
-
-//TODO: Adicionar a verificação de formatação dos dados nos handlers scripts das tabelas !!!! Atenção aos textos para serem url friendly (ex: terem ? para nao dar erro dos parametros)
 
 const tabela = {
     tabela: 'my_publicador',
     id: 'publicador_id',
     nome: 'publicador_nome'
 }
+var GetPublicador = (id, nome, callback) => {
+    return new Promise ((resolve, reject) => {
+        let query
 
-var GetAllPublicadores = (callback) => {
-    db.query(`SELECT * FROM ${tabela.tabela}`, (error, result) => {
-        if (error) callback(db.message.error, undefined)
-        else if (!sizeOf(result.rows)) callback(db.message.dataNotFound, undefined)
-        else callback(undefined, result.rows)
-    })
-}
+        if ( id || nome ) {
+            if(id && isNaN(id)) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`
+            else if(nome) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.nome} like '%${nome}%'`
+        } else query = `SELECT * FROM ${tabela.tabela}`
+        
+        if(query) {
+            db.query(query, (error, result) => {
+                if (error) reject(db.message.internalError)
+                else if (!sizeOf(result)) reject(db.message.dataNotFound)
+                else resolve(result)
+            })
+        } else reject(db.message.dataError)
 
-var GetPublicadorById = (id, callback) => {
-    if (!isNaN(id)) {
-        db.query(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`, (error, result) => {
-            if (error) callback(db.message.error, undefined)
-            else if (!sizeOf(result.rows[0])) callback(db.message.dataNotFound, undefined) //sizeOf is 0?
-            else callback(undefined, result.rows[0]) 
-        })
-    } else callback('O tipo de dado fornecido não é válido', undefined)
-}
-
-var GetPublicadorByNome = (nome, callback) => {
-    db.query(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.nome} LIKE '${nome.toLowerCase()}'`, (error, result) => {
-        if (error) callback(db.message.error, undefined)
-        else if (!sizeOf(result.rows[0])) callback(db.message.dataNotFound, undefined) //sizeOf is 0?
-        else callback(undefined, result.rows[0]) 
+    }).then((resolve) => {
+        callback(undefined, resolve)
+    }, (err) => {
+        callback(err, undefined)
     })
 }
 
 var CreatePublicador = (nome, callback) => {
-    GetPublicadorByNome(nome, (error, result) => {
+    GetPublicador(undefined, nome, (error, result) => {
         if (error == db.message.dataNotFound) {
-            db.query(`INSERT INTO ${tabela.tabela} (${tabela.nome}) VALUES ('${nome.toLowerCase()}')`, (error, result) => {
+            db.query(`INSERT INTO ${tabela.tabela} (${tabela.nome}) VALUES ('${nome}')`, (error, result) => {
                 if (error) callback(db.message.error, undefined)
                 else callback(undefined, 'Registo inserido com sucesso')
             })
@@ -50,13 +43,13 @@ var CreatePublicador = (nome, callback) => {
 }
 
 var UpdatePublicador = (id, nome, callback) => {
-    GetPublicadorByNome(nome, (error, result) => {
+    GetPublicador(undefined, nome, (error, result) => {
         if (result) callback(db.message.dataFound, undefined)
         else if (error == db.message.dataNotFound){
-            GetPublicadorById(id, (error, result) => {
+            GetPublicador(id, undefined, (error, result) => {
                 if (error) callback(error, undefined)
                 else {
-                    db.query(`UPDATE ${tabela.tabela} SET ${tabela.nome} = '${nome.toLowerCase()}' WHERE ${tabela.id} = ${id}`, (error, result) => {
+                    db.query(`UPDATE ${tabela.tabela} SET ${tabela.nome} = '${nome}' WHERE ${tabela.id} = ${id}`, (error, result) => {
                         if (error) callback(db.message.error, undefined)
                         else callback(undefined, 'Registo alterado com sucesso')
                     })
@@ -67,7 +60,7 @@ var UpdatePublicador = (id, nome, callback) => {
 }
 
 var DeletePublicador = (id, callback) => {
-    GetPublicadorById(id, (error, result) => {
+    GetPublicador(id, undefined, (error, result) => {
         if (error) callback(error, undefined)
         else {
             db.query(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`, (error, result) => {
@@ -79,9 +72,7 @@ var DeletePublicador = (id, callback) => {
 }
 
 module.exports = {
-    GetAllPublicadores,
-    GetPublicadorById,
-    GetPublicadorByNome,
+    GetPublicador,
     CreatePublicador,
     UpdatePublicador,
     DeletePublicador
