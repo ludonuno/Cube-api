@@ -14,11 +14,11 @@ const tabela = {
     sagaId: 'saga_id'
 }
 
-var GetSLFJ = (id, titulo, categoriaId, sagaId) => {
+var GetSLFJ = (id, titulo, categoriaId, sagaId, callback) => {
     return new Promise ((resolve, reject) => {
         let query
     
-        if(nome && (categoriaId || sagaId)) {
+        if(titulo && (categoriaId || sagaId)) {
             if (categoriaId && sagaId) {
                 categoria.GetCategoria(categoriaId, undefined, (error, result) => {
                     if(result) {
@@ -49,7 +49,6 @@ var GetSLFJ = (id, titulo, categoriaId, sagaId) => {
                 })
             }
         } else query = `SELECT * FROM ${tabela.tabela}`
-        console.log(query)
         if(query) {
             db.query(query, (error, result) => {
                 if (error) reject(db.message.internalError)
@@ -60,13 +59,15 @@ var GetSLFJ = (id, titulo, categoriaId, sagaId) => {
         } else reject(db.message.dataError)
 
     }).then((resolve) => {
+        console.log(resolve)
         callback(undefined, resolve)
     }, (err) => {
+        console.log(err)
         callback(err, undefined)
     })
 }
 
-var CreateSLFJ = (titulo, foto, sinopse, categoriaId, sagaId) => {
+var CreateSLFJ = (titulo, foto, sinopse, categoriaId, sagaId, callback) => {
     return new Promise((resolve, reject) => {
         categoria.GetCategoria(categoriaId, undefined, (error, result) => {
             if (error) reject(error)
@@ -74,6 +75,8 @@ var CreateSLFJ = (titulo, foto, sinopse, categoriaId, sagaId) => {
                 saga.GetSaga(sagaId, undefined, (error, result) => {
                     if (error) reject(error)
                     else {
+                        //TODO: foto e sinopse = undefined
+                        console.log(`INSERT INTO ${tabela.tabela} (${tabela.titulo}, ${tabela.foto}, ${tabela.sinopse}, ${tabela.categoriaId}, ${tabela.sagaId}) VALUES ('${titulo}', ${foto}, '${sinopse}', ${categoriaId}, ${sagaId})`)
                         db.query(`INSERT INTO ${tabela.tabela} (${tabela.titulo}, ${tabela.foto}, ${tabela.sinopse}, ${tabela.categoriaId}, ${tabela.sagaId}) VALUES ('${titulo}', ${foto}, '${sinopse}', ${categoriaId}, ${sagaId})`, (error, result) => {
                             if (error) reject(db.message.internalError)
                             else resolve('Registo inserido com sucesso')
@@ -88,7 +91,7 @@ var CreateSLFJ = (titulo, foto, sinopse, categoriaId, sagaId) => {
         callback(err, undefined)
     })
 }
-var UpdateSLFJ = (id, titulo, foto, sinopse, categoriaId, sagaId) => {
+var UpdateSLFJ = (id, titulo, foto, sinopse, categoriaId, sagaId, callback) => {
     return new Promise((resolve, reject) => {        
         GetSLFJ(id, undefined, undefined, undefined, (error, result) => {
             if (error) reject(error)
@@ -145,7 +148,7 @@ var UpdateSLFJ = (id, titulo, foto, sinopse, categoriaId, sagaId) => {
     })
 }
 
-var DeleteSLFJ = (id) => {
+var DeleteSLFJ = (id, callback) => {
     return new Promise((resolve, reject) => {
         GetSLFJ(id, undefined, undefined, undefined, (error, result) => {
             if (error) reject(error)

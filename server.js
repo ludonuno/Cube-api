@@ -312,7 +312,7 @@ app.get("/API/:tabela", (req, res, next) => { //Search
         break;
       case routeList.slfj.nome:
         if (routeList.slfj.disponibilidade.post) {
-          if (req.query.titulo) api.slfj.CreateSLFJ(req.query.titulo, req.query.foto, req.query.sinopse, req.query.categoriaId, req.query.sagaId, (error, result) => res.json(error ? { error } : { result }));
+          if (req.query.titulo && req.query.categoriaId && req.query.sagaId) api.slfj.CreateSLFJ(req.query.titulo, req.query.foto, req.query.sinopse, req.query.categoriaId, req.query.sagaId, (error, result) => res.json(error ? { error } : { result }));
           else res.json(errorList.parametros);
         } else res.json(errorList.indisponivel);
         break;
