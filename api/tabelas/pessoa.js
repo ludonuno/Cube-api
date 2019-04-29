@@ -19,7 +19,7 @@ var GetPessoa = (id, nome, dataNascimento, callback) => {
         let query
         if( nome && dataNascimento) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.nome} like '%${nome}%' AND ${tabela.dataNascimento} = '${dataNascimento}'`
         else if ( id || nome || dataNascimento) {
-            if(id && isNaN(id)) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`
+            if(id && isNaN(Number(id))) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`
             else if(nome) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.nome} like '%${nome}%'`
             else if(dataNascimento) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.dataNascimento} = '${dataNascimento}'`
         } else query = `SELECT * FROM ${tabela.tabela}`
