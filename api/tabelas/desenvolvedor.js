@@ -16,7 +16,7 @@ var GetDesenvolvedor = (id, nome, callback) => {
         let query
 
         if ( id || nome ) {
-            if(id && isNaN(Number(id))) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`
+            if(id && !isNaN(Number(id))) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`
             else if(nome) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.nome} like '%${nome}%'`
         } else query = `SELECT * FROM ${tabela.tabela}`
         

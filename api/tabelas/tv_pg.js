@@ -18,7 +18,7 @@ var GetTvPG = (id, rate, callback) => {
         let query
 
         if ( id || rate ) {
-            if(id && isNaN(Number(id))) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`
+            if(id && !isNaN(Number(id))) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`
             else if(rate) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.rate} like '%${rate}%'`
         } else query = `SELECT * FROM ${tabela.tabela}`
         

@@ -37,7 +37,7 @@ var GetSLFJ = (id, titulo, categoriaId, sagaId) => {
                 })
             }
         } else if ( id || titulo || categoriaId || sagaId) {
-            if(id && isNaN(Number(id))) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`
+            if(id && !isNaN(Number(id))) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`
             else if(titulo) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.titulo} like '%${titulo}%'`
             else if(categoriaId) {
                 categoria.GetCategoria(categoriaId, undefined, (error, result) => {

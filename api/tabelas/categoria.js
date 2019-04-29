@@ -16,7 +16,7 @@ var GetCategoria = (id, descricao, callback) => {
         let query
         
         if ( id || descricao ) {
-            if(id && isNaN(Number(id))) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`
+            if(id && !isNaN(Number(id))) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`
             else if(descricao) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.descricao} like '%${descricao}%'`
         } else query = `SELECT * FROM ${tabela.tabela}`
 
