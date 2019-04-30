@@ -1,18 +1,18 @@
-//usar regex
-isIntValid = val => {
-    return new Promise((resolve, reject) => {
+// //usar regex
+// isIntValid = val => {
+//   return new Promise((resolve, reject) => {
+//     if (val) {
+//     } else reject(false);
+//   }).then(
+//     resolve => {
+//       r = true;
+//     },
+//     err => {
+//       return err;
+//     }
+//   );
+// };
 
-    }).then((resolve) => {
-        resolve = true
-    }, (err) => {
-        return false
-    })
-}
+// isStringValid = val => {};
 
-isStringValid = val => {
-
-}
-
-isDateValid = val => {
-
-}
+// isDateValid = val => {};

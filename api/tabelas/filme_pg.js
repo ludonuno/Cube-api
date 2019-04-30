@@ -3,9 +3,6 @@
 const db = require('./../../db')
 const sizeOf = require('object-sizeof')
 
-//TODO: Adicionar a verificação de formatação dos dados nos handlers scripts das tabelas !!!! Atenção aos textos para serem url friendly (ex: terem ? para nao dar erro dos parametros)
-//TODO: verificar que permite a introdução de caracteres especiais no rate (ex: +18)
-
 const tabela = {
     tabela: 'my_filme_pg',
     id: 'filme_pg_id',

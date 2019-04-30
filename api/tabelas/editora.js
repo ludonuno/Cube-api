@@ -3,8 +3,6 @@
 const db = require('./../../db')
 const sizeOf = require('object-sizeof')
 
-//TODO: Adicionar a verificação de formatação dos dados nos handlers scripts das tabelas !!!! Atenção aos textos para serem url friendly (ex: terem ? para nao dar erro dos parametros)
-
 const tabela = {
     tabela: 'my_editora',
     id: 'editora_id',
