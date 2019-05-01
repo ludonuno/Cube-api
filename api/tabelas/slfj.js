@@ -1,6 +1,7 @@
 const db = require("./../../db");
 const sizeOf = require("object-sizeof");
 
+// Tabelas externas
 const categoria = require("./categoria.js");
 const saga = require("./saga.js");
 
@@ -14,312 +15,341 @@ const tabela = {
   sagaId: "saga_id"
 };
 
-//TODO: create métodos para não copiar tanto código
+// Trata da verificação conjunta das tabelas externas
+var VerifyCategoriaSaga = (categoriaId, sagaId, callback) => {
+	return new Promise ((resolve, reject) => {
+		categoria.GetCategoria(categoriaId, undefined, (error, result) => {
+			if (result) {
+				saga.GetSaga(sagaId, undefined, (error, result) => {
+					if (result) resolve(true)
+					else reject(error);
+				});
+			} else reject(error);
+		});
+	}).then(
+		resolve => callback(undefined, resolve),
+		err => callback(err, undefined)
+	);
+}
 
-var GetSLFJ = (id, titulo, categoriaId, sagaId, callback) => {
-  return new Promise((resolve, reject) => {
-    let query;
-    if (categoriaId || sagaId) {
-      if (categoriaId && sagaId) {
-        //Para pedidos que têm categoria e saga
-        categoria.GetCategoria(categoriaId, undefined, (error, result) => {
-          if (result) {
-            saga.GetSaga(sagaId, undefined, (error, result) => {
-              if (result) {
-                if (id && !isNaN(Number(id)) && titulo)
-                  query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id} AND ${tabela.titulo} like '%${titulo}%' AND ${tabela.categoriaId} = ${categoriaId} AND ${tabela.sagaId} = ${sagaId}`;
-                else if (id && !isNaN(Number(id)))
-                  query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id} AND ${tabela.categoriaId} = ${categoriaId} AND ${tabela.sagaId} = ${sagaId}`;
-                else if (titulo)
-                  query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.titulo} like '%${titulo}%' AND ${tabela.categoriaId} = ${categoriaId} AND ${tabela.sagaId} = ${sagaId}`;
-                else
-                  query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.categoriaId} = ${categoriaId} AND ${tabela.sagaId} = ${sagaId}`;
+// Trata dos dados da ação Get que não requerem tabelas externas
+var QueryGetSlfjTabelData = (id, titulo, callback) => {
+	return new Promise((resolve, reject) => {
+		let queryParams = "", numeroParametros = 0
+		if (!isNaN(Number(id))) {
+			queryParams += `${tabela.id} = ${id}`
+			numeroParametros++;
+		} else reject(db.message.dataError)
+		if (titulo) {
+			if (numeroParametros) queryParams += ' AND '
+			queryParams += `${tabela.titulo} LIKE '%${titulo}%'`
+		}
+		resolve(queryParams)
+	}).then(
+		resolve => callback(undefined, resolve),
+		err => callback(err, undefined)
+	)
+}
 
-                db.query(query, (error, result) => {
-                  if (error) reject(db.message.internalError);
-                  else if (!sizeOf(result)) reject(db.message.dataNotFound);
-                  else resolve(result);
-                });
-              } else if (error) reject(error);
-            });
-          } else if (error) reject(error);
-        });
-      } else if (categoriaId) {
-        //Para pedidos que têm categoria
-        categoria.GetCategoria(categoriaId, undefined, (error, result) => {
-          if (result) {
-            if (id && !isNaN(Number(id)) && titulo)
-              query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id} AND ${tabela.titulo} like '%${titulo}%' AND ${tabela.categoriaId} = ${categoriaId}`;
-            else if (id && !isNaN(Number(id)))
-              query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id} AND ${tabela.categoriaId} = ${categoriaId}`;
-            else if (titulo)
-              query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.titulo} like '%${titulo}%' AND ${tabela.categoriaId} = ${categoriaId}`;
-            else
-              query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.categoriaId} = ${categoriaId}`;
+// Trata dos dados da ação Create que não requerem tabelas externas
+var QueryCreateSlfjTabelData = (titulo, foto, sinopse, callback) => {
+	return new Promise((resolve, reject) => {
+		let queryParamsTabelas = "",  queryParamsValues = "", numeroParametros = 0
+		if (titulo) {
+			queryParamsTabelas += `${tabela.titulo}`
+			queryParamsValues += `'${titulo}'`
+			numeroParametros++;
+		}
+		if (foto) { //TODO: Verificar se é código Hex
+			if (numeroParametros) {
+				queryParamsTabelas += ', '
+				queryParamsValues += ', '
+			}
+			queryParamsTabelas += `${tabela.foto}`
+			queryParamsValues += `decode('${foto}', 'hex')`
+			numeroParametros++;
+		}
+		if (sinopse) {
+			if (numeroParametros) {
+				queryParamsTabelas += ', '
+				queryParamsValues += ', '
+			}
+			sinopse = sinopse.replace("'", "%27")
+			queryParamsTabelas += `${tabela.sinopse}`
+			queryParamsValues += `'${sinopse}'`
+		}
+		resolve({tables: queryParamsTabelas, values: queryParamsValues})
+	}).then(
+		resolve => callback(undefined, resolve),
+		err => callback(err, undefined)
+	)
+}
 
-            db.query(query, (error, result) => {
-              if (error) reject(db.message.internalError);
-              else if (!sizeOf(result)) reject(db.message.dataNotFound);
-              else resolve(result);
-            });
-          } else if (error) reject(error);
-        });
-      } else if (sagaId) {
-        //Para pedidos que têm saga
-        saga.GetSaga(sagaId, undefined, (error, result) => {
-          if (result) {
-            if (id && !isNaN(Number(id)) && titulo)
-              query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id} AND ${tabela.titulo} like '%${titulo}%' AND ${tabela.sagaId} = ${sagaId}`;
-            else if (id && !isNaN(Number(id)))
-              query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id} AND ${tabela.sagaId} = ${sagaId}`;
-            else if (titulo)
-              query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.titulo} like '%${titulo}%' AND ${tabela.sagaId} = ${sagaId}`;
-            else
-              query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.sagaId} = ${sagaId}`;
+// Trata dos dados da ação Update que não requerem tabelas externas
+var QueryUpdateSlfjTabelData = (titulo, foto, sinopse, callback) => {
+	return new Promise((resolve, reject) => {
+		let queryParams = "",  numeroParametros = 0
+		if (titulo) {
+			queryParams += `${tabela.titulo} = '${titulo}'`
+			numeroParametros++;
+		}
+		if (foto) { //TODO: Verificar se é código Hex
+			if (numeroParametros) 
+				queryParams += ', '
+			queryParams += `${tabela.foto} = decode('${foto}', 'hex')`
+			numeroParametros++;
+		}
+		if (sinopse) {
+			if (numeroParametros) 
+				queryParams += ', '
+			sinopse = sinopse.replace("'", "%27")
+			queryParams += `${tabela.sinopse} = '${sinopse}'`
+		}
+		resolve(queryParams)
+	}).then(
+		resolve => callback(undefined, resolve),
+		err => callback(err, undefined)
+	)
+}
 
-            db.query(query, (error, result) => {
-              if (error) reject(db.message.internalError);
-              else if (!sizeOf(result)) reject(db.message.dataNotFound);
-              else resolve(result);
-            });
-          } else if (error) reject(error);
-        });
-      }
-    } else if (id || titulo) {
-      //Para pedidos que têm ou id ou titulo ou âmbos
-      if (id && !isNaN(Number(id)) && titulo)
-        query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id} AND ${tabela.titulo} like '%${titulo}%'`;
-      else if (id && !isNaN(Number(id)))
-        query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`;
-      else if (titulo)
-        query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.titulo} like '%${titulo}%'`;
-      if (query) {
-        db.query(query, (error, result) => {
-          if (error) reject(db.message.internalError);
-          else if (!sizeOf(result)) reject(db.message.dataNotFound);
-          else resolve(result);
-        });
-      } else reject(db.message.dataError);
-    } else {
-      //Para registos que não têm parametros, devolve todos os registos
-      query = `SELECT * FROM ${tabela.tabela}`;
-      db.query(query, (error, result) => {
-        if (error) reject(db.message.internalError);
-        else if (!sizeOf(result)) reject(db.message.dataNotFound);
-        else resolve(result);
-      });
-    }
-  }).then(
-    resolve => {
-      callback(undefined, resolve);
-    },
-    err => {
-      callback(err, undefined);
-    }
-  );
+// Trata da query do método Get
+var QueryGetSlfj = (id, titulo, categoriaId, sagaId, callback) => {
+	return new Promise((resolve, reject) => {
+		if (categoriaId || sagaId) { // dados de tabelas externas
+			if(categoriaId && sagaId) {
+				VerifyCategoriaSaga(categoriaId, sagaId, (error, result) => {
+					if (result) {
+						QueryGetSlfjTabelData(id, titulo, (error, result) => {
+							if(error) reject(error)
+							else if (result)resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result} AND ${tabela.categoriaId} = ${categoriaId} AND ${tabela.sagaId} = ${sagaId}`)
+							else resolve(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.categoriaId} = ${categoriaId} AND ${tabela.sagaId} = ${sagaId}`)
+						})
+					} else reject (error)
+				})
+			} else if (categoriaId) {
+				categoria.GetCategoria(categoriaId, undefined, (error, result) => {
+					if (result) {
+						QueryGetSlfjTabelData(id, titulo, (error, result) => {
+							if(error) reject(error)
+							else if (result) resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result} AND ${tabela.categoriaId} = ${categoriaId}`)
+							else resolve(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.categoriaId} = ${categoriaId}`)
+						})
+					} else reject (error)
+				})
+			} else if (sagaId) {
+				saga.GetSaga(sagaId, undefined, (error, result) => {
+					if (result) {
+						QueryGetSlfjTabelData(id, titulo, (error, result) => {
+							if(error) reject(error)
+							else if (result) resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result} AND ${tabela.sagaId} = ${sagaId}`)
+							else resolve(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.sagaId} = ${sagaId}`)
+						})
+					} else reject (error)
+				})
+			}
+		} else if (id || titulo) { // dados internos da tabela
+			QueryGetSlfjTabelData(id, titulo, (error, result) => {
+				if(error) reject(error)
+				else resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result}`)
+			})
+		} else resolve(`SELECT * FROM ${tabela.tabela}`)
+	}).then(
+		resolve => callback(undefined, resolve),
+		err => callback(err, undefined)
+	)
+}
+
+// Trata da query do método Create
+var QueryCreateSlfj = (titulo, foto, sinopse, categoriaId, sagaId, callback) => {
+	return new Promise((resolve, reject) => {
+		VerifyCategoriaSaga(categoriaId, sagaId, (error, result) => {
+			if (result) {
+				QueryCreateSlfjTabelData(titulo, foto, sinopse, (error, result) => {
+					if(error) reject(error)
+					else if (result) resolve(`INSERT INTO ${tabela.tabela} (${result.tables}, ${tabela.categoriaId}, ${tabela.sagaId}) VALUES (${result.values}, ${categoriaId}, ${sagaId})`)
+				})
+			} else reject (error)
+		})
+	}).then(
+		resolve => callback(undefined, resolve),
+		err => callback(err, undefined)
+	)
+}
+
+// Trata da query do método Update
+var QueryUpdateSlfj = (id, titulo, foto, sinopse, categoriaId, sagaId, callback) => {
+	return new Promise((resolve, reject) => {
+		if (categoriaId || sagaId) { // dados de tabelas externas
+			if(categoriaId && sagaId) {
+				VerifyCategoriaSaga(categoriaId, sagaId, (error, result) => {
+					if (result) {
+						QueryUpdateSlfjTabelData(titulo, foto, sinopse, (error, result) => {
+							if(error) reject(error)
+							else if (result) resolve(`UPDATE ${tabela.tabela} SET ${result}, ${tabela.categoriaId} = ${categoriaId}, ${tabela.sagaId} = ${sagaId} WHERE ${tabela.id} = ${id}`)
+							else resolve(`UPDATE ${tabela.tabela} SET ${tabela.categoriaId} = ${categoriaId}, ${tabela.sagaId} = ${sagaId} WHERE ${tabela.id} = ${id}`)
+						})
+					} else reject (error)
+				})
+			} else if (categoriaId) {
+				categoria.GetCategoria(categoriaId, undefined, (error, result) => {
+					if (result) {
+						QueryUpdateSlfjTabelData(titulo, foto, sinopse, (error, result) => {
+							if(error) reject(error)
+							else if (result) resolve(`UPDATE ${tabela.tabela} SET ${result}, ${tabela.categoriaId} = ${categoriaId} WHERE ${tabela.id} = ${id}`)
+							else resolve(`UPDATE ${tabela.tabela} SET ${tabela.categoriaId} = ${categoriaId} WHERE ${tabela.id} = ${id}`)
+						})
+					} else reject (error)
+				})
+			} else if (sagaId) {
+				saga.GetSaga(sagaId, undefined, (error, result) => {
+					if (result) {
+						QueryUpdateSlfjTabelData(titulo, foto, sinopse, (error, result) => {
+							if(error) reject(error)
+							else if (result) resolve(`UPDATE ${tabela.tabela} SET ${result}, ${tabela.sagaId} = ${sagaId} WHERE ${tabela.id} = ${id}`)
+							else resolve(`UPDATE ${tabela.tabela} SET ${tabela.sagaId} = ${sagaId} WHERE ${tabela.id} = ${id}`)
+						})
+					} else reject (error)
+				})
+			}
+		} else { // dados internos da tabela
+			QueryUpdateSlfjTabelData(titulo, foto, sinopse, (error, result) => {
+				if(error) reject(error)
+				else if (result) resolve(`UPDATE ${tabela.tabela} SET ${result} WHERE ${tabela.id} = ${id}`)
+				else reject(error)
+			})
+		}
+	}).then(
+		resolve => callback(undefined, resolve),
+		err => callback(err, undefined)
+	)
+}
+
+// Trata da query do método Delete
+var QueryDeleteSlfj = (id, callback) => {
+	return new Promise((resolve, reject) => {
+		if(!isNaN(Number(id))) resolve(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`)
+		else reject(db.message.dataError)
+	}).then(
+		resolve => callback(undefined, resolve),
+		err => callback(err, undefined)
+	)
+}
+
+// Obtem a query dependendo dos dados que são passados
+var QuerySlfj = (id, titulo, foto, sinopse, categoriaId, sagaId, action, callback) => {
+  	return new Promise ((resolve, reject) => {
+		switch (action) {
+			case 'get': 
+				QueryGetSlfj(id, titulo, categoriaId, sagaId, (error, result) => {
+					if(result) resolve(result)
+					else reject(error)
+				})
+				break;
+			case 'create': 
+				QueryCreateSlfj(titulo, foto, sinopse, categoriaId, sagaId, (error, result) => {
+					if(result) resolve(result)
+					else reject(error)
+				})
+				break;
+			case 'update':
+				QueryUpdateSlfj(id, titulo, foto, sinopse, categoriaId, sagaId, (error, result) => {
+					if(result) resolve(result)
+					else reject(error)
+				})
+				break;
+			case 'delete':
+				QueryDeleteSlfj(id, (error, result) => {
+					if(result) resolve(result)
+					else reject(error)
+				})        
+				break;
+			default:
+				reject(db.message.dataError)
+				break;
+		}
+  	}).then(
+		resolve => callback(undefined, resolve),
+		err => callback(err, undefined)
+	)
+}
+
+//Exports
+var GetSlfj = (id, titulo, categoriaId, sagaId, callback) => {
+  	return new Promise((resolve, reject) => {
+		QuerySlfj(id, titulo, undefined, undefined, categoriaId, sagaId, 'get', (error, result) => {
+			if (result) {
+				db.query(result, (error, result) => {
+					if (error) reject(db.message.internalError);
+					else if (!sizeOf(result)) reject(db.message.dataNotFound);
+					else resolve(result);
+				});
+			} else reject(error)
+		})
+	}).then(
+		resolve => callback(undefined, resolve),
+		err => callback(err, undefined)
+	);
+}		
+
+var CreateSlfj = (titulo, foto, sinopse, categoriaId, sagaId, callback) => {
+	return new Promise((resolve, reject) => {
+		QuerySlfj(undefined, titulo, foto, sinopse, categoriaId, sagaId, 'create', (error, result) => {
+			if (result) {
+				db.query(result, (error, result) => {
+					if (error) reject(db.message.internalError);
+					else resolve("Registo inserido com sucesso");
+				});
+			} else reject(error)
+		})
+	}).then(
+		resolve => callback(undefined, resolve),
+		err => callback(err, undefined)
+	);
 };
 
-var CreateSLFJ = (titulo, foto, sinopse, categoriaId, sagaId, callback) => {
-  return new Promise((resolve, reject) => {
-    categoria.GetCategoria(categoriaId, undefined, (error, result) => {
-      if (error) reject(error);
-      else {
-        saga.GetSaga(sagaId, undefined, (error, result) => {
-          if (error) reject(error);
-          else {
-            //TODO: foto e sinopse = undefined
-            let tabelas = "",
-              values = "",
-              numeroParametros = 0,
-              tabelasExternasInvalidas = 0;
-            if (titulo) {
-              tabelas += `${tabela.titulo}`;
-              values += `'${titulo}'`;
-              numeroParametros++;
-            }
-            if (foto) {
-              if (numeroParametros) {
-                tabelas += `, `;
-                values += `, `;
-              }
-              tabelas += `${tabela.foto}`;
-              values += `${foto}`;
-              numeroParametros++;
-            }
-            if (sinopse) {
-              if (numeroParametros) {
-                tabelas += `, `;
-                values += `, `;
-              }
-              tabelas += `${tabela.sinopse}`;
-              values += `'${sinopse}'`;
-              numeroParametros++;
-            }
-            if (categoriaId) {
-              if (numeroParametros) {
-                tabelas += `, `;
-                values += `, `;
-              }
-              tabelas += `${tabela.categoriaId}`;
-              values += `${categoriaId}`;
-              numeroParametros++;
-            }
-            if (sagaId) {
-              if (numeroParametros) {
-                tabelas += `, `;
-                values += `, `;
-              }
-              tabelas += `${tabela.sagaId}`;
-              values += `${sagaId}`;
-              numeroParametros++;
-            }
-            //FIXME: sinopse não passa ' pelicas
-
-            let query = `INSERT INTO ${
-              tabela.tabela
-            } (${tabelas}) VALUES (${values})`;
-            if (!tabelasExternasInvalidas) {
-              db.query(query, (error, result) => {
-                console.log(error);
-                if (error) reject(db.message.internalError);
-                else resolve("Registo inserido com sucesso");
-              });
-            } else reject(db.message.dataError);
-          }
-        });
-      }
-    });
-  }).then(
-    resolve => {
-      callback(undefined, resolve);
-    },
-    err => {
-      callback(err, undefined);
-    }
-  );
+var UpdateSlfj = (id, titulo, foto, sinopse, categoriaId, sagaId, callback) => {
+	return new Promise((resolve, reject) => {
+		GetSlfj(id, undefined, undefined, undefined, (error, result) => {
+			if(result) {
+				QuerySlfj(id, titulo, foto, sinopse, categoriaId, sagaId, 'update', (error, result) => {
+					if (result) {
+						db.query(result, (error, result) => {
+							if (error) reject(db.message.internalError);
+							else resolve("Registo atualizado com sucesso");
+						});
+					} else reject(error)
+				})
+			} else reject(error)
+		})
+	}).then(
+		resolve => callback(undefined, resolve),
+		err => callback(err, undefined)
+	);
 };
 
-var UpdateSLFJ = (id, titulo, foto, sinopse, categoriaId, sagaId, callback) => {
-  return new Promise((resolve, reject) => {
-    GetSLFJ(id, undefined, undefined, undefined, (error, result) => {
-      if (error) reject(error);
-      else {
-        let query = `UPDATE ${tabela.tabela} SET `,
-          numeroParametros = 0,
-          tabelasExternasInvalidas = 0;
-
-        if (categoriaId || sagaId) {
-          if (categoriaId && sagaId) {
-            categoria.GetCategoria(categoriaId, undefined, (error, result) => {
-              if (result) {
-                saga.GetSaga(sagaId, undefined, (error, result) => {
-                  if (result) {
-                    if (titulo || foto || sinopse) {
-                      // add queryUpdateSLFj ()
-                      if (titulo) {
-                        query += `${tabela.nome} = '${nome}'`;
-                        numeroParametros++;
-                      }
-                      if (foto) {
-                        if (numeroParametros) query += ", ";
-                        query += `${tabela.foto} = ${foto}`;
-                        numeroParametros++;
-                      }
-                      if (sinopse) {
-                        if (numeroParametros) query += ", ";
-                        query += `${
-                          tabela.dataNascimento
-                        } = '${dataNascimento}'`;
-                        numeroParametros++;
-                      }
-                    } else {
-                      query += `${tabela.categoriaId} = ${categoriaId}, ${
-                        tabela.sagaId
-                      } = ${sagaId}`;
-                      //do query
-                    }
-                  } else if (error) reject(error);
-                });
-              } else if (error) reject(error);
-            });
-          } else if (categoriaId) {
-            categoria.GetCategoria(categoriaId, undefined, (error, result) => {
-              if (result) {
-              } else if (error) reject(error);
-            });
-          } else if (sagaId) {
-            saga.GetSaga(sagaId, undefined, (error, result) => {
-              if (result) {
-              } else if (error) reject(error);
-            });
-          }
-        } else if (titulo || foto || sinopse) {
-        }
-
-        if (categoriaId) {
-          categoria.GetCategoria(categoriaId, undefined, (error, result) => {
-            if (result) {
-              if (numeroParametros) query += ", ";
-              query += `${tabela.categoriaId} = ${categoriaId}`;
-              numeroParametros++;
-            } else if (error) tabelasExternasInvalidas++;
-          });
-        }
-        if (sagaId) {
-          saga.GetSaga(sagaId, undefined, (error, result) => {
-            if (result) {
-              if (numeroParametros) query += ", ";
-              query += `${tabela.sagaId} = ${sagaId}`;
-              numeroParametros++;
-            } else if (error) tabelasExternasInvalidas++;
-          });
-        }
-        query += ` WHERE ${tabela.id} = ${id}`;
-        if (!tabelasExternasInvalidas) {
-          db.query(query, (error, result) => {
-            if (error) reject(db.message.error);
-            else resolve("Registo alterado com sucesso");
-          });
-        } else reject(db.message.dataError);
-      }
-    });
-  }).then(
-    resolve => {
-      callback(undefined, resolve);
-    },
-    err => {
-      callback(err, undefined);
-    }
-  );
-};
-
-var DeleteSLFJ = (id, callback) => {
-  return new Promise((resolve, reject) => {
-    GetSLFJ(id, undefined, undefined, undefined, (error, result) => {
-      if (error) reject(error);
-      else {
-        db.query(
-          `DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`,
-          (error, result) => {
-            if (error) reject(db.message.error);
-            else resolve("Registo apagado com sucesso");
-          }
-        );
-      }
-    });
-  }).then(
-    resolve => {
-      callback(undefined, resolve);
-    },
-    err => {
-      callback(err, undefined);
-    }
-  );
+var DeleteSlfj = (id, callback) => {
+	return new Promise((resolve, reject) => {
+		GetSlfj(id, undefined, undefined, undefined, (error, result) => {
+			if(result) {
+				QuerySlfj(id, undefined, undefined, undefined, undefined, undefined, 'delete', (error, result) => {
+					if (result) {
+						db.query(result, (error, result) => {
+							if (error) reject(db.message.internalError);
+							else resolve("Registo apagado com sucesso");
+						});
+					} else reject(error)
+				})
+			} else reject(error)
+		})
+	}).then(
+		resolve => callback(undefined, resolve),
+		err => callback(err, undefined)
+	);
 };
 
 module.exports = {
-  GetSLFJ,
-  CreateSLFJ,
-  UpdateSLFJ,
-  DeleteSLFJ
+  GetSlfj,
+  CreateSlfj,
+  UpdateSlfj,
+  DeleteSlfj
 };

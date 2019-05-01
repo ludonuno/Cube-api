@@ -150,7 +150,7 @@ app.get("/API/:tabela", (req, res, next) => { //Search
         break;
       case routeList.slfj.nome:
         if (routeList.slfj.disponibilidade.get) {
-          if (req.query.id || req.query.titulo || req.query.categoriaId || req.query.sagaId || !sizeOf(req.query)) api.slfj.GetSLFJ(req.query.id, req.query.titulo, req.query.categoriaId, req.query.sagaId, (error, result) => res.json(error ? { error } : { result }));
+          if (req.query.id || req.query.titulo || req.query.categoriaId || req.query.sagaId || !sizeOf(req.query)) api.slfj.GetSlfj(req.query.id, req.query.titulo, req.query.categoriaId, req.query.sagaId, (error, result) => res.json(error ? { error } : { result }));
           else res.json(errorList.parametros);
         } else res.json(errorList.indisponivel);
         break;
@@ -312,7 +312,7 @@ app.get("/API/:tabela", (req, res, next) => { //Search
         break;
       case routeList.slfj.nome:
         if (routeList.slfj.disponibilidade.post) {
-          if (req.query.titulo && req.query.categoriaId && req.query.sagaId) api.slfj.CreateSLFJ(req.query.titulo, req.query.foto, req.query.sinopse, req.query.categoriaId, req.query.sagaId, (error, result) => res.json(error ? { error } : { result }));
+          if (req.query.titulo && req.query.categoriaId && req.query.sagaId) api.slfj.CreateSlfj(req.query.titulo, req.query.foto, req.query.sinopse, req.query.categoriaId, req.query.sagaId, (error, result) => res.json(error ? { error } : { result }));
           else res.json(errorList.parametros);
         } else res.json(errorList.indisponivel);
         break;
@@ -474,7 +474,7 @@ app.get("/API/:tabela", (req, res, next) => { //Search
         break;
       case routeList.slfj.nome:
         if (routeList.slfj.disponibilidade.put) {
-          if (req.query.id && (req.query.titulo || req.query.foto || req.query.sinopse || req.query.categoriaId || req.query.sagaId)) api.slfj.UpdateSLFJ(req.query.id, req.query.titulo, req.query.foto, req.query.sinopse, req.query.categoriaId, req.query.sagaId, (error, result) => res.json(error ? { error } : { result }));
+          if (req.query.id && (req.query.titulo || req.query.foto || req.query.sinopse || req.query.categoriaId || req.query.sagaId)) api.slfj.UpdateSlfj(req.query.id, req.query.titulo, req.query.foto, req.query.sinopse, req.query.categoriaId, req.query.sagaId, (error, result) => res.json(error ? { error } : { result }));
           else res.json(errorList.parametros);
         } else res.json(errorList.indisponivel);
         break;
@@ -635,7 +635,7 @@ app.get("/API/:tabela", (req, res, next) => { //Search
         break;
       case routeList.slfj.nome:
         if (routeList.slfj.disponibilidade.delete) {
-          if (req.query.id) api.slfj.DeleteSLFJ(req.query.id, (error, result) => res.json(error ? { error } : { result }));
+          if (req.query.id) api.slfj.DeleteSlfj(req.query.id, (error, result) => res.json(error ? { error } : { result }));
           else res.json(errorList.parametros);
         } else res.json(errorList.indisponivel);
         break;
