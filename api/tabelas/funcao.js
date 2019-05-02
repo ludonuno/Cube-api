@@ -13,10 +13,12 @@ const tabela = {
 var QueryGetFuncaoTabelData = (id, descricao, callback) => {
 	return new Promise((resolve, reject) => {
 		let queryParams = "", numeroParametros = 0
-		if (!isNaN(Number(id))) {
-			queryParams += `${tabela.id} = ${id}`
-			numeroParametros++;
-		} else reject(db.message.dataError)
+		if(id) {
+			if (!isNaN(Number(id))) {
+				queryParams += `${tabela.id} = ${id}`
+				numeroParametros++;
+			} else reject(db.message.dataError)
+        }
 		if (descricao) {
 			if (numeroParametros) queryParams += ' AND '
 			queryParams += `${tabela.descricao} LIKE '%${descricao}%'`

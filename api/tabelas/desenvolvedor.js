@@ -9,92 +9,195 @@ const tabela = {
     nome: 'desenvolvedor_nome'
 }
 
-var GetDesenvolvedor = (id, nome, callback) => {
-    return new Promise ((resolve, reject) => {
-        let query
-
-        if ( id || nome ) {
-            if(id && !isNaN(Number(id))) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`
-            else if(nome) query = `SELECT * FROM ${tabela.tabela} WHERE ${tabela.nome} like '%${nome}%'`
-        } else query = `SELECT * FROM ${tabela.tabela}`
-        
-        if(query) {
-            db.query(query, (error, result) => {
-                if (error) reject(db.message.internalError)
-                else if (!sizeOf(result)) reject(db.message.dataNotFound)
-                else resolve(result)
-            })
-        } else reject(db.message.dataError)
-
-    }).then((resolve) => {
-        callback(undefined, resolve)
-    }, (err) => {
-        callback(err, undefined)
-    })
+// Trata dos dados da ação Get que não requerem tabelas externas
+var QueryGetDesenvolvedorTabelData = (id, nome, callback) => {
+	return new Promise((resolve, reject) => {
+        let queryParams = "", numeroParametros = 0
+		if(id) {
+            if (!isNaN(Number(id))) {
+                queryParams += `${tabela.id} = ${id}`
+                numeroParametros++;
+            } else reject(db.message.dataError)
+        }
+		if (nome) {
+			if (numeroParametros) queryParams += ' AND '
+			queryParams += `${tabela.nome} LIKE '%${nome}%'`
+		}
+		resolve(queryParams)
+	}).then(
+		resolve => callback(undefined, resolve),
+		err => callback(err, undefined)
+	)
 }
+
+// Trata da query do método Get
+var QueryGetDesenvolvedor = (id, nome, callback) => {
+	return new Promise((resolve, reject) => {
+		if (id || nome) { // dados internos da tabela
+			QueryGetDesenvolvedorTabelData(id, nome, (error, result) => {
+				if(error) reject(error)
+				else resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result}`)
+			})
+		} else resolve(`SELECT * FROM ${tabela.tabela}`)
+	}).then(
+		resolve => callback(undefined, resolve),
+		err => callback(err, undefined)
+	)
+}
+
+// Trata da query do método Create
+var QueryCreateDesenvolvedor = (nome, callback) => {
+	return new Promise((resolve, reject) => {
+        if (nome) resolve(`INSERT INTO ${tabela.tabela} (${tabela.nome}) VALUES (${nome})`)
+        else reject(db.message.dataError)
+	}).then(
+		resolve => callback(undefined, resolve),
+		err => callback(err, undefined)
+	)
+}
+
+// Trata da query do método Update
+var QueryUpdateDesenvolvedor = (id, nome, callback) => {
+	return new Promise((resolve, reject) => {
+		if (nome) resolve(`UPDATE ${tabela.tabela} SET ${tabela.nome} = '${nome}' WHERE ${tabela.id} = ${id}`)
+		else reject(db.message.dataError)
+	}).then(
+		resolve => callback(undefined, resolve),
+		err => callback(err, undefined)
+	)
+}
+
+// Trata da query do método Delete
+var QueryDeleteDesenvolvedor = (id, callback) => {
+	return new Promise((resolve, reject) => {
+		if(!isNaN(Number(id))) resolve(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`)
+		else reject(db.message.dataError)
+	}).then(
+		resolve => callback(undefined, resolve),
+		err => callback(err, undefined)
+	)
+}
+
+// Obtem a query dependendo dos dados que são passados
+var QueryDesenvolvedor = (id, nome, action, callback) => {
+  	return new Promise ((resolve, reject) => {
+		switch (action) {
+			case 'get': 
+				QueryGetDesenvolvedor(id, nome, (error, result) => {
+					if(result) resolve(result)
+					else reject(error)
+				})
+				break;
+			case 'create': 
+				QueryCreateDesenvolvedor(nome, (error, result) => {
+					if(result) resolve(result)
+					else reject(error)
+				})
+				break;
+			case 'update':
+				QueryUpdateDesenvolvedor(id, nome, (error, result) => {
+					if(result) resolve(result)
+					else reject(error)
+				})
+				break;
+			case 'delete':
+				QueryDeleteDesenvolvedor(id, (error, result) => {
+					if(result) resolve(result)
+					else reject(error)
+				})        
+				break;
+			default:
+				reject(db.message.dataError)
+				break;
+		}
+  	}).then(
+		resolve => callback(undefined, resolve),
+		err => callback(err, undefined)
+	)
+}
+
+//Exports
+var GetDesenvolvedor = (id, nome, callback) => {
+  	return new Promise((resolve, reject) => {
+		QueryDesenvolvedor(id, nome, 'get', (error, result) => {
+			if (result) {
+				db.query(result, (error, result) => {
+					if (error) reject(db.message.internalError);
+					else if (!sizeOf(result)) reject(db.message.dataNotFound);
+					else resolve(result);
+				});
+			} else reject(error)
+		})
+	}).then(
+		resolve => callback(undefined, resolve),
+		err => callback(err, undefined)
+	);
+}		
 
 var CreateDesenvolvedor = (nome, callback) => {
-    return new Promise((resolve, reject) => {
-        GetDesenvolvedor(undefined, nome, (error, result) => {
-            if (error == db.message.dataNotFound) {
-                db.query(`INSERT INTO ${tabela.tabela} (${tabela.nome}) VALUES ('${nome}')`, (error, result) => {
-                    if (error) reject(db.message.internalError)
-                    else resolve('Registo inserido com sucesso')
-                })
-            } else if (error) reject(error)
-            else if (result) reject(db.message.dataFound)
-        })
-    }).then((resolve) => {
-        callback(undefined, resolve)
-    }, (err) => {
-        callback(err, undefined)
-    })
-}
-
-var UpdateDesenvolvedor = (id, nome, callback) => {
-    return new Promise((resolve, reject) => {
+	return new Promise((resolve, reject) => {
         GetDesenvolvedor(undefined, nome, (error, result) => {
             if (result) reject(db.message.dataFound)
-            else if (error == db.message.dataNotFound){
-                GetDesenvolvedor(id, undefined, (error, result) => {
-                    if (error) reject(error)
-                    else {
-                        db.query(`UPDATE ${tabela.tabela} SET ${tabela.nome} = '${nome}' WHERE ${tabela.id} = ${id}`, (error, result) => {
-                            if (error) reject(db.message.internalError)
-                            else resolve('Registo alterado com sucesso')
-                        })
-                    }
+            else if (error == db.message.dataNotFound) {
+                QueryDesenvolvedor(undefined, nome, 'create', (error, result) => {
+                    if (result) {
+                        db.query(result, (error, result) => {
+                            if (error) reject(db.message.internalError);
+                            else resolve("Registo inserido com sucesso");
+                        });
+                    } else reject(error)
                 })
             } else reject(error)
         })
-    }).then((resolve) => {
-        callback(undefined, resolve)
-    }, (err) => {
-        callback(err, undefined)
-    })
-}
+	}).then(
+		resolve => callback(undefined, resolve),
+		err => callback(err, undefined)
+	);
+};
+
+var UpdateDesenvolvedor = (id, ome, callback) => {
+	return new Promise((resolve, reject) => {
+		GetDesenvolvedor(id, undefined, (error, result) => {
+			if(result) {
+				QueryDesenvolvedor(id, nome, 'update', (error, result) => {
+					if (result) {
+						db.query(result, (error, result) => {
+							if (error) reject(db.message.internalError);
+							else resolve("Registo atualizado com sucesso");
+						});
+					} else reject(error)
+				})
+			} else reject(error)
+		})
+	}).then(
+		resolve => callback(undefined, resolve),
+		err => callback(err, undefined)
+	);
+};
 
 var DeleteDesenvolvedor = (id, callback) => {
-    return new Promise((resolve, reject) => {
-        GetDesenvolvedor(id, undefined, (error, result) => {
-            if (error) reject(error)
-            else {
-                db.query(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`, (error, result) => {
-                    if (error) reject(db.message.internalError)
-                    else resolve('Registo apagado com sucesso')
-                })
-            }
-        })
-    }).then((resolve) => {
-        callback(undefined, resolve)
-    }, (err) => {
-        callback(err, undefined)
-    })
-}
+	return new Promise((resolve, reject) => {
+		GetDesenvolvedor(id, undefined, (error, result) => {
+			if(result) {
+				QueryDesenvolvedor(id, undefined, 'delete', (error, result) => {
+					if (result) {
+						db.query(result, (error, result) => {
+							if (error) reject(db.message.internalError);
+							else resolve("Registo apagado com sucesso");
+						});
+					} else reject(error)
+				})
+			} else reject(error)
+		})
+	}).then(
+		resolve => callback(undefined, resolve),
+		err => callback(err, undefined)
+	);
+};
 
 module.exports = {
-    GetDesenvolvedor,
-    CreateDesenvolvedor,
-    UpdateDesenvolvedor,
-    DeleteDesenvolvedor
-}
+  GetDesenvolvedor,
+  CreateDesenvolvedor,
+  UpdateDesenvolvedor,
+  DeleteDesenvolvedor
+};

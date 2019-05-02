@@ -15,11 +15,13 @@ const tabela = {
 // Trata dos dados da ação Get que não requerem tabelas externas
 var QueryGetPessoaTabelData = (id, nome, dataNascimento, callback) => {
 	return new Promise((resolve, reject) => {
-		let queryParams = "", numeroParametros = 0
-		if (!isNaN(Number(id))) {
-			queryParams += `${tabela.id} = ${id}`
-			numeroParametros++;
-		} else reject(db.message.dataError)
+        let queryParams = "", numeroParametros = 0
+        if(id) {            
+            if (!isNaN(Number(id))) {
+                queryParams += `${tabela.id} = ${id}`
+                numeroParametros++;
+            } else reject(db.message.dataError)
+        }
 		if (nome) {
 			if (numeroParametros) queryParams += ' AND '
 			queryParams += `${tabela.nome} LIKE '%${nome}%'`

@@ -11,19 +11,15 @@ const pool = process.env.DATABASE_URL
     });
 
 query = (text, callback) => {
-  return new Promise((resolve, reject) => {
-    pool.query(text, (err, res) => {
-      if (err) reject(err);
-      else resolve(res.rows);
-    });
-  }).then(
-    resolve => {
-      callback(undefined, resolve);
-    },
-    err => {
-      callback(err, undefined);
-    }
-  );
+	return new Promise((resolve, reject) => {
+		pool.query(text, (err, res) => {
+			if (err) reject(err);
+			else resolve(res.rows);
+		});
+	}).then(
+		resolve => callback(undefined, resolve),
+		err => callback(err, undefined)
+	);
 };
 
 module.exports = {

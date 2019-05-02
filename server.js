@@ -23,7 +23,7 @@ const routeList = {
   livro:                      { nome: "Livro",                      disponibilidade: { get: false, post: false, put: false, delete: false } },
   pessoaGaleria:              { nome: "PessoaGaleria",              disponibilidade: { get: false, post: false, put: false, delete: false } },
   pessoa:                     { nome: "Pessoa",                     disponibilidade: { get: true, post: true, put: true, delete: true } },
-  publicador:                 { nome: "Publicador",                 disponibilidade: { get: false, post: false, put: false, delete: false } },
+  publicador:                 { nome: "Publicador",                 disponibilidade: { get: true, post: true, put: true, delete: true } },
   saga:                       { nome: "Saga",                       disponibilidade: { get: true, post: true, put: true, delete: true } },
   serie:                      { nome: "Serie",                      disponibilidade: { get: false, post: false, put: false, delete: false } },
   slfjGaleria:                { nome: "SlfjGaleria",                disponibilidade: { get: false, post: false, put: false, delete: false } },
@@ -34,7 +34,7 @@ const routeList = {
   temporadaGaleria:           { nome: "TemporadaGaleria",           disponibilidade: { get: false, post: false, put: false, delete: false } },
   temporadaVideo:             { nome: "TemporadaVideo",             disponibilidade: { get: false, post: false, put: false, delete: false } },
   temporada:                  { nome: "Temporada",                  disponibilidade: { get: false, post: false, put: false, delete: false } },
-  tipo:                       { nome: "Tipo",                       disponibilidade: { get: false, post: false, put: false, delete: false } },
+  tipo:                       { nome: "Tipo",                       disponibilidade: { get: true, post: true, put: true, delete: true } },
   tvPG:                       { nome: "TvPG",                       disponibilidade: { get: true, post: true, put: true, delete: true } },
   userEpisodioRating:         { nome: "UserEpisodioRating",         disponibilidade: { get: false, post: false, put: false, delete: false } },
   userFilmeRating:            { nome: "UserFilmeRating",            disponibilidade: { get: false, post: false, put: false, delete: false } },
@@ -55,8 +55,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get("/API/:tabela", (req, res, next) => { //Search
     switch (req.params.tabela) {
-      case routeList.categoria.nome:
-        if (routeList.categoria.disponibilidade.get) {
+	  case routeList.categoria.nome:
+		if (routeList.categoria.disponibilidade.get) {
           if (req.query.id || req.query.descricao || !sizeOf(req.query)) api.categoria.GetCategoria(req.query.id, req.query.descricao, (error, result) => res.json(error ? { error } : { result }));
           else res.json(errorList.parametros);
         } else res.json(errorList.indisponivel);
@@ -168,6 +168,7 @@ app.get("/API/:tabela", (req, res, next) => { //Search
         break;
       case routeList.tipo.nome:
         if (routeList.tipo.disponibilidade.get) {
+          if (req.query.id || req.query.descricao || !sizeOf(req.query)) api.funcao.GetFuncao(req.query.id, req.query.descricao, (error, result) => res.json(error ? { error } : { result }))
         } else res.json(errorList.indisponivel);
         break;
       case routeList.tvPG.nome:
