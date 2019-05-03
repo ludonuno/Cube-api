@@ -36,10 +36,12 @@ var VerifyCategoriaSaga = (categoriaId, sagaId, callback) => {
 var QueryGetSlfjTabelData = (id, titulo, callback) => {
 	return new Promise((resolve, reject) => {
 		let queryParams = "", numeroParametros = 0
-		if (!isNaN(Number(id))) {
-			queryParams += `${tabela.id} = ${id}`
-			numeroParametros++;
-		} else reject(db.message.dataError)
+		if(id) {
+			if (!isNaN(Number(id))) {
+				queryParams += `${tabela.id} = ${id}`
+				numeroParametros++;
+			} else reject(db.message.dataError)
+		}
 		if (titulo) {
 			if (numeroParametros) queryParams += ' AND '
 			queryParams += `${tabela.titulo} LIKE '%${titulo}%'`
@@ -136,7 +138,7 @@ var QueryGetSlfj = (id, titulo, categoriaId, sagaId, callback) => {
 						})
 					} else reject (error)
 				})
-			} else if (sagaId) {
+			} else {
 				saga.GetSaga(sagaId, undefined, (error, result) => {
 					if (result) {
 						QueryGetSlfjTabelData(id, titulo, (error, result) => {
@@ -351,5 +353,6 @@ module.exports = {
   GetSlfj,
   CreateSlfj,
   UpdateSlfj,
-  DeleteSlfj
+  DeleteSlfj,
+  tabela
 };

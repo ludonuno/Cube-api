@@ -4,7 +4,7 @@ const db = require('./../../db')
 const sizeOf = require('object-sizeof')
 
 const tabela = {
-    tabela: 'my_tpo',
+    tabela: 'my_tipo',
     id: 'tipo_id',
     descricao: 'tipo_descricao'
 }
@@ -48,7 +48,7 @@ var QueryGetTipo = (id, descricao, callback) => {
 // Trata da query do método Create
 var QueryCreateTipo = (descricao, callback) => {
 	return new Promise((resolve, reject) => {
-        if (descricao) resolve(`INSERT INTO ${tabela.tabela} (${tabela.descricao}) VALUES (${descricao})`)
+        if (descricao) resolve(`INSERT INTO ${tabela.tabela} (${tabela.descricao}) VALUES ('${descricao}')`)
         else reject(db.message.dataError)
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -79,23 +79,23 @@ var QueryDeleteTipo = (id, callback) => {
 }
 
 // Obtem a query dependendo dos dados que são passados
-var QueryTipo = (id, rate, descricao, action, callback) => {
+var QueryTipo = (id, descricao, action, callback) => {
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 
-				QueryGetTipo(id, rate, (error, result) => {
+				QueryGetTipo(id, descricao, (error, result) => {
 					if(result) resolve(result)
 					else reject(error)
 				})
 				break;
 			case 'create': 
-				QueryCreateTipo(rate, descricao, (error, result) => {
+				QueryCreateTipo(descricao, (error, result) => {
 					if(result) resolve(result)
 					else reject(error)
 				})
 				break;
 			case 'update':
-				QueryUpdateTipo(id, rate, descricao, (error, result) => {
+				QueryUpdateTipo(id, descricao, (error, result) => {
 					if(result) resolve(result)
 					else reject(error)
 				})
@@ -117,9 +117,9 @@ var QueryTipo = (id, rate, descricao, action, callback) => {
 }
 
 //Exports
-var GetTipo = (id, rate, callback) => {
+var GetTipo = (id, descricao, callback) => {
   	return new Promise((resolve, reject) => {
-		QueryTipo(id, rate, undefined, 'get', (error, result) => {
+		QueryTipo(id, descricao, 'get', (error, result) => {
 			if (result) {
 				db.query(result, (error, result) => {
 					if (error) reject(db.message.internalError);
@@ -134,12 +134,12 @@ var GetTipo = (id, rate, callback) => {
 	);
 }		
 
-var CreateTipo = (rate, descricao, callback) => {
+var CreateTipo = (descricao, callback) => {
 	return new Promise((resolve, reject) => {
-        GetTipo(undefined, rate, (error, result) => {
+        GetTipo(undefined, descricao, (error, result) => {
             if (result) reject(db.message.dataFound)
             else if (error == db.message.dataNotFound) {
-                QueryTipo(undefined, rate, descricao, 'create', (error, result) => {
+                QueryTipo(undefined, descricao, 'create', (error, result) => {
                     if (result) {
                         db.query(result, (error, result) => {
                             if (error) reject(db.message.internalError);
@@ -155,11 +155,11 @@ var CreateTipo = (rate, descricao, callback) => {
 	);
 };
 
-var UpdateTipo = (id, rate, descricao, callback) => {
+var UpdateTipo = (id, descricao, callback) => {
 	return new Promise((resolve, reject) => {
 		GetTipo(id, undefined, (error, result) => {
 			if(result) {
-				QueryTipo(id, rate, descricao, 'update', (error, result) => {
+				QueryTipo(id, descricao, 'update', (error, result) => {
 					if (result) {
 						db.query(result, (error, result) => {
 							if (error) reject(db.message.internalError);
@@ -179,7 +179,7 @@ var DeleteTipo = (id, callback) => {
 	return new Promise((resolve, reject) => {
 		GetTipo(id, undefined, (error, result) => {
 			if(result) {
-				QueryTipo(id, undefined, undefined, 'delete', (error, result) => {
+				QueryTipo(id, undefined, 'delete', (error, result) => {
 					if (result) {
 						db.query(result, (error, result) => {
 							if (error) reject(db.message.internalError);
@@ -199,5 +199,6 @@ module.exports = {
   GetTipo,
   CreateTipo,
   UpdateTipo,
-  DeleteTipo
+  DeleteTipo,
+  tabela
 };
