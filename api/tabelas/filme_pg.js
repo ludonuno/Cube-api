@@ -250,5 +250,6 @@ module.exports = {
   GetFilmePG,
   CreateFilmePG,
   UpdateFilmePG,
-  DeleteFilmePG
+  DeleteFilmePG,
+  tabela
 };

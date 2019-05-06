@@ -199,5 +199,6 @@ module.exports = {
   GetFuncao,
   CreateFuncao,
   UpdateFuncao,
-  DeleteFuncao
+  DeleteFuncao,
+  tabela
 };

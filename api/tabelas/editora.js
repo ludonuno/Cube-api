@@ -199,5 +199,6 @@ module.exports = {
   GetEditora,
   CreateEditora,
   UpdateEditora,
-  DeleteEditora
+  DeleteEditora,
+  tabela
 };

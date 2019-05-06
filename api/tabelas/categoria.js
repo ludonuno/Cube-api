@@ -199,5 +199,6 @@ module.exports = {
   GetCategoria,
   CreateCategoria,
   UpdateCategoria,
-  DeleteCategoria
+  DeleteCategoria,
+  tabela
 };

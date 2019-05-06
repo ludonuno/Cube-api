@@ -18,7 +18,7 @@ const routeList = {
   episodioGaleria:            { nome: "EpisodioGaleria",            disponibilidade: { get: false, post: false, put: false, dlete: false } },
   episodio:                   { nome: "Episodio",                   disponibilidade: { get: false, post: false, put: false, delete: false } },
   filmePG:                    { nome: "FilmePG",                    disponibilidade: { get: true, post: true, put: true, delete: true } },
-  filme:                      { nome: "Filme",                      disponibilidade: { get: false, post: false, put: false, delete: false } },
+  filme:                      { nome: "Filme",                      disponibilidade: { get: true, post: true, put: true, delete: true } },
   funcao:                     { nome: "Funcao",                     disponibilidade: { get: true, post: true, put: true, delete: true } },
   livro:                      { nome: "Livro",                      disponibilidade: { get: false, post: false, put: false, delete: false } },
   pessoaGaleria:              { nome: "PessoaGaleria",              disponibilidade: { get: false, post: false, put: false, delete: false } },
@@ -97,8 +97,10 @@ app.get("/API/:tabela", (req, res, next) => { //Search
     	    break
 		case routeList.filme.nome:
     	    if (routeList.filme.disponibilidade.get) {
-
-    	    } else res.json(errorList.indisponivel)
+				if (req.query.slfjId || req.query.titulo || req.query.categoriaId || req.query.sagaId || req.query.duracaoMin || req.query.duracaoMax || req.query.dataLancamento || req.query.filmePGId)
+					api.filme.GetFilme(req.query.slfjId, req.query.titulo, req.query.categoriaId, req.query.sagaId, req.query.duracaoMin, req.query.duracaoMax, req.query.dataLancamento, req.query.filmePGId, (error, result) => res.json(error ? { error } : { result }))
+				else res.json(errorList.parametros)
+			} else res.json(errorList.indisponivel)
     	    break
 		case routeList.funcao.nome:
     	    if (routeList.funcao.disponibilidade.get) {

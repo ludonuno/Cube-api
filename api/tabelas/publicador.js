@@ -178,12 +178,8 @@ var DeletePublicador = (id, callback) => {
 		GetPublicador(id, undefined, (error, result) => {
 			if(result) {
 				QueryPublicador(id, undefined, 'delete', (error, result) => {
-					if (result) {
-						db.query(result, (error, result) => {
-							if (error) reject(db.message.internalError);
-							else resolve("Registo apagado com sucesso");
-						});
-					} else reject(error)
+					if (error) reject(error)
+					else db.query(result, (error, result) => error ? reject(db.message.internalError) : resolve("Registo apagado com sucesso") )
 				})
 			} else reject(error)
 		})
@@ -197,5 +193,6 @@ module.exports = {
   GetPublicador,
   CreatePublicador,
   UpdatePublicador,
-  DeletePublicador
+  DeletePublicador,
+  tabela
 };

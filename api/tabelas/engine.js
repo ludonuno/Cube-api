@@ -199,5 +199,6 @@ module.exports = {
   GetEngine,
   CreateEngine,
   UpdateEngine,
-  DeleteEngine
+  DeleteEngine,
+  tabela
 };

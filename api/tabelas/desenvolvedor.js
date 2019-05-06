@@ -199,5 +199,6 @@ module.exports = {
   GetDesenvolvedor,
   CreateDesenvolvedor,
   UpdateDesenvolvedor,
-  DeleteDesenvolvedor
+  DeleteDesenvolvedor,
+  tabela
 };

@@ -252,5 +252,6 @@ module.exports = {
   GetTvPG,
   CreateTvPG,
   UpdateTvPG,
-  DeleteTvPG
+  DeleteTvPG,
+  tabela
 };

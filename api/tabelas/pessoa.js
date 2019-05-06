@@ -116,8 +116,7 @@ var QueryGetPessoa = (id, nome, dataNascimento, callback) => {
 	return new Promise((resolve, reject) => {
 		if (id || nome || dataNascimento) { // dados internos da tabela
 			QueryGetPessoaTabelData(id, nome, dataNascimento, (error, result) => {
-				if(error) reject(error)
-				else if (result) resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result}`)
+				error ? reject(error) : resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result}`)
 			})
 		} else resolve(`SELECT * FROM ${tabela.tabela}`)
 	}).then(
@@ -130,8 +129,7 @@ var QueryGetPessoa = (id, nome, dataNascimento, callback) => {
 var QueryCreatePessoa = (nome, foto, dataNascimento, biografia, callback) => {
 	return new Promise((resolve, reject) => {
 		QueryCreatePessoaTabelData(nome, foto, dataNascimento, biografia, (error, result) => {
-			if(error) reject(error)
-			else if (result) resolve(`INSERT INTO ${tabela.tabela} (${result.tables}) VALUES (${result.values})`)
+			error ? reject(error) : resolve(`INSERT INTO ${tabela.tabela} (${result.tables}) VALUES (${result.values})`)
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -143,8 +141,7 @@ var QueryCreatePessoa = (nome, foto, dataNascimento, biografia, callback) => {
 var QueryUpdatePessoa = (id, nome, foto, dataNascimento, biografia, callback) => {
 	return new Promise((resolve, reject) => {
 		QueryUpdatePessoaTabelData(nome, foto, dataNascimento, biografia, (error, result) => {
-			if(error) reject(error)
-			else resolve(`UPDATE ${tabela.tabela} SET ${result} WHERE ${tabela.id} = ${id}`)
+			error ? reject(error) : resolve(`UPDATE ${tabela.tabela} SET ${result} WHERE ${tabela.id} = ${id}`)
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -155,8 +152,7 @@ var QueryUpdatePessoa = (id, nome, foto, dataNascimento, biografia, callback) =>
 // Trata da query do método Delete
 var QueryDeletePessoa = (id, callback) => {
 	return new Promise((resolve, reject) => {
-		if(!isNaN(Number(id))) resolve(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`)
-		else reject(db.message.dataError)
+		!isNaN(Number(id)) ? resolve(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`) : reject(db.message.dataError)
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
@@ -168,28 +164,16 @@ var QueryPessoa = (id, nome, foto, dataNascimento, biografia, action, callback) 
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 
-				QueryGetPessoa(id, nome, dataNascimento, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryGetPessoa(id, nome, dataNascimento, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'create': 
-				QueryCreatePessoa(nome, foto, dataNascimento, biografia, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryCreatePessoa(nome, foto, dataNascimento, biografia, (error, result) =>  error ? reject(error) : resolve(result) )
 				break;
 			case 'update':
-				QueryUpdatePessoa(id, nome, foto, dataNascimento, biografia, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryUpdatePessoa(id, nome, foto, dataNascimento, biografia, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'delete':
-				QueryDeletePessoa(id, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})        
+				QueryDeletePessoa(id, (error, result) => error ? reject(error) : resolve(result) )        
 				break;
 			default:
 				reject(db.message.dataError)
@@ -224,8 +208,7 @@ var CreatePessoa = (nome, foto, dataNascimento, biografia, callback) => {
 		QueryPessoa(undefined, nome, foto, dataNascimento, biografia, 'create', (error, result) => {
 			if (result) {
 				db.query(result, (error, result) => {
-					if (error) reject(db.message.internalError);
-					else resolve("Registo inserido com sucesso");
+					error ? reject(db.message.internalError) : resolve("Registo inserido com sucesso")
 				});
 			} else reject(error)
 		})
@@ -240,12 +223,8 @@ var UpdatePessoa = (id, nome, foto, dataNascimento, biografia, callback) => {
 		GetPessoa(id, undefined, undefined, (error, result) => {
 			if(result) {
 				QueryPessoa(id, nome, foto, dataNascimento, biografia, 'update', (error, result) => {
-					if (result) {
-						db.query(result, (error, result) => {
-							if (error) reject(db.message.internalError);
-							else resolve("Registo atualizado com sucesso");
-						});
-					} else reject(error)
+					if (result) db.query(result, (error, result) => error ? reject(db.message.internalError) : resolve("Registo atualizado com sucesso") )
+					else reject(error)
 				})
 			} else reject(error)
 		})
@@ -260,12 +239,8 @@ var DeletePessoa = (id, callback) => {
 		GetPessoa(id, undefined, undefined, (error, result) => {
 			if(result) {
 				QueryPessoa(id, undefined, undefined, undefined, undefined, 'delete', (error, result) => {
-					if (result) {
-						db.query(result, (error, result) => {
-							if (error) reject(db.message.internalError);
-							else resolve("Registo apagado com sucesso");
-						});
-					} else reject(error)
+					if (result) db.query(result, (error, result) => error ? reject(db.message.internalError) : resolve("Registo apagado com sucesso") )
+					else reject(error)
 				})
 			} else reject(error)
 		})
@@ -279,5 +254,6 @@ module.exports = {
   GetPessoa,
   CreatePessoa,
   UpdatePessoa,
-  DeletePessoa
+  DeletePessoa,
+  tabela
 };

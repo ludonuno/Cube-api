@@ -197,5 +197,6 @@ module.exports = {
   GetSaga,
   CreateSaga,
   UpdateSaga,
-  DeleteSaga
+  DeleteSaga,
+  tabela
 };

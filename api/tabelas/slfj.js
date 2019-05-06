@@ -18,18 +18,15 @@ const tabela = {
 // Trata da verificação conjunta das tabelas externas
 var VerifyCategoriaSaga = (categoriaId, sagaId, callback) => {
 	return new Promise ((resolve, reject) => {
-		categoria.GetCategoria(categoriaId, undefined, (error, result) => {
-			if (result) {
-				saga.GetSaga(sagaId, undefined, (error, result) => {
-					if (result) resolve(true)
-					else reject(error);
-				});
-			} else reject(error);
-		});
+		categoria.GetCategoria(categoriaId, undefined, (error, result) => { 
+			error ? reject(error) : saga.GetSaga(sagaId, undefined, (error, result) => {
+				error ? reject(error) : resolve(true)
+			})
+		})
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
-	);
+	)
 }
 
 // Trata dos dados da ação Get que não requerem tabelas externas
@@ -47,6 +44,46 @@ var QueryGetSlfjTabelData = (id, titulo, callback) => {
 			queryParams += `${tabela.titulo} LIKE '%${titulo}%'`
 		}
 		resolve(queryParams)
+	}).then(
+		resolve => callback(undefined, resolve),
+		err => callback(err, undefined)
+	)
+}
+
+var QueryGetSlfjExternalTabelData = (id, titulo, categoriaId, sagaId, callback) => {
+	//TODO: modificar para ficar como o filme.js
+	return new Promise((resolve, reject) => {
+		if(categoriaId && sagaId) {
+			VerifyCategoriaSaga(categoriaId, sagaId, (error, result) => {
+				if (result) {
+					QueryGetSlfjTabelData(id, titulo, (error, result) => {
+						if(error) reject(error)
+						else if (result)resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result} AND ${tabela.categoriaId} = ${categoriaId} AND ${tabela.sagaId} = ${sagaId}`)
+						else resolve(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.categoriaId} = ${categoriaId} AND ${tabela.sagaId} = ${sagaId}`)
+					})
+				} else reject (error)
+			})
+		} else if (categoriaId) {
+			categoria.GetCategoria(categoriaId, undefined, (error, result) => {
+				if (result) {
+					QueryGetSlfjTabelData(id, titulo, (error, result) => {
+						if(error) reject(error)
+						else if (result) resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result} AND ${tabela.categoriaId} = ${categoriaId}`)
+						else resolve(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.categoriaId} = ${categoriaId}`)
+					})
+				} else reject (error)
+			})
+		} else {
+			saga.GetSaga(sagaId, undefined, (error, result) => {
+				if (result) {
+					QueryGetSlfjTabelData(id, titulo, (error, result) => {
+						if(error) reject(error)
+						else if (result) resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result} AND ${tabela.sagaId} = ${sagaId}`)
+						else resolve(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.sagaId} = ${sagaId}`)
+					})
+				} else reject (error)
+			})
+		}
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
@@ -118,37 +155,10 @@ var QueryUpdateSlfjTabelData = (titulo, foto, sinopse, callback) => {
 var QueryGetSlfj = (id, titulo, categoriaId, sagaId, callback) => {
 	return new Promise((resolve, reject) => {
 		if (categoriaId || sagaId) { // dados de tabelas externas
-			if(categoriaId && sagaId) {
-				VerifyCategoriaSaga(categoriaId, sagaId, (error, result) => {
-					if (result) {
-						QueryGetSlfjTabelData(id, titulo, (error, result) => {
-							if(error) reject(error)
-							else if (result)resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result} AND ${tabela.categoriaId} = ${categoriaId} AND ${tabela.sagaId} = ${sagaId}`)
-							else resolve(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.categoriaId} = ${categoriaId} AND ${tabela.sagaId} = ${sagaId}`)
-						})
-					} else reject (error)
-				})
-			} else if (categoriaId) {
-				categoria.GetCategoria(categoriaId, undefined, (error, result) => {
-					if (result) {
-						QueryGetSlfjTabelData(id, titulo, (error, result) => {
-							if(error) reject(error)
-							else if (result) resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result} AND ${tabela.categoriaId} = ${categoriaId}`)
-							else resolve(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.categoriaId} = ${categoriaId}`)
-						})
-					} else reject (error)
-				})
-			} else {
-				saga.GetSaga(sagaId, undefined, (error, result) => {
-					if (result) {
-						QueryGetSlfjTabelData(id, titulo, (error, result) => {
-							if(error) reject(error)
-							else if (result) resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result} AND ${tabela.sagaId} = ${sagaId}`)
-							else resolve(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.sagaId} = ${sagaId}`)
-						})
-					} else reject (error)
-				})
-			}
+			QueryGetSlfjExternalTabelData(id, titulo, categoriaId, sagaId, (error, result) => {
+				if (error) reject(error)
+				else resolve(result)
+			})
 		} else if (id || titulo) { // dados internos da tabela
 			QueryGetSlfjTabelData(id, titulo, (error, result) => {
 				if(error) reject(error)
