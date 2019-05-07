@@ -11,7 +11,7 @@ const errorList = {
 
 //O campo disponibilidade é para prevenir que os utilizadores utilizem uma rota que tenha erros que possa danificar a base de dados ou a aplicação
 const routeList = {
-  categoria:                  { nome: "Categoria",                  disponibilidade: { get: true, post: true, put: true, delete: true } },
+  
   desenvolvedor:              { nome: "Desenvolvedor",              disponibilidade: { get: true, post: true, put: true, delete: true } },
   editora:                    { nome: "Editora",                    disponibilidade: { get: true, post: true, put: true, delete: true } },
   engine:                     { nome: "Engine",                     disponibilidade: { get: true, post: true, put: true, delete: true } },
@@ -54,196 +54,196 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
 app.get("/API/:tabela", (req, res, next) => { //Search
-    switch (req.params.tabela) {
+	switch (req.params.tabela) {
 		case routeList.categoria.nome:
 			if (routeList.categoria.disponibilidade.get) {
 				if (req.query.id || req.query.descricao || !sizeOf(req.query)) api.categoria.GetCategoria(req.query.id, req.query.descricao, (error, result) => res.json(error ? { error } : { result }))
 				else res.json(errorList.parametros)
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.desenvolvedor.nome:
-    	    if (routeList.desenvolvedor.disponibilidade.get) {
+			if (routeList.desenvolvedor.disponibilidade.get) {
 				if (req.query.id || req.query.nome || !sizeOf(req.query)) api.desenvolvedor.GetDesenvolvedor(req.query.id, req.query.nome, (error, result) => res.json(error ? { error } : { result }))
 				else res.json(errorList.parametros)
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.editora.nome:
-    	    if (routeList.editora.disponibilidade.get) {
+			if (routeList.editora.disponibilidade.get) {
 				if (req.query.id || req.query.nome || !sizeOf(req.query)) api.editora.GetEditora(req.query.id, req.query.nome, (error, result) => res.json(error ? { error } : { result }))
 				else res.json(errorList.parametros)
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.engine.nome:
-    	    if (routeList.engine.disponibilidade.get) {
+			if (routeList.engine.disponibilidade.get) {
 				if (req.query.id || req.query.nome || !sizeOf(req.query)) api.engine.GetEngine(req.query.id, req.query.nome, (error, result) => res.json(error ? { error } : { result }))
 				else res.json(errorList.parametros)
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.episodioGaleria.nome:
-    	    if (routeList.episodioGaleria.disponibilidade.get) {
+			if (routeList.episodioGaleria.disponibilidade.get) {
 
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.episodio.nome:
-    	    if (routeList.episodio.disponibilidade.get) {
+			if (routeList.episodio.disponibilidade.get) {
 
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.filmePG.nome:
-    	    if (routeList.filmePG.disponibilidade.get) {
+			if (routeList.filmePG.disponibilidade.get) {
 				if (req.query.id || req.query.rate || !sizeOf(req.query)) api.filmePG.GetFilmePG(req.query.id, req.query.rate, (error, result) => res.json(error ? { error } : { result }))
 				else res.json(errorList.parametros)
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.filme.nome:
-    	    if (routeList.filme.disponibilidade.get) {
+			if (routeList.filme.disponibilidade.get) {
 				if (req.query.slfjId || req.query.titulo || req.query.categoriaId || req.query.sagaId || req.query.duracaoMin || req.query.duracaoMax || req.query.dataLancamento || req.query.filmePGId)
 					api.filme.GetFilme(req.query.slfjId, req.query.titulo, req.query.categoriaId, req.query.sagaId, req.query.duracaoMin, req.query.duracaoMax, req.query.dataLancamento, req.query.filmePGId, (error, result) => res.json(error ? { error } : { result }))
 				else res.json(errorList.parametros)
 			} else res.json(errorList.indisponivel)
-    	    break
+			break
 		case routeList.funcao.nome:
-    	    if (routeList.funcao.disponibilidade.get) {
-    	      if (req.query.id || req.query.descricao || !sizeOf(req.query)) api.funcao.GetFuncao(req.query.id, req.query.descricao, (error, result) => res.json(error ? { error } : { result }))
+			if (routeList.funcao.disponibilidade.get) {
+			  if (req.query.id || req.query.descricao || !sizeOf(req.query)) api.funcao.GetFuncao(req.query.id, req.query.descricao, (error, result) => res.json(error ? { error } : { result }))
 			  else res.json(errorList.parametros)
 			} else res.json(errorList.indisponivel)
-    	    break
+			break
 		case routeList.livro.nome:
-    	    if (routeList.livro.disponibilidade.get) {
+			if (routeList.livro.disponibilidade.get) {
 
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.pessoaGaleria.nome:
-    	    if (routeList.pessoaGaleria.disponibilidade.get) {
+			if (routeList.pessoaGaleria.disponibilidade.get) {
 
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.pessoa.nome:
-    	    if (routeList.pessoa.disponibilidade.get) {
+			if (routeList.pessoa.disponibilidade.get) {
 				if (req.query.id || req.query.nome || req.query.dataNascimento || !sizeOf(req.query)) api.pessoa.GetPessoa(req.query.id, req.query.nome, req.query.dataNascimento, (error, result) => 	res.json(error ? { error } : { result }))
 				else res.json(errorList.parametros)
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.publicador.nome:
-    	    if (routeList.publicador.disponibilidade.get) {
+			if (routeList.publicador.disponibilidade.get) {
 				if (req.query.id || req.query.nome || !sizeOf(req.query)) api.publicador.GetPublicador(req.query.id, req.query.nome, (error, result) => res.json(error ? { error } : { result }))
 				else res.json(errorList.parametros)
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.saga.nome:
-    	    if (routeList.saga.disponibilidade.get) {
+			if (routeList.saga.disponibilidade.get) {
 				if (req.query.id || req.query.nome || !sizeOf(req.query)) api.saga.GetSaga(req.query.id, req.query.nome, (error, result) => res.json(error ? { error } : { result }))
 				else res.json(errorList.parametros)
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.serie.nome:
-    	    if (routeList.serie.disponibilidade.get) {
+			if (routeList.serie.disponibilidade.get) {
 
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.slfjGaleria.nome:
-    	    if (routeList.slfjGaleria.disponibilidade.get) {
+			if (routeList.slfjGaleria.disponibilidade.get) {
 
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.slfjPessoaFuncao.nome:
-    	    if (routeList.slfjPessoaFuncao.disponibilidade.get) {
+			if (routeList.slfjPessoaFuncao.disponibilidade.get) {
 
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.slfjTipo.nome:
-    	    if (routeList.slfjTipo.disponibilidade.get) {
-    	      	// if (req.query.id || req.query.descricao || !sizeOf(req.query)) api.funcao.GetFuncao(req.query.id, req.query.descricao, (error, result) => res.json(error ? { error } : { result }))
+			if (routeList.slfjTipo.disponibilidade.get) {
+			  	// if (req.query.id || req.query.descricao || !sizeOf(req.query)) api.funcao.GetFuncao(req.query.id, req.query.descricao, (error, result) => res.json(error ? { error } : { result }))
 				// else res.json(errorList.parametros)
 			} else res.json(errorList.indisponivel)
-    	    break
+			break
 		case routeList.slfjVideo.nome:
-    	    if (routeList.slfjVideo.disponibilidade.get) {
+			if (routeList.slfjVideo.disponibilidade.get) {
 
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.slfj.nome:
-    	    if (routeList.slfj.disponibilidade.get) {
+			if (routeList.slfj.disponibilidade.get) {
 				if (req.query.id || req.query.titulo || req.query.categoriaId || req.query.sagaId || !sizeOf(req.query)) api.slfj.GetSlfj(req.query.id, req.query.titulo, req.query.categoriaId, 	req.query.sagaId, (error, result) => res.json(error ? { error } : { result }))
 				else res.json(errorList.parametros)
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.temporadaGaleria.nome:
-    	    if (routeList.temporadaGaleria.disponibilidade.get) {
+			if (routeList.temporadaGaleria.disponibilidade.get) {
 
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.temporadaVideo.nome:
-    	    if (routeList.temporadaVideo.disponibilidade.get) {
+			if (routeList.temporadaVideo.disponibilidade.get) {
 
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.temporada.nome:
-    	    if (routeList.temporada.disponibilidade.get) {
+			if (routeList.temporada.disponibilidade.get) {
 
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.tipo.nome:
-    	    if (routeList.tipo.disponibilidade.get) {
-    	      	if (req.query.id || req.query.descricao || !sizeOf(req.query)) api.tipo.GetTipo(req.query.id, req.query.descricao, (error, result) => res.json(error ? { error } : { result }))
+			if (routeList.tipo.disponibilidade.get) {
+			  	if (req.query.id || req.query.descricao || !sizeOf(req.query)) api.tipo.GetTipo(req.query.id, req.query.descricao, (error, result) => res.json(error ? { error } : { result }))
 				else res.json(errorList.parametros)
 			} else res.json(errorList.indisponivel)
-    	    break
+			break
 		case routeList.tvPG.nome:
-    	    if (routeList.tvPG.disponibilidade.get) {
+			if (routeList.tvPG.disponibilidade.get) {
 				if (req.query.id || req.query.rate || !sizeOf(req.query)) api.tvPG.GetTvPG(req.query.id, req.query.rate, (error, result) => res.json(error ? { error } : { result }))
 				else res.json(errorList.parametros)
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.userEpisodioRating.nome:
-    	    if (routeList.userEpisodioRating.disponibilidade.get) {
+			if (routeList.userEpisodioRating.disponibilidade.get) {
 
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.userFilmeRating.nome:
-    	    if (routeList.userFilmeRating.disponibilidade.get) {
+			if (routeList.userFilmeRating.disponibilidade.get) {
 
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.userJogoRating.nome:
-    	    if (routeList.userJogoRating.disponibilidade.get) {
+			if (routeList.userJogoRating.disponibilidade.get) {
 
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.userLivroRating.nome:
-    	    if (routeList.userLivroRating.disponibilidade.get) {
+			if (routeList.userLivroRating.disponibilidade.get) {
 
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.userPessoaHistorico.nome:
-    	    if (routeList.userPessoaHistorico.disponibilidade.get) {
+			if (routeList.userPessoaHistorico.disponibilidade.get) {
 
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.userSlfjComentarioRating.nome:
-    	    if (routeList.userSlfjComentarioRating.disponibilidade.get) {
+			if (routeList.userSlfjComentarioRating.disponibilidade.get) {
 
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.userSlfjComentario.nome:
-    	    if (routeList.userSlfjComentario.disponibilidade.get) {
+			if (routeList.userSlfjComentario.disponibilidade.get) {
 
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.userSlfjHistorico.nome:
-    	    if (routeList.userSlfjHistorico.disponibilidade.get) {
+			if (routeList.userSlfjHistorico.disponibilidade.get) {
 
-    	    } else res.json(errorList.indisponivel)
-    	    break
+			} else res.json(errorList.indisponivel)
+			break
 		default:
-    	    res.json(errorList.rota)
-    	    break
-    	}
+			res.json(errorList.rota)
+			break
+		}
   })
   .post("/API/:tabela", (req, res, next) => {
-    //Create
-    switch (req.params.tabela) {
-      	case routeList.categoria.nome:
+	//Create
+	switch (req.params.tabela) {
+	  	case routeList.categoria.nome:
 			if (routeList.categoria.disponibilidade.post) {
 				if (req.query.descricao) api.categoria.CreateCategoria(req.query.descricao, (error, result) => res.json(error ? { error } : { result }))
 				else res.json(errorList.parametros)
@@ -255,12 +255,12 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 				else res.json(errorList.parametros)
 			} else res.json(errorList.indisponivel)
 			break
-      	case routeList.editora.nome:
-        	if (routeList.editora.disponibilidade.post) {
+	  	case routeList.editora.nome:
+			if (routeList.editora.disponibilidade.post) {
 				if (req.query.nome) api.editora.CreateEditora(req.query.nome, (error, result) => res.json(error ? { error } : { result }))
 				else res.json(errorList.parametros)
-        	} else res.json(errorList.indisponivel)
-        	break
+			} else res.json(errorList.indisponivel)
+			break
 		case routeList.engine.nome:
 			if (routeList.engine.disponibilidade.post) {
 			if (req.query.nome) api.engine.CreateEngine(req.query.nome, (error, result) => res.json(error ? { error } : { result }))
@@ -421,11 +421,11 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 		default:
 			res.json(errorList.rota)
 			break
-    }
+	}
   })
   .put("/API/:tabela", (req, res, next) => {
-    //Update
-    switch (req.params.tabela) {
+	//Update
+	switch (req.params.tabela) {
 		case routeList.categoria.nome:
 			if (routeList.categoria.disponibilidade.put) {
 				if (req.query.id && req.query.descricao) api.categoria.UpdateCategoria(req.query.id, req.query.descricao, (error, result) => res.json(error ? { error } : { result }))
@@ -606,11 +606,11 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 		default:
 			res.json(errorList.rota)
 			break
-    }
+	}
   })
   .delete("/API/:tabela", (req, res, next) => {
-    //Delete
-    switch (req.params.tabela) {
+	//Delete
+	switch (req.params.tabela) {
 		case routeList.categoria.nome:
 			if (routeList.categoria.disponibilidade.delete) {
 				if (req.query.id) api.categoria.DeleteCategoria(req.query.id, (error, result) => res.json(error ? { error } : { result }))
@@ -791,7 +791,7 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 		default:
 			res.json(errorList.rota)
 			break
-    }
+	}
   })
 
 app.get("*", (req, res, next) => {
