@@ -35,8 +35,7 @@ var QueryGetTipo = (id, descricao, callback) => {
 	return new Promise((resolve, reject) => {
 		if (id || descricao) { // dados internos da tabela
 			QueryGetTipoTabelData(id, descricao, (error, result) => {
-				if(error) reject(error)
-				else resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result}`)
+				error ? reject(error) : resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result}`)
 			})
 		} else resolve(`SELECT * FROM ${tabela.tabela}`)
 	}).then(
@@ -48,8 +47,7 @@ var QueryGetTipo = (id, descricao, callback) => {
 // Trata da query do método Create
 var QueryCreateTipo = (descricao, callback) => {
 	return new Promise((resolve, reject) => {
-        if (descricao) resolve(`INSERT INTO ${tabela.tabela} (${tabela.descricao}) VALUES ('${descricao}')`)
-        else reject(db.message.dataError)
+        descricao ? resolve(`INSERT INTO ${tabela.tabela} (${tabela.descricao}) VALUES ('${descricao}') RETURNING *`) : reject(db.message.dataError)
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
@@ -59,8 +57,7 @@ var QueryCreateTipo = (descricao, callback) => {
 // Trata da query do método Update
 var QueryUpdateTipo = (id, descricao, callback) => {
 	return new Promise((resolve, reject) => {
-		if (descricao) resolve(`UPDATE ${tabela.tabela} SET ${tabela.descricao} = '${descricao}' WHERE ${tabela.id} = ${id}`)
-		else reject(db.message.dataError)
+		descricao ? resolve(`UPDATE ${tabela.tabela} SET ${tabela.descricao} = '${descricao}' WHERE ${tabela.id} = ${id} RETURNING *`) : reject(db.message.dataError)
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
@@ -70,8 +67,7 @@ var QueryUpdateTipo = (id, descricao, callback) => {
 // Trata da query do método Delete
 var QueryDeleteTipo = (id, callback) => {
 	return new Promise((resolve, reject) => {
-		if(!isNaN(Number(id))) resolve(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`)
-		else reject(db.message.dataError)
+		!isNaN(Number(id)) ? resolve(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id} RETURNING *`) : reject(db.message.dataError)
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
@@ -83,28 +79,16 @@ var QueryTipo = (id, descricao, action, callback) => {
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 
-				QueryGetTipo(id, descricao, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryGetTipo(id, descricao, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'create': 
-				QueryCreateTipo(descricao, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryCreateTipo(descricao, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'update':
-				QueryUpdateTipo(id, descricao, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryUpdateTipo(id, descricao, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'delete':
-				QueryDeleteTipo(id, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})        
+				QueryDeleteTipo(id, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			default:
 				reject(db.message.dataError)
@@ -120,18 +104,16 @@ var QueryTipo = (id, descricao, action, callback) => {
 var GetTipo = (id, descricao, callback) => {
   	return new Promise((resolve, reject) => {
 		QueryTipo(id, descricao, 'get', (error, result) => {
-			if (result) {
-				db.query(result, (error, result) => {
-					if (error) reject(db.message.internalError);
-					else if (!sizeOf(result)) reject(db.message.dataNotFound);
+			error ? reject(error) :	db.query(result, (error, result) => {
+					if (error) reject(db.message.internalError)
+					else if (!sizeOf(result)) reject(db.message.dataNotFound)
 					else resolve(result);
-				});
-			} else reject(error)
+				})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
-	);
+	)
 }		
 
 var CreateTipo = (descricao, callback) => {
@@ -140,12 +122,9 @@ var CreateTipo = (descricao, callback) => {
             if (result) reject(db.message.dataFound)
             else if (error == db.message.dataNotFound) {
                 QueryTipo(undefined, descricao, 'create', (error, result) => {
-                    if (result) {
-                        db.query(result, (error, result) => {
-                            if (error) reject(db.message.internalError);
-                            else resolve("Registo inserido com sucesso");
-                        });
-                    } else reject(error)
+                    error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: "Registo inserido com sucesso", data: result})
+					})
                 })
             } else reject(error)
         })
@@ -158,36 +137,26 @@ var CreateTipo = (descricao, callback) => {
 var UpdateTipo = (id, descricao, callback) => {
 	return new Promise((resolve, reject) => {
 		GetTipo(id, undefined, (error, result) => {
-			if(result) {
-				QueryTipo(id, descricao, 'update', (error, result) => {
-					if (result) {
-						db.query(result, (error, result) => {
-							if (error) reject(db.message.internalError);
-							else resolve("Registo atualizado com sucesso");
-						});
-					} else reject(error)
+			error ? reject(error) : QueryTipo(id, descricao, 'update', (error, result) => {
+				error ? reject(error) : db.query(result, (error, result) => {
+					error ? reject(db.message.internalError) : resolve({message: "Registo atualizado com sucesso", data: result}) 
 				})
-			} else reject(error)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
-	);
-};
+	)
+}
 
 var DeleteTipo = (id, callback) => {
 	return new Promise((resolve, reject) => {
 		GetTipo(id, undefined, (error, result) => {
-			if(result) {
-				QueryTipo(id, undefined, 'delete', (error, result) => {
-					if (result) {
-						db.query(result, (error, result) => {
-							if (error) reject(db.message.internalError);
-							else resolve("Registo apagado com sucesso");
-						});
-					} else reject(error)
+			error ? reject(error) : QueryTipo(id, undefined, 'delete', (error, result) => {
+				error ? reject(error) : db.query(result, (error, result) => {
+					error ? reject(db.message.internalError) : resolve({message: "Registo apagado com sucesso", data: result}) 
 				})
-			} else reject(error)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),

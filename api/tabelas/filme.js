@@ -25,30 +25,22 @@ const queryTabelas = {
 	get: `${slfj.tabela.tabela}.${slfj.tabela.id}, ${slfj.tabela.tabela}.${slfj.tabela.titulo}, ${slfj.tabela.tabela}.${slfj.tabela.foto}, ${slfj.tabela.tabela}.${slfj.tabela.sinopse}, ${categoria.tabela.tabela}.${categoria.tabela.descricao}, ${saga.tabela.tabela}.${saga.tabela.nome}, ${tabela.tabela}.${tabela.duracao}, ${tabela.tabela}.${tabela.dataLancamento}, ${filmePG.tabela.tabela}.${filmePG.tabela.rate}`
 }
 
-var VerifyCategoriaSaga = (categoriaId, sagaId, callback) => {
-	return new Promise ((resolve, reject) => {
-		categoria.GetCategoria(categoriaId, undefined, (error, result) => { 
-			error ? reject(error) : saga.GetSaga(sagaId, undefined, (error, result) =>  {
-				error ? reject(error) : resolve(true)
-			})
-		})
-	}).then(
-		resolve => callback(undefined, resolve),
-		err => callback(err, undefined)
-	)
-}
-
 var VerifyExternalTables = (slfjId, titulo, categoriaId, sagaId, filmePGId, callback) => {
-	//TODO: reordenar 
-	//deolve false se um dos valores estiver errado
+	//FIXME: se eu passar (undefined, titulo, undefined, sagaId), slfjId não vai ser pesquisado o titulo vai e se o titulo for valido vai pesquisar pela categoriaId mas como ela é undefined vai dar erro, nao validando a pesquisa do sagaId mais tarde criando um erro na pesquisa
 	return new Promise ((resolve, reject) => {
+		let numberOfErrors = 0
 		if (slfjId) {
 			slfj.GetSlfj(slfjId, undefined, undefined, undefined, (error, result) => {
-				error ? reject(error) : slfj.GetSlfj(undefined, titulo, undefined, undefined, (error, result) => {
-					error ? reject(error) : categoria.GetCategoria(categoriaId, undefined, (error, result) => {
-						error ? reject(error) : saga.GetSaga(sagaId, undefined, (error, result) => {
-							error ? reject(error) : filmePG.GetFilmePG(filmePGId, undefined, (error, result) => {
-								error ? reject(error) : resolve(true)
+				if (error) numberOfErrors++
+				slfj.GetSlfj(undefined, titulo, undefined, undefined, (error, result) => {
+					if (error) numberOfErrors++
+					categoria.GetCategoria(categoriaId, undefined, (error, result) => {
+						if (error) numberOfErrors++
+						saga.GetSaga(sagaId, undefined, (error, result) => {
+							if (error) numberOfErrors++
+							filmePG.GetFilmePG(filmePGId, undefined, (error, result) => {
+								if (error) numberOfErrors++
+								numberOfErrors ? reject(true) : resolve(true)
 							})
 						})
 					})
@@ -56,31 +48,40 @@ var VerifyExternalTables = (slfjId, titulo, categoriaId, sagaId, filmePGId, call
 			})
 		} else if (titulo) {
 			slfj.GetSlfj(undefined, titulo, undefined, undefined, (error, result) => {
-				error ? reject(error) : categoria.GetCategoria(categoriaId, undefined, (error, result) => {
-					error ? reject(error) : saga.GetSaga(sagaId, undefined, (error, result) => {
-						error ? reject(error) : filmePG.GetFilmePG(filmePGId, undefined, (error, result) => {
-							error ? reject(error) : resolve(true)
+				if (error) numberOfErrors++
+				categoria.GetCategoria(categoriaId, undefined, (error, result) => {
+					if (error) numberOfErrors++
+					saga.GetSaga(sagaId, undefined, (error, result) => {
+						if (error) numberOfErrors++
+						filmePG.GetFilmePG(filmePGId, undefined, (error, result) => {
+							if (error) numberOfErrors++
+							numberOfErrors ? reject(true) : resolve(true)
 						})
 					})
 				})
 			})
 		} else if (categoriaId) {
 			categoria.GetCategoria(categoriaId, undefined, (error, result) => {
-				error ? reject(error) : saga.GetSaga(sagaId, undefined, (error, result) => {
-					error ? reject(error) : filmePG.GetFilmePG(filmePGId, undefined, (error, result) => {
-						error ? reject(error) : resolve(true)
+				if (error) numberOfErrors++
+				saga.GetSaga(sagaId, undefined, (error, result) => {
+					if (error) numberOfErrors++
+					filmePG.GetFilmePG(filmePGId, undefined, (error, result) => {
+						if (error) numberOfErrors++
+						numberOfErrors ? reject(true) : resolve(true)
 					})
 				})
 			})
 		} else if (sagaId) {
 			saga.GetSaga(sagaId, undefined, (error, result) => {
-				error ? reject(error) : filmePG.GetFilmePG(filmePGId, undefined, (error, result) => {
-					error ? reject(error) : resolve(true)
+				if (error) numberOfErrors++
+				filmePG.GetFilmePG(filmePGId, undefined, (error, result) => {
+					if (error) numberOfErrors++
+					numberOfErrors ? reject(true) : resolve(true)
 				})
 			})
 		} else if (filmePGId) {
 			filmePG.GetFilmePG(filmePGId, undefined, (error, result) => {
-				error ? reject(error) : resolve(true)
+				error ? reject(true) : resolve(true)
 			})
 		} else reject (db.message.dataError)
 	}).then(
@@ -146,11 +147,9 @@ var QueryGetFilmeExternalTabelData = (slfjId, titulo, categoriaId, sagaId, callb
 }
 
 var QueryGetFilmeExternalTabel = (slfjId, titulo, categoriaId, sagaId, duracaoMin, duracaoMax, dataLancamento, filmePGId, callback) => {
-	//`SELECT * FROM ${tabela.tabela} INNER JOIN ${slfj.tabela} ON ${slfj.tabela.id} = ${tabela.slfjId}`
 	return new Promise((resolve, reject) => {
 		VerifyExternalTables(slfjId, titulo, categoriaId, sagaId, filmePGId, (error, result) => {
-			if (error) reject(error)
-			else QueryGetFilmeExternalTabelData(slfjId, titulo, categoriaId, sagaId, (error, result) => {
+			error ? reject(error) : QueryGetFilmeExternalTabelData(slfjId, titulo, categoriaId, sagaId, (error, result) => {
 				if (error) reject(error)
 				else {
 					if (duracaoMin || duracaoMax || dataLancamento) {
@@ -223,15 +222,12 @@ var QueryCreateFilmeTabelData = (titulo, foto, sinopse, callback) => {
 }
 
 // Trata da query do método Create
-var QueryCreateFilme = (titulo, foto, sinopse, categoriaId, sagaId, callback) => {
+var QueryCreateFilme = (titulo, categoriaId, sagaId, duracaoMin, duracaoMax, dataLancamento, filmePGId, callback) => {
 	return new Promise((resolve, reject) => {
-		VerifyCategoriaSaga(categoriaId, sagaId, (error, result) => {
-			if (result) {
-				QueryCreateFilmeTabelData(titulo, foto, sinopse, (error, result) => {
-					if(error) reject(error)
-					else if (result) resolve(`INSERT INTO ${tabela.tabela} (${result.tables}, ${tabela.categoriaId}, ${tabela.sagaId}) VALUES (${result.values}, ${categoriaId}, ${sagaId})`)
-				})
-			} else reject (error)
+		VerifyExternalTables(undefined, undefined, categoriaId, sagaId, undefined, (error, result) => {
+			error ? reject(error) : QueryCreateFilmeTabelData(titulo, foto, sinopse, (error, result) => {
+				error ? reject(error) : resolve(`INSERT INTO ${tabela.tabela} (${result.tables}, ${tabela.categoriaId}, ${tabela.sagaId}) VALUES (${result.values}, ${categoriaId}, ${sagaId}) RETURNING *`)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -272,39 +268,33 @@ var QueryUpdateFilme = (id, titulo, foto, sinopse, categoriaId, sagaId, callback
 		if (categoriaId || sagaId) { // dados de tabelas externas
 			if(categoriaId && sagaId) {
 				VerifyCategoriaSaga(categoriaId, sagaId, (error, result) => {
-					if (result) {
-						QueryUpdateFilmeTabelData(titulo, foto, sinopse, (error, result) => {
-							if(error) reject(error)
-							else if (result) resolve(`UPDATE ${tabela.tabela} SET ${result}, ${tabela.categoriaId} = ${categoriaId}, ${tabela.sagaId} = ${sagaId} WHERE ${tabela.id} = ${id}`)
-							else resolve(`UPDATE ${tabela.tabela} SET ${tabela.categoriaId} = ${categoriaId}, ${tabela.sagaId} = ${sagaId} WHERE ${tabela.id} = ${id}`)
-						})
-					} else reject (error)
+					error ? reject(error) :	QueryUpdateFilmeTabelData(titulo, foto, sinopse, (error, result) => {
+						if(error) reject(error)
+						else if (result) resolve(`UPDATE ${tabela.tabela} SET ${result}, ${tabela.categoriaId} = ${categoriaId}, ${tabela.sagaId} = ${sagaId} WHERE ${tabela.id} = ${id} RETURNING *`)
+						else resolve(`UPDATE ${tabela.tabela} SET ${tabela.categoriaId} = ${categoriaId}, ${tabela.sagaId} = ${sagaId} WHERE ${tabela.id} = ${id} RETURNING *`)
+					})
 				})
 			} else if (categoriaId) {
 				categoria.GetCategoria(categoriaId, undefined, (error, result) => {
-					if (result) {
-						QueryUpdateFilmeTabelData(titulo, foto, sinopse, (error, result) => {
-							if(error) reject(error)
-							else if (result) resolve(`UPDATE ${tabela.tabela} SET ${result}, ${tabela.categoriaId} = ${categoriaId} WHERE ${tabela.id} = ${id}`)
-							else resolve(`UPDATE ${tabela.tabela} SET ${tabela.categoriaId} = ${categoriaId} WHERE ${tabela.id} = ${id}`)
-						})
-					} else reject (error)
+					error ? reject(error) :	QueryUpdateFilmeTabelData(titulo, foto, sinopse, (error, result) => {
+						if(error) reject(error)
+						else if (result) resolve(`UPDATE ${tabela.tabela} SET ${result}, ${tabela.categoriaId} = ${categoriaId} WHERE ${tabela.id} = ${id} RETURNING *`)
+						else resolve(`UPDATE ${tabela.tabela} SET ${tabela.categoriaId} = ${categoriaId} WHERE ${tabela.id} = ${id} RETURNING *`)
+					})
 				})
 			} else if (sagaId) {
 				saga.GetSaga(sagaId, undefined, (error, result) => {
-					if (result) {
-						QueryUpdateFilmeTabelData(titulo, foto, sinopse, (error, result) => {
-							if(error) reject(error)
-							else if (result) resolve(`UPDATE ${tabela.tabela} SET ${result}, ${tabela.sagaId} = ${sagaId} WHERE ${tabela.id} = ${id}`)
-							else resolve(`UPDATE ${tabela.tabela} SET ${tabela.sagaId} = ${sagaId} WHERE ${tabela.id} = ${id}`)
-						})
-					} else reject (error)
+					error ? reject(error) :	QueryUpdateFilmeTabelData(titulo, foto, sinopse, (error, result) => {
+						if(error) reject(error)
+						else if (result) resolve(`UPDATE ${tabela.tabela} SET ${result}, ${tabela.sagaId} = ${sagaId} WHERE ${tabela.id} = ${id} RETURNING *`)
+						else resolve(`UPDATE ${tabela.tabela} SET ${tabela.sagaId} = ${sagaId} WHERE ${tabela.id} = ${id} RETURNING *`)
+					})
 				})
 			}
 		} else { // dados internos da tabela
 			QueryUpdateFilmeTabelData(titulo, foto, sinopse, (error, result) => {
 				if(error) reject(error)
-				else if (result) resolve(`UPDATE ${tabela.tabela} SET ${result} WHERE ${tabela.id} = ${id}`)
+				else if (result) resolve(`UPDATE ${tabela.tabela} SET ${result} WHERE ${tabela.id} = ${id} RETURNING *`)
 				else reject(error)
 			})
 		}
@@ -317,10 +307,7 @@ var QueryUpdateFilme = (id, titulo, foto, sinopse, categoriaId, sagaId, callback
 // Trata da query do método Delete
 var QueryDeleteFilme = (slfjId, callback) => {
 	return new Promise((resolve, reject) => {
-		slfj.DeleteSlfj(slfjId, (error, result) => {
-            if (error) reject(error)
-            else resolve(result)
-        })
+		slfj.DeleteSlfj(slfjId, (error, result) => error ? reject(error) : resolve(result) )
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
@@ -332,28 +319,16 @@ var QueryFilme = (slfjId, titulo, categoriaId, sagaId, duracaoMin, duracaoMax, d
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 
-				QueryGetFilme(slfjId, titulo, categoriaId, sagaId, duracaoMin, duracaoMax, dataLancamento, filmePGId, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryGetFilme(slfjId, titulo, categoriaId, sagaId, duracaoMin, duracaoMax, dataLancamento, filmePGId, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'create': 
-				QueryCreateFilme(undefined, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryCreateFilme(titulo, categoriaId, sagaId, duracaoMin, duracaoMax, dataLancamento, filmePGId, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'update':
-				QueryUpdateFilme(undefined, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryUpdateFilme(slfjId, titulo, categoriaId, sagaId, duracaoMin, duracaoMax, dataLancamento, filmePGId, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'delete':
-				QueryDeleteFilme(slfjId, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})        
+				QueryDeleteFilme(slfjId, (error, result) => error ? reject(error) : resolve(result) )      
 				break;
 			default:
 				reject(db.message.dataError)
@@ -369,13 +344,11 @@ var QueryFilme = (slfjId, titulo, categoriaId, sagaId, duracaoMin, duracaoMax, d
 var GetFilme = (slfjId, titulo, categoriaId, sagaId, duracaoMin, duracaoMax, dataLancamento, filmePGId, callback) => {
   	return new Promise((resolve, reject) => {
 		QueryFilme(slfjId, titulo, categoriaId, sagaId, duracaoMin, duracaoMax, dataLancamento, filmePGId, 'get', (error, result) => {
-            if (result) {
-				db.query(result, (error, result) => {
-					if (error) reject(db.message.internalError);
-					else if (!sizeOf(result)) reject(db.message.dataNotFound);
-					else resolve(result);
-				});
-			} else reject(error)
+            error ? reject(error) :	db.query(result, (error, result) => {
+				if (error) reject(db.message.internalError)
+				else if (!sizeOf(result)) reject(db.message.dataNotFound)
+				else resolve(result)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -386,12 +359,9 @@ var GetFilme = (slfjId, titulo, categoriaId, sagaId, duracaoMin, duracaoMax, dat
 var CreateFilme = (titulo, categoriaId, sagaId, duracaoMin, duracaoMax, dataLancamento, filmePGId, callback) => {
 	return new Promise((resolve, reject) => {
 		QueryFilme(undefined, titulo, categoriaId, sagaId, duracaoMin, duracaoMax, dataLancamento, filmePGId, 'create', (error, result) => {
-			if (result) {
-				db.query(result, (error, result) => {
-					if (error) reject(db.message.internalError);
-					else resolve('Registo inserido com sucesso');
-				});
-			} else reject(error)
+			error ? reject(error) : db.query(result, (error, result) => {
+				error ? reject(db.message.internalError) : resolve({message: "Registo inserido com sucesso", data: result})
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -402,16 +372,11 @@ var CreateFilme = (titulo, categoriaId, sagaId, duracaoMin, duracaoMax, dataLanc
 var UpdateFilme = (id, titulo, foto, sinopse, categoriaId, sagaId, callback) => {
 	return new Promise((resolve, reject) => {
 		GetFilme(id, undefined, undefined, undefined, (error, result) => {
-			if(result) {
-				QueryFilme(id, titulo, foto, sinopse, categoriaId, sagaId, 'update', (error, result) => {
-					if (result) {
-						db.query(result, (error, result) => {
-							if (error) reject(db.message.internalError);
-							else resolve('Registo atualizado com sucesso');
-						});
-					} else reject(error)
+			error ? reject(error) :	QueryFilme(id, titulo, foto, sinopse, categoriaId, sagaId, 'update', (error, result) => {
+				error ? reject(error) : db.query(result, (error, result) => {
+					error ? reject(db.message.internalError) : resolve({message: "Registo atualizado com sucesso", data: result}) 
 				})
-			} else reject(error)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -422,16 +387,11 @@ var UpdateFilme = (id, titulo, foto, sinopse, categoriaId, sagaId, callback) => 
 var DeleteFilme = (id, callback) => {
 	return new Promise((resolve, reject) => {
 		GetFilme(id, undefined, undefined, undefined, (error, result) => {
-			if(result) {
-				QueryFilme(id, undefined, undefined, undefined, undefined, undefined, 'delete', (error, result) => {
-					if (result) {
-						db.query(result, (error, result) => {
-							if (error) reject(db.message.internalError);
-							else resolve('Registo apagado com sucesso');
-						});
-					} else reject(error)
+			error ? reject(error) :	QueryFilme(id, undefined, undefined, undefined, undefined, undefined, 'delete', (error, result) => {
+				error ? reject(error) : db.query(result, (error, result) => {
+					error ? reject(db.message.internalError) : resolve({message: "Registo apagado com sucesso", data: result}) 
 				})
-			} else reject(error)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),

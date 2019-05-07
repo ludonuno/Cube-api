@@ -15,13 +15,13 @@ const tabela = {
 // Trata dos dados da ação Get que não requerem tabelas externas
 var QueryGetPessoaTabelData = (id, nome, dataNascimento, callback) => {
 	return new Promise((resolve, reject) => {
-        let queryParams = "", numeroParametros = 0
-        if(id) {            
-            if (!isNaN(Number(id))) {
-                queryParams += `${tabela.id} = ${id}`
-                numeroParametros++;
-            } else reject(db.message.dataError)
-        }
+		let queryParams = "", numeroParametros = 0
+		if(id) {            
+			if (!isNaN(Number(id))) {
+				queryParams += `${tabela.id} = ${id}`
+				numeroParametros++;
+			} else reject(db.message.dataError)
+		}
 		if (nome) {
 			if (numeroParametros) queryParams += ' AND '
 			queryParams += `${tabela.nome} LIKE '%${nome}%'`
@@ -129,7 +129,7 @@ var QueryGetPessoa = (id, nome, dataNascimento, callback) => {
 var QueryCreatePessoa = (nome, foto, dataNascimento, biografia, callback) => {
 	return new Promise((resolve, reject) => {
 		QueryCreatePessoaTabelData(nome, foto, dataNascimento, biografia, (error, result) => {
-			error ? reject(error) : resolve(`INSERT INTO ${tabela.tabela} (${result.tables}) VALUES (${result.values})`)
+			error ? reject(error) : resolve(`INSERT INTO ${tabela.tabela} (${result.tables}) VALUES (${result.values}) RETURNING *`)
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -141,7 +141,7 @@ var QueryCreatePessoa = (nome, foto, dataNascimento, biografia, callback) => {
 var QueryUpdatePessoa = (id, nome, foto, dataNascimento, biografia, callback) => {
 	return new Promise((resolve, reject) => {
 		QueryUpdatePessoaTabelData(nome, foto, dataNascimento, biografia, (error, result) => {
-			error ? reject(error) : resolve(`UPDATE ${tabela.tabela} SET ${result} WHERE ${tabela.id} = ${id}`)
+			error ? reject(error) : resolve(`UPDATE ${tabela.tabela} SET ${result} WHERE ${tabela.id} = ${id} RETURNING *`)
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -152,7 +152,7 @@ var QueryUpdatePessoa = (id, nome, foto, dataNascimento, biografia, callback) =>
 // Trata da query do método Delete
 var QueryDeletePessoa = (id, callback) => {
 	return new Promise((resolve, reject) => {
-		!isNaN(Number(id)) ? resolve(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`) : reject(db.message.dataError)
+		!isNaN(Number(id)) ? resolve(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id} RETURNING *`) : reject(db.message.dataError)
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
@@ -189,60 +189,54 @@ var QueryPessoa = (id, nome, foto, dataNascimento, biografia, action, callback) 
 var GetPessoa = (id, nome, dataNascimento, callback) => {
   	return new Promise((resolve, reject) => {
 		QueryPessoa(id, nome, undefined, dataNascimento, undefined, 'get', (error, result) => {
-			if (result) {
-				db.query(result, (error, result) => {
-					if (error) reject(db.message.internalError);
-					else if (!sizeOf(result)) reject(db.message.dataNotFound);
-					else resolve(result);
-				});
-			} else reject(error)
+			error ? reject(error) :	db.query(result, (error, result) => {
+				if (error) reject(db.message.internalError)
+				else if (!sizeOf(result)) reject(db.message.dataNotFound)
+				else resolve(result)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
-	);
+	)
 }		
 
 var CreatePessoa = (nome, foto, dataNascimento, biografia, callback) => {
 	return new Promise((resolve, reject) => {
 		QueryPessoa(undefined, nome, foto, dataNascimento, biografia, 'create', (error, result) => {
-			if (result) {
-				db.query(result, (error, result) => {
-					error ? reject(db.message.internalError) : resolve("Registo inserido com sucesso")
-				});
-			} else reject(error)
+			error ? reject(error) : db.query(result, (error, result) => {
+				error ? reject(db.message.internalError) : resolve({message: "Registo inserido com sucesso", data: result})
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
-	);
-};
+	)
+}
 
 var UpdatePessoa = (id, nome, foto, dataNascimento, biografia, callback) => {
 	return new Promise((resolve, reject) => {
 		GetPessoa(id, undefined, undefined, (error, result) => {
-			if(result) {
-				QueryPessoa(id, nome, foto, dataNascimento, biografia, 'update', (error, result) => {
-					if (result) db.query(result, (error, result) => error ? reject(db.message.internalError) : resolve("Registo atualizado com sucesso") )
-					else reject(error)
+			error ? reject(error) : QueryPessoa(id, nome, foto, dataNascimento, biografia, 'update', (error, result) => {
+				error ? reject(error) : db.query(result, (error, result) => {
+					error ? reject(db.message.internalError) : resolve({message: "Registo atualizado com sucesso", data: result}) 
 				})
-			} else reject(error)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
-	);
-};
+	)
+}
 
 var DeletePessoa = (id, callback) => {
 	return new Promise((resolve, reject) => {
 		GetPessoa(id, undefined, undefined, (error, result) => {
-			if(result) {
-				QueryPessoa(id, undefined, undefined, undefined, undefined, 'delete', (error, result) => {
-					if (result) db.query(result, (error, result) => error ? reject(db.message.internalError) : resolve("Registo apagado com sucesso") )
-					else reject(error)
+			error ? reject(error) : QueryPessoa(id, undefined, undefined, undefined, undefined, 'delete', (error, result) => {
+				error ? reject(error) : db.query(result, (error, result) => {
+					error ? reject(db.message.internalError) : resolve({message: "Registo apagado com sucesso", data: result}) 
 				})
-			} else reject(error)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),

@@ -33,8 +33,7 @@ var QueryGetSaga = (id, nome, callback) => {
 	return new Promise((resolve, reject) => {
 		if (id || nome) { // dados internos da tabela
 			QueryGetSagaTabelData(id, nome, (error, result) => {
-				if(error) reject(error)
-				else resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result}`)
+				error ? reject(error) : resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result}`)
 			})
 		} else resolve(`SELECT * FROM ${tabela.tabela}`)
 	}).then(
@@ -46,8 +45,7 @@ var QueryGetSaga = (id, nome, callback) => {
 // Trata da query do método Create
 var QueryCreateSaga = (nome, callback) => {
 	return new Promise((resolve, reject) => {
-        if (nome) resolve(`INSERT INTO ${tabela.tabela} (${tabela.nome}) VALUES (${nome})`)
-        else reject(db.message.dataError)
+        nome ? resolve(`INSERT INTO ${tabela.tabela} (${tabela.nome}) VALUES (${nome}) RETURNING *`) : reject(db.message.dataError)
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
@@ -57,8 +55,7 @@ var QueryCreateSaga = (nome, callback) => {
 // Trata da query do método Update
 var QueryUpdateSaga = (id, nome, callback) => {
 	return new Promise((resolve, reject) => {
-		if (nome) resolve(`UPDATE ${tabela.tabela} SET ${tabela.nome} = '${nome}' WHERE ${tabela.id} = ${id}`)
-		else reject(db.message.dataError)
+		nome ? resolve(`UPDATE ${tabela.tabela} SET ${tabela.nome} = '${nome}' WHERE ${tabela.id} = ${id} RETURNING *`) : reject(db.message.dataError)
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
@@ -68,8 +65,7 @@ var QueryUpdateSaga = (id, nome, callback) => {
 // Trata da query do método Delete
 var QueryDeleteSaga = (id, callback) => {
 	return new Promise((resolve, reject) => {
-		if(!isNaN(Number(id))) resolve(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`)
-		else reject(db.message.dataError)
+		!isNaN(Number(id)) ? resolve(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id} RETURNING *`) :  reject(db.message.dataError)
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
@@ -81,28 +77,16 @@ var QuerySaga = (id, nome, action, callback) => {
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 
-				QueryGetSaga(id, nome, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryGetSaga(id, nome, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'create': 
-				QueryCreateSaga(nome, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryCreateSaga(nome, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'update':
-				QueryUpdateSaga(id, nome, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryUpdateSaga(id, nome, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'delete':
-				QueryDeleteSaga(id, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})        
+				QueryDeleteSaga(id, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			default:
 				reject(db.message.dataError)
@@ -118,13 +102,11 @@ var QuerySaga = (id, nome, action, callback) => {
 var GetSaga = (id, nome, callback) => {
   	return new Promise((resolve, reject) => {
 		QuerySaga(id, nome, 'get', (error, result) => {
-			if (result) {
-				db.query(result, (error, result) => {
-					if (error) reject(db.message.internalError);
-					else if (!sizeOf(result)) reject(db.message.dataNotFound);
-					else resolve(result);
-				});
-			} else reject(error)
+			error ? reject(error) :	db.query(result, (error, result) => {
+				if (error) reject(db.message.internalError);
+				else if (!sizeOf(result)) reject(db.message.dataNotFound);
+				else resolve(result);
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -138,12 +120,9 @@ var CreateSaga = (nome, callback) => {
             if (result) reject(db.message.dataFound)
             else if (error == db.message.dataNotFound) {
                 QuerySaga(undefined, nome, 'create', (error, result) => {
-                    if (result) {
-                        db.query(result, (error, result) => {
-                            if (error) reject(db.message.internalError);
-                            else resolve("Registo inserido com sucesso");
-                        });
-                    } else reject(error)
+                    error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: "Registo inserido com sucesso", data: result})
+					})
                 })
             } else reject(error)
         })
@@ -156,16 +135,11 @@ var CreateSaga = (nome, callback) => {
 var UpdateSaga = (id, ome, callback) => {
 	return new Promise((resolve, reject) => {
 		GetSaga(id, undefined, (error, result) => {
-			if(result) {
-				QuerySaga(id, nome, 'update', (error, result) => {
-					if (result) {
-						db.query(result, (error, result) => {
-							if (error) reject(db.message.internalError);
-							else resolve("Registo atualizado com sucesso");
-						});
-					} else reject(error)
+			error ? reject(error) :	QuerySaga(id, nome, 'update', (error, result) => {
+				error ? reject(error) : db.query(result, (error, result) => {
+					error ? reject(db.message.internalError) : resolve({message: "Registo atualizado com sucesso", data: result}) 
 				})
-			} else reject(error)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -176,16 +150,11 @@ var UpdateSaga = (id, ome, callback) => {
 var DeleteSaga = (id, callback) => {
 	return new Promise((resolve, reject) => {
 		GetSaga(id, undefined, (error, result) => {
-			if(result) {
-				QuerySaga(id, undefined, 'delete', (error, result) => {
-					if (result) {
-						db.query(result, (error, result) => {
-							if (error) reject(db.message.internalError);
-							else resolve("Registo apagado com sucesso");
-						});
-					} else reject(error)
+			error ? reject(error) :	QuerySaga(id, undefined, 'delete', (error, result) => {
+				error ? reject(error) : db.query(result, (error, result) => {
+					error ? reject(db.message.internalError) : resolve({message: "Registo apagado com sucesso", data: result}) 
 				})
-			} else reject(error)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),

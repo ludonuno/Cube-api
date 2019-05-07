@@ -35,8 +35,7 @@ var QueryGetFuncao = (id, descricao, callback) => {
 	return new Promise((resolve, reject) => {
 		if (id || descricao) { // dados internos da tabela
 			QueryGetFuncaoTabelData(id, descricao, (error, result) => {
-				if(error) reject(error)
-				else resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result}`)
+				error ? reject(error) : resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result}`)
 			})
 		} else resolve(`SELECT * FROM ${tabela.tabela}`)
 	}).then(
@@ -48,8 +47,7 @@ var QueryGetFuncao = (id, descricao, callback) => {
 // Trata da query do método Create
 var QueryCreateFuncao = (descricao, callback) => {
 	return new Promise((resolve, reject) => {
-        if (descricao) resolve(`INSERT INTO ${tabela.tabela} (${tabela.descricao}) VALUES (${descricao})`)
-        else reject(db.message.dataError)
+        descricao ? resolve(`INSERT INTO ${tabela.tabela} (${tabela.descricao}) VALUES (${descricao}) RETURNING *`) : reject(db.message.dataError)
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
@@ -59,8 +57,7 @@ var QueryCreateFuncao = (descricao, callback) => {
 // Trata da query do método Update
 var QueryUpdateFuncao = (id, descricao, callback) => {
 	return new Promise((resolve, reject) => {
-		if (descricao) resolve(`UPDATE ${tabela.tabela} SET ${tabela.descricao} = '${descricao}' WHERE ${tabela.id} = ${id}`)
-		else reject(db.message.dataError)
+		descricao ? resolve(`UPDATE ${tabela.tabela} SET ${tabela.descricao} = '${descricao}' WHERE ${tabela.id} = ${id} RETURNING *`) : reject(db.message.dataError)
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
@@ -70,8 +67,7 @@ var QueryUpdateFuncao = (id, descricao, callback) => {
 // Trata da query do método Delete
 var QueryDeleteFuncao = (id, callback) => {
 	return new Promise((resolve, reject) => {
-		if(!isNaN(Number(id))) resolve(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`)
-		else reject(db.message.dataError)
+		!isNaN(Number(id)) ? resolve(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id} RETURNING *`) : reject(db.message.dataError)
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
@@ -83,28 +79,16 @@ var QueryFuncao = (id, rate, descricao, action, callback) => {
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 
-				QueryGetFuncao(id, rate, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryGetFuncao(id, rate, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'create': 
-				QueryCreateFuncao(rate, descricao, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryCreateFuncao(rate, descricao, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'update':
-				QueryUpdateFuncao(id, rate, descricao, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryUpdateFuncao(id, rate, descricao, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'delete':
-				QueryDeleteFuncao(id, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})        
+				QueryDeleteFuncao(id, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			default:
 				reject(db.message.dataError)
@@ -120,13 +104,11 @@ var QueryFuncao = (id, rate, descricao, action, callback) => {
 var GetFuncao = (id, rate, callback) => {
   	return new Promise((resolve, reject) => {
 		QueryFuncao(id, rate, undefined, 'get', (error, result) => {
-			if (result) {
-				db.query(result, (error, result) => {
-					if (error) reject(db.message.internalError);
-					else if (!sizeOf(result)) reject(db.message.dataNotFound);
-					else resolve(result);
-				});
-			} else reject(error)
+			error ? reject(error) : db.query(result, (error, result) => {
+				if (error) reject(db.message.internalError);
+				else if (!sizeOf(result)) reject(db.message.dataNotFound);
+				else resolve(result);
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -140,12 +122,9 @@ var CreateFuncao = (rate, descricao, callback) => {
             if (result) reject(db.message.dataFound)
             else if (error == db.message.dataNotFound) {
                 QueryFuncao(undefined, rate, descricao, 'create', (error, result) => {
-                    if (result) {
-                        db.query(result, (error, result) => {
-                            if (error) reject(db.message.internalError);
-                            else resolve("Registo inserido com sucesso");
-                        });
-                    } else reject(error)
+                    error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: "Registo inserido com sucesso", data: result})
+					})
                 })
             } else reject(error)
         })
@@ -158,16 +137,11 @@ var CreateFuncao = (rate, descricao, callback) => {
 var UpdateFuncao = (id, rate, descricao, callback) => {
 	return new Promise((resolve, reject) => {
 		GetFuncao(id, undefined, (error, result) => {
-			if(result) {
-				QueryFuncao(id, rate, descricao, 'update', (error, result) => {
-					if (result) {
-						db.query(result, (error, result) => {
-							if (error) reject(db.message.internalError);
-							else resolve("Registo atualizado com sucesso");
-						});
-					} else reject(error)
+			error ? reject(error) : QueryFuncao(id, rate, descricao, 'update', (error, result) => {
+				error ? reject(error) : db.query(result, (error, result) => {
+					error ? reject(db.message.internalError) : resolve({message: "Registo atualizado com sucesso", data: result}) 
 				})
-			} else reject(error)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -178,16 +152,11 @@ var UpdateFuncao = (id, rate, descricao, callback) => {
 var DeleteFuncao = (id, callback) => {
 	return new Promise((resolve, reject) => {
 		GetFuncao(id, undefined, (error, result) => {
-			if(result) {
-				QueryFuncao(id, undefined, undefined, 'delete', (error, result) => {
-					if (result) {
-						db.query(result, (error, result) => {
-							if (error) reject(db.message.internalError);
-							else resolve("Registo apagado com sucesso");
-						});
-					} else reject(error)
+			error ? reject(error) :	QueryFuncao(id, undefined, undefined, 'delete', (error, result) => {
+				error ? reject(error) : db.query(result, (error, result) => {
+					error ? reject(db.message.internalError) : resolve({message: "Registo apagado com sucesso", data: result}) 
 				})
-			} else reject(error)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),

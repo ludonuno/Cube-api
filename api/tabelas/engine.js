@@ -35,8 +35,7 @@ var QueryGetEngine = (id, nome, callback) => {
 	return new Promise((resolve, reject) => {
 		if (id || nome) { // dados internos da tabela
 			QueryGetEngineTabelData(id, nome, (error, result) => {
-				if(error) reject(error)
-				else resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result}`)
+				error ? reject(error) : resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result}`)
 			})
 		} else resolve(`SELECT * FROM ${tabela.tabela}`)
 	}).then(
@@ -48,8 +47,7 @@ var QueryGetEngine = (id, nome, callback) => {
 // Trata da query do método Create
 var QueryCreateEngine = (nome, callback) => {
 	return new Promise((resolve, reject) => {
-        if (nome) resolve(`INSERT INTO ${tabela.tabela} (${tabela.nome}) VALUES (${nome})`)
-        else reject(db.message.dataError)
+        error ? reject(db.message.dataError) : resolve(`INSERT INTO ${tabela.tabela} (${tabela.nome}) VALUES (${nome}) RETURNING *`)
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
@@ -59,8 +57,7 @@ var QueryCreateEngine = (nome, callback) => {
 // Trata da query do método Update
 var QueryUpdateEngine = (id, nome, callback) => {
 	return new Promise((resolve, reject) => {
-		if (nome) resolve(`UPDATE ${tabela.tabela} SET ${tabela.nome} = '${nome}' WHERE ${tabela.id} = ${id}`)
-		else reject(db.message.dataError)
+		nome ? resolve(`UPDATE ${tabela.tabela} SET ${tabela.nome} = '${nome}' WHERE ${tabela.id} = ${id} RETURNING *`) : reject(db.message.dataError)
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
@@ -70,8 +67,7 @@ var QueryUpdateEngine = (id, nome, callback) => {
 // Trata da query do método Delete
 var QueryDeleteEngine = (id, callback) => {
 	return new Promise((resolve, reject) => {
-		if(!isNaN(Number(id))) resolve(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`)
-		else reject(db.message.dataError)
+		!isNaN(Number(id)) ? resolve(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id} RETURNING *`) : reject(db.message.dataError)
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
@@ -83,28 +79,16 @@ var QueryEngine = (id, nome, action, callback) => {
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 
-				QueryGetEngine(id, nome, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryGetEngine(id, nome, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'create': 
-				QueryCreateEngine(nome, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryCreateEngine(nome, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'update':
-				QueryUpdateEngine(id, nome, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryUpdateEngine(id, nome, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'delete':
-				QueryDeleteEngine(id, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})        
+				QueryDeleteEngine(id, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			default:
 				reject(db.message.dataError)
@@ -120,13 +104,11 @@ var QueryEngine = (id, nome, action, callback) => {
 var GetEngine = (id, nome, callback) => {
   	return new Promise((resolve, reject) => {
 		QueryEngine(id, nome, 'get', (error, result) => {
-			if (result) {
-				db.query(result, (error, result) => {
-					if (error) reject(db.message.internalError);
-					else if (!sizeOf(result)) reject(db.message.dataNotFound);
-					else resolve(result);
-				});
-			} else reject(error)
+			error ? reject(error) :	db.query(result, (error, result) => {
+				if (error) reject(db.message.internalError)
+				else if (!sizeOf(result)) reject(db.message.dataNotFound)
+				else resolve(result)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -140,12 +122,9 @@ var CreateEngine = (nome, callback) => {
             if (result) reject(db.message.dataFound)
             else if (error == db.message.dataNotFound) {
                 QueryEngine(undefined, nome, 'create', (error, result) => {
-                    if (result) {
-                        db.query(result, (error, result) => {
-                            if (error) reject(db.message.internalError);
-                            else resolve("Registo inserido com sucesso");
-                        });
-                    } else reject(error)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: "Registo inserido com sucesso", data: result})
+					})
                 })
             } else reject(error)
         })
@@ -158,16 +137,11 @@ var CreateEngine = (nome, callback) => {
 var UpdateEngine = (id, ome, callback) => {
 	return new Promise((resolve, reject) => {
 		GetEngine(id, undefined, (error, result) => {
-			if(result) {
-				QueryEngine(id, nome, 'update', (error, result) => {
-					if (result) {
-						db.query(result, (error, result) => {
-							if (error) reject(db.message.internalError);
-							else resolve("Registo atualizado com sucesso");
-						});
-					} else reject(error)
+			error ? reject(error) : QueryEngine(id, nome, 'update', (error, result) => {
+				error ? reject(error) : db.query(result, (error, result) => {
+					error ? reject(error) : resolve({message: "Registo atualizado com sucesso", data: result})
 				})
-			} else reject(error)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -178,16 +152,11 @@ var UpdateEngine = (id, ome, callback) => {
 var DeleteEngine = (id, callback) => {
 	return new Promise((resolve, reject) => {
 		GetEngine(id, undefined, (error, result) => {
-			if(result) {
-				QueryEngine(id, undefined, 'delete', (error, result) => {
-					if (result) {
-						db.query(result, (error, result) => {
-							if (error) reject(db.message.internalError);
-							else resolve("Registo apagado com sucesso");
-						});
-					} else reject(error)
+			error ? reject(error) :	QueryEngine(id, undefined, 'delete', (error, result) => {
+				error ? reject(error) : db.query(result, (error, result) => {
+					error ? reject(db.message.internalError) : resolve({message: "Registo apagado com sucesso", data: result}) 
 				})
-			} else reject(error)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
