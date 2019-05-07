@@ -35,8 +35,7 @@ var QueryGetCategoria = (id, descricao, callback) => {
 	return new Promise((resolve, reject) => {
 		if (id || descricao) { // dados internos da tabela
 			QueryGetCategoriaTabelData(id, descricao, (error, result) => {
-				if(error) reject(error)
-				else resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result}`)
+				error ? reject(error) : resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result}`)
 			})
 		} else resolve(`SELECT * FROM ${tabela.tabela}`)
 	}).then(
@@ -48,8 +47,7 @@ var QueryGetCategoria = (id, descricao, callback) => {
 // Trata da query do método Create
 var QueryCreateCategoria = (descricao, callback) => {
 	return new Promise((resolve, reject) => {
-        if (descricao) resolve(`INSERT INTO ${tabela.tabela} (${tabela.descricao}) VALUES (${descricao})`)
-        else reject(db.message.dataError)
+		descricao ? reject(db.message.dataError) : resolve(`INSERT INTO ${tabela.tabela} (${tabela.descricao}) VALUES ('${descricao}') RETURNING *`)
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
@@ -59,8 +57,7 @@ var QueryCreateCategoria = (descricao, callback) => {
 // Trata da query do método Update
 var QueryUpdateCategoria = (id, descricao, callback) => {
 	return new Promise((resolve, reject) => {
-		if (descricao) resolve(`UPDATE ${tabela.tabela} SET ${tabela.descricao} = '${descricao}' WHERE ${tabela.id} = ${id}`)
-		else reject(db.message.dataError)
+		descricao ? reject(db.message.dataError) : resolve(`UPDATE ${tabela.tabela} SET ${tabela.descricao} = '${descricao}' WHERE ${tabela.id} = ${id} RETURNING *`)
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
@@ -70,8 +67,7 @@ var QueryUpdateCategoria = (id, descricao, callback) => {
 // Trata da query do método Delete
 var QueryDeleteCategoria = (id, callback) => {
 	return new Promise((resolve, reject) => {
-		if(!isNaN(Number(id))) resolve(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`)
-		else reject(db.message.dataError)
+		!isNaN(Number(id)) ? resolve(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id} RETURNING *`) : reject(db.message.dataError)
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
@@ -79,32 +75,20 @@ var QueryDeleteCategoria = (id, callback) => {
 }
 
 // Obtem a query dependendo dos dados que são passados
-var QueryCategoria = (id, rate, descricao, action, callback) => {
+var QueryCategoria = (id, descricao, action, callback) => {
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 
-				QueryGetCategoria(id, rate, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryGetCategoria(id, descricao, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'create': 
-				QueryCreateCategoria(rate, descricao, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryCreateCategoria(descricao, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'update':
-				QueryUpdateCategoria(id, rate, descricao, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryUpdateCategoria(id, descricao, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'delete':
-				QueryDeleteCategoria(id, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})        
+				QueryDeleteCategoria(id, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			default:
 				reject(db.message.dataError)
@@ -117,16 +101,14 @@ var QueryCategoria = (id, rate, descricao, action, callback) => {
 }
 
 //Exports
-var GetCategoria = (id, rate, callback) => {
+var GetCategoria = (id, descricao, callback) => {
   	return new Promise((resolve, reject) => {
-		QueryCategoria(id, rate, undefined, 'get', (error, result) => {
-			if (result) {
-				db.query(result, (error, result) => {
-					if (error) reject(db.message.internalError);
-					else if (!sizeOf(result)) reject(db.message.dataNotFound);
-					else resolve(result);
-				});
-			} else reject(error)
+		QueryCategoria(id, descricao, 'get', (error, result) => {
+			error ? reject(error) :	db.query(result, (error, result) => {
+				if (error) reject(db.message.internalError)
+				else if (!sizeOf(result)) reject(db.message.dataNotFound)
+				else resolve(result)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -134,40 +116,32 @@ var GetCategoria = (id, rate, callback) => {
 	);
 }		
 
-var CreateCategoria = (rate, descricao, callback) => {
+var CreateCategoria = (descricao, callback) => {
 	return new Promise((resolve, reject) => {
-        GetCategoria(undefined, rate, (error, result) => {
-            if (result) reject(db.message.dataFound)
-            else if (error == db.message.dataNotFound) {
-                QueryCategoria(undefined, rate, descricao, 'create', (error, result) => {
-                    if (result) {
-                        db.query(result, (error, result) => {
-                            if (error) reject(db.message.internalError);
-                            else resolve("Registo inserido com sucesso");
-                        });
-                    } else reject(error)
-                })
-            } else reject(error)
-        })
+		GetCategoria(undefined, descricao, (error, result) => {
+			if (result) reject(db.message.dataFound)
+			else if (error == db.message.dataNotFound) {
+				QueryCategoria(undefined, descricao, 'create', (error, result) => {
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: "Registo inserido com sucesso", data: result})
+					})
+				})
+			} else reject(error)
+		})
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
 	);
 };
 
-var UpdateCategoria = (id, rate, descricao, callback) => {
+var UpdateCategoria = (id, descricao, callback) => {
 	return new Promise((resolve, reject) => {
 		GetCategoria(id, undefined, (error, result) => {
-			if(result) {
-				QueryCategoria(id, rate, descricao, 'update', (error, result) => {
-					if (result) {
-						db.query(result, (error, result) => {
-							if (error) reject(db.message.internalError);
-							else resolve("Registo atualizado com sucesso");
-						});
-					} else reject(error)
+			error ? reject(error) :	QueryCategoria(id, descricao, 'update', (error, result) => {
+				error ? reject(error) : db.query(result, (error, result) => {
+					error ? reject(db.message.internalError) : resolve({message: "Registo atualizado com sucesso", data: result}) 
 				})
-			} else reject(error)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -178,16 +152,11 @@ var UpdateCategoria = (id, rate, descricao, callback) => {
 var DeleteCategoria = (id, callback) => {
 	return new Promise((resolve, reject) => {
 		GetCategoria(id, undefined, (error, result) => {
-			if(result) {
-				QueryCategoria(id, undefined, undefined, 'delete', (error, result) => {
-					if (result) {
-						db.query(result, (error, result) => {
-							if (error) reject(db.message.internalError);
-							else resolve("Registo apagado com sucesso");
-						});
-					} else reject(error)
+			error ? reject(error) :	QueryCategoria(id, undefined, 'delete', (error, result) => {
+				error ? reject(error) : db.query(result, (error, result) => {
+					error ? reject(db.message.internalError) : resolve({message: "Registo apagado com sucesso", data: result}) 
 				})
-			} else reject(error)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),

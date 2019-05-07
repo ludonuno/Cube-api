@@ -55,33 +55,27 @@ var QueryGetSlfjExternalTabelData = (id, titulo, categoriaId, sagaId, callback) 
 	return new Promise((resolve, reject) => {
 		if(categoriaId && sagaId) {
 			VerifyCategoriaSaga(categoriaId, sagaId, (error, result) => {
-				if (result) {
-					QueryGetSlfjTabelData(id, titulo, (error, result) => {
-						if(error) reject(error)
-						else if (result)resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result} AND ${tabela.categoriaId} = ${categoriaId} AND ${tabela.sagaId} = ${sagaId}`)
-						else resolve(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.categoriaId} = ${categoriaId} AND ${tabela.sagaId} = ${sagaId}`)
-					})
-				} else reject (error)
+				error ? reject(error) :	QueryGetSlfjTabelData(id, titulo, (error, result) => {
+					if(error) reject(error)
+					else if (result)resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result} AND ${tabela.categoriaId} = ${categoriaId} AND ${tabela.sagaId} = ${sagaId}`)
+					else resolve(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.categoriaId} = ${categoriaId} AND ${tabela.sagaId} = ${sagaId}`)
+				})
 			})
 		} else if (categoriaId) {
 			categoria.GetCategoria(categoriaId, undefined, (error, result) => {
-				if (result) {
-					QueryGetSlfjTabelData(id, titulo, (error, result) => {
-						if(error) reject(error)
-						else if (result) resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result} AND ${tabela.categoriaId} = ${categoriaId}`)
-						else resolve(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.categoriaId} = ${categoriaId}`)
-					})
-				} else reject (error)
+				error ? reject(error) : QueryGetSlfjTabelData(id, titulo, (error, result) => {
+					if(error) reject(error)
+					else if (result) resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result} AND ${tabela.categoriaId} = ${categoriaId}`)
+					else resolve(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.categoriaId} = ${categoriaId}`)
+				})
 			})
 		} else {
 			saga.GetSaga(sagaId, undefined, (error, result) => {
-				if (result) {
-					QueryGetSlfjTabelData(id, titulo, (error, result) => {
-						if(error) reject(error)
-						else if (result) resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result} AND ${tabela.sagaId} = ${sagaId}`)
-						else resolve(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.sagaId} = ${sagaId}`)
-					})
-				} else reject (error)
+				error ? reject(error) :	QueryGetSlfjTabelData(id, titulo, (error, result) => {
+					if(error) reject(error)
+					else if (result) resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result} AND ${tabela.sagaId} = ${sagaId}`)
+					else resolve(`SELECT * FROM ${tabela.tabela} WHERE ${tabela.sagaId} = ${sagaId}`)
+				})
 			})
 		}
 	}).then(
@@ -156,13 +150,11 @@ var QueryGetSlfj = (id, titulo, categoriaId, sagaId, callback) => {
 	return new Promise((resolve, reject) => {
 		if (categoriaId || sagaId) { // dados de tabelas externas
 			QueryGetSlfjExternalTabelData(id, titulo, categoriaId, sagaId, (error, result) => {
-				if (error) reject(error)
-				else resolve(result)
+				error ? reject(error) : resolve(result)
 			})
 		} else if (id || titulo) { // dados internos da tabela
 			QueryGetSlfjTabelData(id, titulo, (error, result) => {
-				if(error) reject(error)
-				else resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result}`)
+				error ? reject(error) : resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result}`)
 			})
 		} else resolve(`SELECT * FROM ${tabela.tabela}`)
 	}).then(
@@ -175,12 +167,9 @@ var QueryGetSlfj = (id, titulo, categoriaId, sagaId, callback) => {
 var QueryCreateSlfj = (titulo, foto, sinopse, categoriaId, sagaId, callback) => {
 	return new Promise((resolve, reject) => {
 		VerifyCategoriaSaga(categoriaId, sagaId, (error, result) => {
-			if (result) {
-				QueryCreateSlfjTabelData(titulo, foto, sinopse, (error, result) => {
-					if(error) reject(error)
-					else if (result) resolve(`INSERT INTO ${tabela.tabela} (${result.tables}, ${tabela.categoriaId}, ${tabela.sagaId}) VALUES (${result.values}, ${categoriaId}, ${sagaId})`)
-				})
-			} else reject (error)
+			error ? reject(error) : QueryCreateSlfjTabelData(titulo, foto, sinopse, (error, result) => {
+				error ? reject(error) : resolve(`INSERT INTO ${tabela.tabela} (${result.tables}, ${tabela.categoriaId}, ${tabela.sagaId}) VALUES (${result.values}, ${categoriaId}, ${sagaId}) RETURNING *`)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -197,8 +186,8 @@ var QueryUpdateSlfj = (id, titulo, foto, sinopse, categoriaId, sagaId, callback)
 					if (result) {
 						QueryUpdateSlfjTabelData(titulo, foto, sinopse, (error, result) => {
 							if(error) reject(error)
-							else if (result) resolve(`UPDATE ${tabela.tabela} SET ${result}, ${tabela.categoriaId} = ${categoriaId}, ${tabela.sagaId} = ${sagaId} WHERE ${tabela.id} = ${id}`)
-							else resolve(`UPDATE ${tabela.tabela} SET ${tabela.categoriaId} = ${categoriaId}, ${tabela.sagaId} = ${sagaId} WHERE ${tabela.id} = ${id}`)
+							else if (result) resolve(`UPDATE ${tabela.tabela} SET ${result}, ${tabela.categoriaId} = ${categoriaId}, ${tabela.sagaId} = ${sagaId} WHERE ${tabela.id} = ${id} RETURNING *`)
+							else resolve(`UPDATE ${tabela.tabela} SET ${tabela.categoriaId} = ${categoriaId}, ${tabela.sagaId} = ${sagaId} WHERE ${tabela.id} = ${id} RETURNING *`)
 						})
 					} else reject (error)
 				})
@@ -207,8 +196,8 @@ var QueryUpdateSlfj = (id, titulo, foto, sinopse, categoriaId, sagaId, callback)
 					if (result) {
 						QueryUpdateSlfjTabelData(titulo, foto, sinopse, (error, result) => {
 							if(error) reject(error)
-							else if (result) resolve(`UPDATE ${tabela.tabela} SET ${result}, ${tabela.categoriaId} = ${categoriaId} WHERE ${tabela.id} = ${id}`)
-							else resolve(`UPDATE ${tabela.tabela} SET ${tabela.categoriaId} = ${categoriaId} WHERE ${tabela.id} = ${id}`)
+							else if (result) resolve(`UPDATE ${tabela.tabela} SET ${result}, ${tabela.categoriaId} = ${categoriaId} WHERE ${tabela.id} = ${id} RETURNING *`)
+							else resolve(`UPDATE ${tabela.tabela} SET ${tabela.categoriaId} = ${categoriaId} WHERE ${tabela.id} = ${id} RETURNING *`)
 						})
 					} else reject (error)
 				})
@@ -217,8 +206,8 @@ var QueryUpdateSlfj = (id, titulo, foto, sinopse, categoriaId, sagaId, callback)
 					if (result) {
 						QueryUpdateSlfjTabelData(titulo, foto, sinopse, (error, result) => {
 							if(error) reject(error)
-							else if (result) resolve(`UPDATE ${tabela.tabela} SET ${result}, ${tabela.sagaId} = ${sagaId} WHERE ${tabela.id} = ${id}`)
-							else resolve(`UPDATE ${tabela.tabela} SET ${tabela.sagaId} = ${sagaId} WHERE ${tabela.id} = ${id}`)
+							else if (result) resolve(`UPDATE ${tabela.tabela} SET ${result}, ${tabela.sagaId} = ${sagaId} WHERE ${tabela.id} = ${id} RETURNING *`)
+							else resolve(`UPDATE ${tabela.tabela} SET ${tabela.sagaId} = ${sagaId} WHERE ${tabela.id} = ${id} RETURNING *`)
 						})
 					} else reject (error)
 				})
@@ -226,7 +215,7 @@ var QueryUpdateSlfj = (id, titulo, foto, sinopse, categoriaId, sagaId, callback)
 		} else { // dados internos da tabela
 			QueryUpdateSlfjTabelData(titulo, foto, sinopse, (error, result) => {
 				if(error) reject(error)
-				else if (result) resolve(`UPDATE ${tabela.tabela} SET ${result} WHERE ${tabela.id} = ${id}`)
+				else if (result) resolve(`UPDATE ${tabela.tabela} SET ${result} WHERE ${tabela.id} = ${id} RETURNING *`)
 				else reject(error)
 			})
 		}
@@ -239,8 +228,7 @@ var QueryUpdateSlfj = (id, titulo, foto, sinopse, categoriaId, sagaId, callback)
 // Trata da query do método Delete
 var QueryDeleteSlfj = (id, callback) => {
 	return new Promise((resolve, reject) => {
-		if(!isNaN(Number(id))) resolve(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`)
-		else reject(db.message.dataError)
+		!isNaN(Number(id)) ? resolve(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id} RETURNING *`) : reject(db.message.dataError)
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
@@ -252,28 +240,16 @@ var QuerySlfj = (id, titulo, foto, sinopse, categoriaId, sagaId, action, callbac
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 
-				QueryGetSlfj(id, titulo, categoriaId, sagaId, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryGetSlfj(id, titulo, categoriaId, sagaId, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'create': 
-				QueryCreateSlfj(titulo, foto, sinopse, categoriaId, sagaId, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryCreateSlfj(titulo, foto, sinopse, categoriaId, sagaId, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'update':
-				QueryUpdateSlfj(id, titulo, foto, sinopse, categoriaId, sagaId, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryUpdateSlfj(id, titulo, foto, sinopse, categoriaId, sagaId, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'delete':
-				QueryDeleteSlfj(id, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})        
+				QueryDeleteSlfj(id, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			default:
 				reject(db.message.dataError)
@@ -306,12 +282,9 @@ var GetSlfj = (id, titulo, categoriaId, sagaId, callback) => {
 var CreateSlfj = (titulo, foto, sinopse, categoriaId, sagaId, callback) => {
 	return new Promise((resolve, reject) => {
 		QuerySlfj(undefined, titulo, foto, sinopse, categoriaId, sagaId, 'create', (error, result) => {
-			if (result) {
-				db.query(result, (error, result) => {
-					if (error) reject(db.message.internalError);
-					else resolve("Registo inserido com sucesso");
-				});
-			} else reject(error)
+			error ? reject(error) : db.query(result, (error, result) => {
+				error ? reject(db.message.internalError) : resolve({message: "Registo inserido com sucesso", data: result}) 
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -324,12 +297,9 @@ var UpdateSlfj = (id, titulo, foto, sinopse, categoriaId, sagaId, callback) => {
 		GetSlfj(id, undefined, undefined, undefined, (error, result) => {
 			if(result) {
 				QuerySlfj(id, titulo, foto, sinopse, categoriaId, sagaId, 'update', (error, result) => {
-					if (result) {
-						db.query(result, (error, result) => {
-							if (error) reject(db.message.internalError);
-							else resolve("Registo atualizado com sucesso");
-						});
-					} else reject(error)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: "Registo atualizado com sucesso", data: result}) 
+					})
 				})
 			} else reject(error)
 		})
@@ -344,12 +314,9 @@ var DeleteSlfj = (id, callback) => {
 		GetSlfj(id, undefined, undefined, undefined, (error, result) => {
 			if(result) {
 				QuerySlfj(id, undefined, undefined, undefined, undefined, undefined, 'delete', (error, result) => {
-					if (result) {
-						db.query(result, (error, result) => {
-							if (error) reject(db.message.internalError);
-							else resolve("Registo apagado com sucesso");
-						});
-					} else reject(error)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: "Registo apagado com sucesso", data: result}) 
+					})
 				})
 			} else reject(error)
 		})

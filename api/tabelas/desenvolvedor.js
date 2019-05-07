@@ -35,8 +35,7 @@ var QueryGetDesenvolvedor = (id, nome, callback) => {
 	return new Promise((resolve, reject) => {
 		if (id || nome) { // dados internos da tabela
 			QueryGetDesenvolvedorTabelData(id, nome, (error, result) => {
-				if(error) reject(error)
-				else resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result}`)
+				error ? reject(error) : resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result}`)
 			})
 		} else resolve(`SELECT * FROM ${tabela.tabela}`)
 	}).then(
@@ -48,8 +47,7 @@ var QueryGetDesenvolvedor = (id, nome, callback) => {
 // Trata da query do método Create
 var QueryCreateDesenvolvedor = (nome, callback) => {
 	return new Promise((resolve, reject) => {
-        if (nome) resolve(`INSERT INTO ${tabela.tabela} (${tabela.nome}) VALUES (${nome})`)
-        else reject(db.message.dataError)
+        nome ? reject(db.message.dataError) : resolve(`INSERT INTO ${tabela.tabela} (${tabela.nome}) VALUES (${nome}) RETURNING *`)
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
@@ -59,8 +57,7 @@ var QueryCreateDesenvolvedor = (nome, callback) => {
 // Trata da query do método Update
 var QueryUpdateDesenvolvedor = (id, nome, callback) => {
 	return new Promise((resolve, reject) => {
-		if (nome) resolve(`UPDATE ${tabela.tabela} SET ${tabela.nome} = '${nome}' WHERE ${tabela.id} = ${id}`)
-		else reject(db.message.dataError)
+		nome ? reject(db.message.dataError) : resolve(`UPDATE ${tabela.tabela} SET ${tabela.nome} = '${nome}' WHERE ${tabela.id} = ${id} RETURNING *`)
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
@@ -70,8 +67,7 @@ var QueryUpdateDesenvolvedor = (id, nome, callback) => {
 // Trata da query do método Delete
 var QueryDeleteDesenvolvedor = (id, callback) => {
 	return new Promise((resolve, reject) => {
-		if(!isNaN(Number(id))) resolve(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`)
-		else reject(db.message.dataError)
+		!isNaN(Number(id)) ? resolve(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id} RETURNING *`) : reject(db.message.dataError)
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
@@ -83,28 +79,16 @@ var QueryDesenvolvedor = (id, nome, action, callback) => {
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 
-				QueryGetDesenvolvedor(id, nome, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryGetDesenvolvedor(id, nome, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'create': 
-				QueryCreateDesenvolvedor(nome, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryCreateDesenvolvedor(nome, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'update':
-				QueryUpdateDesenvolvedor(id, nome, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryUpdateDesenvolvedor(id, nome, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'delete':
-				QueryDeleteDesenvolvedor(id, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})        
+				QueryDeleteDesenvolvedor(id, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			default:
 				reject(db.message.dataError)
@@ -120,13 +104,11 @@ var QueryDesenvolvedor = (id, nome, action, callback) => {
 var GetDesenvolvedor = (id, nome, callback) => {
   	return new Promise((resolve, reject) => {
 		QueryDesenvolvedor(id, nome, 'get', (error, result) => {
-			if (result) {
-				db.query(result, (error, result) => {
-					if (error) reject(db.message.internalError);
-					else if (!sizeOf(result)) reject(db.message.dataNotFound);
-					else resolve(result);
-				});
-			} else reject(error)
+			error ? reject(error) :	db.query(result, (error, result) => {
+				if (error) reject(db.message.internalError)
+				else if (!sizeOf(result)) reject(db.message.dataNotFound)
+				else resolve(result)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -140,34 +122,26 @@ var CreateDesenvolvedor = (nome, callback) => {
             if (result) reject(db.message.dataFound)
             else if (error == db.message.dataNotFound) {
                 QueryDesenvolvedor(undefined, nome, 'create', (error, result) => {
-                    if (result) {
-                        db.query(result, (error, result) => {
-                            if (error) reject(db.message.internalError);
-                            else resolve("Registo inserido com sucesso");
-                        });
-                    } else reject(error)
+                    error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: "Registo inserido com sucesso", data: result})
+					})
                 })
             } else reject(error)
         })
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
-	);
-};
+	)
+}
 
 var UpdateDesenvolvedor = (id, ome, callback) => {
 	return new Promise((resolve, reject) => {
 		GetDesenvolvedor(id, undefined, (error, result) => {
-			if(result) {
-				QueryDesenvolvedor(id, nome, 'update', (error, result) => {
-					if (result) {
-						db.query(result, (error, result) => {
-							if (error) reject(db.message.internalError);
-							else resolve("Registo atualizado com sucesso");
-						});
-					} else reject(error)
+			error ? reject(error) :	QueryDesenvolvedor(id, nome, 'update', (error, result) => {
+				error ? reject(error) : db.query(result, (error, result) => {
+					error ? reject(db.message.internalError) : resolve({message: "Registo atualizado com sucesso", data: result}) 
 				})
-			} else reject(error)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -178,16 +152,11 @@ var UpdateDesenvolvedor = (id, ome, callback) => {
 var DeleteDesenvolvedor = (id, callback) => {
 	return new Promise((resolve, reject) => {
 		GetDesenvolvedor(id, undefined, (error, result) => {
-			if(result) {
-				QueryDesenvolvedor(id, undefined, 'delete', (error, result) => {
-					if (result) {
-						db.query(result, (error, result) => {
-							if (error) reject(db.message.internalError);
-							else resolve("Registo apagado com sucesso");
-						});
-					} else reject(error)
+			error ? reject(error) :	QueryDesenvolvedor(id, undefined, 'delete', (error, result) => {
+				error ? reject(error) : db.query(result, (error, result) => {
+					error ? reject(db.message.internalError) : resolve({message: "Registo apagado com sucesso", data: result}) 
 				})
-			} else reject(error)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),

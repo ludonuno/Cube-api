@@ -66,8 +66,7 @@ var QueryUpdateTvPGTabelData = (rate, descricao, callback) => {
 				numeroParametros++;
 			}
 			if (descricao) {
-				if (numeroParametros) 
-					queryParams += ', '
+				if (numeroParametros) queryParams += ', '
 				descricao = descricao.replace("'", "%27")
 				queryParams += `${tabela.descricao} = '${descricao}'`
 			}
@@ -84,8 +83,7 @@ var QueryGetTvPG = (id, rate, callback) => {
 	return new Promise((resolve, reject) => {
 		if (id || rate) { // dados internos da tabela
 			QueryGetTvPGTabelData(id, rate, (error, result) => {
-				if(error) reject(error)
-				else resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result}`)
+				error ? reject(error) : resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result}`)
 			})
 		} else resolve(`SELECT * FROM ${tabela.tabela}`)
 	}).then(
@@ -98,8 +96,7 @@ var QueryGetTvPG = (id, rate, callback) => {
 var QueryCreateTvPG = (rate, descricao, callback) => {
 	return new Promise((resolve, reject) => {
 		QueryCreateTvPGTabelData(rate, descricao, (error, result) => {
-            if(error) reject(error)
-			else if (result) resolve(`INSERT INTO ${tabela.tabela} (${result.tables}) VALUES (${result.values})`)
+            error ? reject(error) : resolve(`INSERT INTO ${tabela.tabela} (${result.tables}) VALUES (${result.values}) RETURNING *`)
         })
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -111,8 +108,7 @@ var QueryCreateTvPG = (rate, descricao, callback) => {
 var QueryUpdateTvPG = (id, rate, descricao, callback) => {
 	return new Promise((resolve, reject) => {
 		QueryUpdateTvPGTabelData(rate, descricao, (error, result) => {
-			if(error) reject(error)
-			else resolve(`UPDATE ${tabela.tabela} SET ${result} WHERE ${tabela.id} = ${id}`)
+			error ? reject(error) : resolve(`UPDATE ${tabela.tabela} SET ${result} WHERE ${tabela.id} = ${id} RETURNING *`)
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -123,7 +119,7 @@ var QueryUpdateTvPG = (id, rate, descricao, callback) => {
 // Trata da query do método Delete
 var QueryDeleteTvPG = (id, callback) => {
 	return new Promise((resolve, reject) => {
-		if(!isNaN(Number(id))) resolve(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`)
+		if(!isNaN(Number(id))) resolve(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id} RETURNING *`)
 		else reject(db.message.dataError)
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -136,28 +132,16 @@ var QueryTvPG = (id, rate, descricao, action, callback) => {
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 
-				QueryGetTvPG(id, rate, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryGetTvPG(id, rate, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'create': 
-				QueryCreateTvPG(rate, descricao, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryCreateTvPG(rate, descricao, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'update':
-				QueryUpdateTvPG(id, rate, descricao, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryUpdateTvPG(id, rate, descricao, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'delete':
-				QueryDeleteTvPG(id, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})        
+				QueryDeleteTvPG(id, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			default:
 				reject(db.message.dataError)
@@ -173,18 +157,16 @@ var QueryTvPG = (id, rate, descricao, action, callback) => {
 var GetTvPG = (id, rate, callback) => {
   	return new Promise((resolve, reject) => {
 		QueryTvPG(id, rate, undefined, 'get', (error, result) => {
-			if (result) {
-				db.query(result, (error, result) => {
-					if (error) reject(db.message.internalError);
-					else if (!sizeOf(result)) reject(db.message.dataNotFound);
-					else resolve(result);
-				});
-			} else reject(error)
+			error ? reject(error) : db.query(result, (error, result) => {
+				if (error) reject(db.message.internalError);
+				else if (!sizeOf(result)) reject(db.message.dataNotFound);
+				else resolve(result);
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
-	);
+	)
 }		
 
 var CreateTvPG = (rate, descricao, callback) => {
@@ -193,12 +175,9 @@ var CreateTvPG = (rate, descricao, callback) => {
             if (result) reject(db.message.dataFound)
             else if (error == db.message.dataNotFound) {
                 QueryTvPG(undefined, rate, descricao, 'create', (error, result) => {
-                    if (result) {
-                        db.query(result, (error, result) => {
-                            if (error) reject(db.message.internalError);
-                            else resolve("Registo inserido com sucesso");
-                        });
-                    } else reject(error)
+                    error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: "Registo inserido com sucesso", data: result})
+					})
                 })
             } else reject(error)
         })
@@ -211,16 +190,11 @@ var CreateTvPG = (rate, descricao, callback) => {
 var UpdateTvPG = (id, rate, descricao, callback) => {
 	return new Promise((resolve, reject) => {
 		GetTvPG(id, undefined, (error, result) => {
-			if(result) {
-				QueryTvPG(id, rate, descricao, 'update', (error, result) => {
-					if (result) {
-						db.query(result, (error, result) => {
-							if (error) reject(db.message.internalError);
-							else resolve("Registo atualizado com sucesso");
-						});
-					} else reject(error)
+			error ? reject(error) :  QueryTvPG(id, rate, descricao, 'update', (error, result) => {
+				error ? reject(error) : db.query(result, (error, result) => {
+					error ? reject(db.message.internalError) : resolve({message: "Registo atualizado com sucesso", data: result}) 
 				})
-			} else reject(error)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -231,16 +205,11 @@ var UpdateTvPG = (id, rate, descricao, callback) => {
 var DeleteTvPG = (id, callback) => {
 	return new Promise((resolve, reject) => {
 		GetTvPG(id, undefined, (error, result) => {
-			if(result) {
-				QueryTvPG(id, undefined, undefined, 'delete', (error, result) => {
-					if (result) {
-						db.query(result, (error, result) => {
-							if (error) reject(db.message.internalError);
-							else resolve("Registo apagado com sucesso");
-						});
-					} else reject(error)
+			error ? reject(error) : QueryTvPG(id, undefined, undefined, 'delete', (error, result) => {
+				error ? reject(error) : db.query(result, (error, result) => {
+					error ? reject(db.message.internalError) : resolve({message: "Registo apagado com sucesso", data: result}) 
 				})
-			} else reject(error)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),

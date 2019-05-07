@@ -82,8 +82,7 @@ var QueryGetFilmePG = (id, rate, callback) => {
 	return new Promise((resolve, reject) => {
 		if (id || rate) { // dados internos da tabela
 			QueryGetFilmePGTabelData(id, rate, (error, result) => {
-				if(error) reject(error)
-				else resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result}`)
+				error ? reject(error) : resolve(`SELECT * FROM ${tabela.tabela} WHERE ${result}`)
 			})
 		} else resolve(`SELECT * FROM ${tabela.tabela}`)
 	}).then(
@@ -96,8 +95,7 @@ var QueryGetFilmePG = (id, rate, callback) => {
 var QueryCreateFilmePG = (rate, descricao, callback) => {
 	return new Promise((resolve, reject) => {
 		QueryCreateFilmePGTabelData(rate, descricao, (error, result) => {
-			if(error) reject(error)
-			else if (result) resolve(`INSERT INTO ${tabela.tabela} (${result.tables}) VALUES (${result.values})`)
+			error ? reject(error) : resolve(`INSERT INTO ${tabela.tabela} (${result.tables}) VALUES (${result.values}) RETURNING *`)
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -109,8 +107,7 @@ var QueryCreateFilmePG = (rate, descricao, callback) => {
 var QueryUpdateFilmePG = (id, rate, descricao, callback) => {
 	return new Promise((resolve, reject) => {
 		QueryUpdateFilmePGTabelData(rate, descricao, (error, result) => {
-			if(error) reject(error)
-			else resolve(`UPDATE ${tabela.tabela} SET ${result} WHERE ${tabela.id} = ${id}`)
+			error ? reject(error) : resolve(`UPDATE ${tabela.tabela} SET ${result} WHERE ${tabela.id} = ${id} RETURNING *`)
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -121,8 +118,7 @@ var QueryUpdateFilmePG = (id, rate, descricao, callback) => {
 // Trata da query do método Delete
 var QueryDeleteFilmePG = (id, callback) => {
 	return new Promise((resolve, reject) => {
-		if(!isNaN(Number(id))) resolve(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id}`)
-		else reject(db.message.dataError)
+		!isNaN(Number(id)) ? resolve(`DELETE FROM ${tabela.tabela} WHERE ${tabela.id} = ${id} RETURNING *`) : reject(db.message.dataError)
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
@@ -134,28 +130,16 @@ var QueryFilmePG = (id, rate, descricao, action, callback) => {
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 
-				QueryGetFilmePG(id, rate, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryGetFilmePG(id, rate, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'create': 
-				QueryCreateFilmePG(rate, descricao, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryCreateFilmePG(rate, descricao, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'update':
-				QueryUpdateFilmePG(id, rate, descricao, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})
+				QueryUpdateFilmePG(id, rate, descricao, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'delete':
-				QueryDeleteFilmePG(id, (error, result) => {
-					if(result) resolve(result)
-					else reject(error)
-				})        
+				QueryDeleteFilmePG(id, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			default:
 				reject(db.message.dataError)
@@ -171,18 +155,16 @@ var QueryFilmePG = (id, rate, descricao, action, callback) => {
 var GetFilmePG = (id, rate, callback) => {
   	return new Promise((resolve, reject) => {
 		QueryFilmePG(id, rate, undefined, 'get', (error, result) => {
-			if (result) {
-				db.query(result, (error, result) => {
-					if (error) reject(db.message.internalError);
-					else if (!sizeOf(result)) reject(db.message.dataNotFound);
-					else resolve(result);
-				});
-			} else reject(error)
+			error ? reject(error) :	db.query(result, (error, result) => {
+				if (error) reject(db.message.internalError)
+				else if (!sizeOf(result)) reject(db.message.dataNotFound)
+				else resolve(result)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
-	);
+	)
 }		
 
 var CreateFilmePG = (rate, descricao, callback) => {
@@ -191,34 +173,26 @@ var CreateFilmePG = (rate, descricao, callback) => {
             if (result) reject(db.message.dataFound)
             else if (error == db.message.dataNotFound) {
                 QueryFilmePG(undefined, rate, descricao, 'create', (error, result) => {
-                    if (result) {
-                        db.query(result, (error, result) => {
-                            if (error) reject(db.message.internalError);
-                            else resolve("Registo inserido com sucesso");
-                        });
-                    } else reject(error)
+                    error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: "Registo inserido com sucesso", data: result}) 
+					})
                 })
             } else reject(error)
         })
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
-	);
-};
+	)
+}
 
 var UpdateFilmePG = (id, rate, descricao, callback) => {
 	return new Promise((resolve, reject) => {
 		GetFilmePG(id, undefined, (error, result) => {
-			if(result) {
-				QueryFilmePG(id, rate, descricao, 'update', (error, result) => {
-					if (result) {
-						db.query(result, (error, result) => {
-							if (error) reject(db.message.internalError);
-							else resolve("Registo atualizado com sucesso");
-						});
-					} else reject(error)
+			error ? reject(error) :	QueryFilmePG(id, rate, descricao, 'update', (error, result) => {
+				error ? reject(error) : db.query(result, (error, result) => {
+					error ? reject(db.message.internalError) : resolve({message: "Registo atualizado com sucesso", data: result}) 
 				})
-			} else reject(error)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -229,22 +203,17 @@ var UpdateFilmePG = (id, rate, descricao, callback) => {
 var DeleteFilmePG = (id, callback) => {
 	return new Promise((resolve, reject) => {
 		GetFilmePG(id, undefined, (error, result) => {
-			if(result) {
-				QueryFilmePG(id, undefined, undefined, 'delete', (error, result) => {
-					if (result) {
-						db.query(result, (error, result) => {
-							if (error) reject(db.message.internalError);
-							else resolve("Registo apagado com sucesso");
-						});
-					} else reject(error)
+			error ? reject(error) :	QueryFilmePG(id, undefined, undefined, 'delete', (error, result) => {
+				error ? reject(error) : db.query(result, (error, result) => {
+					error ? reject(db.message.internalError) : resolve({message: "Registo apagado com sucesso", data: result})
 				})
-			} else reject(error)
+			})
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
 		err => callback(err, undefined)
-	);
-};
+	)
+}
 
 module.exports = {
   GetFilmePG,
