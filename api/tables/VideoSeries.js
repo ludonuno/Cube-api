@@ -2,37 +2,40 @@ const db = require('./../../db')
 const sizeOf = require('object-sizeof')
 
 const table = {
-    table: 'my_Engine',
+    table: 'my_VideoSeries',
     id: 'id',
-    name: 'name'
+	link: 'link',
+	seriesId: 'seriesId'
 }
 
-var HandleSelectData = (id, name, callback) => {
+var HandleSelectData = (id, seriesId, callback) => {
 	return new Promise((resolve, reject) => {
-        let search = "", numberParameters = 0
+        let searchFor = "", numberParameters = 0
         
         if(id) {
             if (!isNaN(Number(id))) {
-                search += `${table.id} = ${id}`
+                searchFor += `${table.id} = ${id}`
                 numberParameters++;
             } else reject(db.message.dataError)            
         }
 
-        if (name) {
-			if (numberParameters) search += ' AND '
-			search += `${tablea.name} LIKE '%${name}%'`
+        if (seriesId) {
+			if (!isNaN(Number(seriesId))) {
+				if (numberParameters) searchFor += ' AND '
+                searchFor += `${table.seriesId} = ${seriesId}`
+            } else reject(db.message.dataError)   
 		}
-		resolve(search)
+		resolve(searchFor)
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
 	)
 }
 
-var CreateQuerySelect = (id, name, callback) => {
+var CreateQuerySelect = (id, seriesId, callback) => {
 	return new Promise((resolve, reject) => {
-		if (id || name) {
-			HandleSelectData(id, name, (error, result) => {
+		if (id || seriesId) {
+			HandleSelectData(id, seriesId, (error, result) => {
 				error 
 				? reject(error) 
 				: resolve(`SELECT * FROM ${table.table} WHERE ${result}`)
@@ -44,14 +47,25 @@ var CreateQuerySelect = (id, name, callback) => {
 	)
 }
 
-var HandleInsertData = (name, callback) => {
+var HandleInsertData = (link, seriesId, callback) => {
 	return new Promise((resolve, reject) => {
-        let fields = '', values = ''
+        let fields = '', values = '', numberParameters = 0
 
-		if (name) {
-			name = name.replace("'", '%27')
-			fields += `${table.name}`
-			values += `'${name}'`
+		if (link) {
+			fields += `${table.link}`
+			values += `'${link}'`
+			numberParameters++
+		}
+
+		if (seriesId) {
+			if (!isNaN(Number(seriesId))) {
+				if (numberParameters) {
+					fields += ', '
+					values += ', '
+				}
+				fields += `${table.seriesId}`
+				values += `${seriesId}`
+			}
 		}
 
 		resolve({fields, values})
@@ -62,44 +76,12 @@ var HandleInsertData = (name, callback) => {
 }
 
 //Create and return the record created
-var CreateQueryInsert = (name, callback) => {
+var CreateQueryInsert = (link, seriesId, callback) => {
 	return new Promise((resolve, reject) => {
-		HandleInsertData(name, (error, result) => {
+		HandleInsertData(link, seriesId, (error, result) => {
 			error 
 			? reject(error) 
 			: resolve(`INSERT INTO ${table.table} (${result.fields}) VALUES (${result.values}) RETURNING *`)
-		})
-	}).then(
-		resolve => callback(undefined, resolve),
-		reject => callback(reject, undefined)
-	)
-}
-
-var HandleUpdateData = (id, name, callback) => {
-	return new Promise((resolve, reject) => {
-        let updateTo = ''
-		
-		if (isNaN(Number(id))) reject(db.message.dataError)
-				
-		if (name) {
-			description = description.replace("'", '%27')
-			updateTo += `${table.name} = '${name}'`
-		}
-
-		resolve(updateTo)
-	}).then(
-		resolve => callback(undefined, resolve),
-		reject => callback(reject, undefined)
-	)
-}
-
-//Update an existing record and return the value updated
-var CreateQueryUpdate = (id, name, callback) => {
-	return new Promise((resolve, reject) => {
-		HandleUpdateData(id, name, (error, result) => {
-			error 
-			? reject(error) 
-			: resolve(`UPDATE ${table.table} SET ${result} WHERE ${table.id} = ${id} RETURNING *`)
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -117,17 +99,14 @@ var CreateQueryDelete = (id, callback) => {
 	)
 }
 
-var CreateQuery = (id, name, action, callback) => {
+var CreateQuery = (id, link, seriesId, callback) => {
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 
-				CreateQuerySelect(id, name, (error, result) => error ? reject(error) : resolve(result) )
+				CreateQuerySelect(id, seriesId, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'create': 
-                CreateQueryInsert(name, (error, result) => error ? reject(error) : resolve(result) )
-				break;
-			case 'update':
-                CreateQueryUpdate(id, name, (error, result) => error ? reject(error) : resolve(result) )
+                CreateQueryInsert(link, seriesId, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'delete':
                 CreateQueryDelete(id, (error, result) => error ? reject(error) : resolve(result) )
@@ -143,9 +122,9 @@ var CreateQuery = (id, name, action, callback) => {
 }
 
 //Exports
-var GetEngine = (id, name, callback) => {
+var GetVideoSeries = (id, seriesId, callback) => {
   	return new Promise((resolve, reject) => {
-		CreateQuery(id, name, 'get', (error, result) => {
+		CreateQuery(id, undefined, seriesId, 'get', (error, result) => {
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -158,9 +137,9 @@ var GetEngine = (id, name, callback) => {
 	)
 }		
 
-var CreateEngine = (name, callback) => {
+var CreateVideoSeries = (link, seriesId, callback) => {
 	return new Promise((resolve, reject) => {
-        CreateQuery(undefined, name, 'create', (error, result) => {
+        CreateQuery(undefined, link, seriesId, 'create', (error, result) => {
             error ? reject(error) : db.query(result, (error, result) => {
                 error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
             })
@@ -171,25 +150,10 @@ var CreateEngine = (name, callback) => {
 	)
 }
 
-var UpdateEngine = (id, name, callback) => {
+var DeleteVideoSeries = (id, callback) => {
 	return new Promise((resolve, reject) => {
-		GetEngine(id, undefined, (error, result) => {
-			error ? reject(error) :	CreateQuery(id, name, 'update', (error, result) => {
-				error ? reject(error) : db.query(result, (error, result) => {
-					error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
-				})
-			})
-		})
-	}).then(
-		resolve => callback(undefined, resolve),
-		reject => callback(reject, undefined)
-	)
-}
-
-var DeleteEngine = (id, callback) => {
-	return new Promise((resolve, reject) => {
-		GetEngine(id, undefined, (error, result) => {
-			error ? reject(error) :	CreateQuery(id, undefined, 'delete', (error, result) => {
+		GetVideoSeries(id, undefined, (error, result) => {
+			error ? reject(error) :	CreateQuery(id, undefined, undefined, 'delete', (error, result) => {
 				error ? reject(error) : db.query(result, (error, result) => {
 					error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
 				})
@@ -202,9 +166,8 @@ var DeleteEngine = (id, callback) => {
 }
 
 module.exports = {
-  GetEngine,
-  CreateEngine,
-  UpdateEngine,
-  DeleteEngine,
+  GetVideoSeries,
+  CreateVideoSeries,
+  DeleteVideoSeries,
   table
 }

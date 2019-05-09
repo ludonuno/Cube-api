@@ -1,8 +1,8 @@
 const db = require('../../db')
 const sizeOf = require('object-sizeof')
 
-const tabel = {
-    tabel: 'my_ParentAdvisoryGame',
+const table = {
+    table: 'my_ParentAdvisoryGame',
     id: 'id',
 	rate: 'rate',
 	description: 'description'
@@ -10,14 +10,14 @@ const tabel = {
 
 var HandleSelectData = (id, callback) => {
 	return new Promise((resolve, reject) => {
-        let queryParams = ""
+        let searchFor = ""
         
         if(id) {
             if (!isNaN(Number(id))) {
-                queryParams += `${tabel.id} = ${id}`
+                searchFor += `${table.id} = ${id}`
             } else reject(db.message.dataError)            
         }
-		resolve(queryParams)
+		resolve(searchFor)
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
@@ -28,9 +28,11 @@ var CreateQuerySelect = (id, callback) => {
 	return new Promise((resolve, reject) => {
 		if (id) {
 			HandleSelectData(id, (error, result) => {
-				error ? reject(error) : resolve(`SELECT * FROM ${tabel.tabel} WHERE ${result}`)
+				error 
+				? reject(error) 
+				: resolve(`SELECT * FROM ${table.table} WHERE ${result}`)
 			})
-		} else resolve(`SELECT * FROM ${tabel.tabel}`)
+		} else resolve(`SELECT * FROM ${table.table}`)
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
@@ -39,25 +41,26 @@ var CreateQuerySelect = (id, callback) => {
 
 var HandleInsertData = (rate, description, callback) => {
 	return new Promise((resolve, reject) => {
-        let queryParamsTabels = '', queryParamsValues = '', numberParameters = 0
+        let fields = '', values = '', numberParameters = 0
 
 		if (rate) {
-			queryParamsTabels += `${tabel.rate}`
-			queryParamsValues += `'${rate}'`
+			rate = rate.replace("'", '%27')
+			fields += `${table.rate}`
+			values += `'${rate}'`
 			numberParameters++;
 		}
 
 		if (description) {
 			if (numberParameters) {
-				queryParamsTabels += ', '
-				queryParamsValues += ', '
+				fields += ', '
+				values += ', '
 			}
 			description = description.replace("'", '%27')
-			queryParamsTabels += `${tabel.description}`
-			queryParamsValues += `'${description}'`
+			fields += `${table.description}`
+			values += `'${description}'`
 		}
 
-		resolve({queryParamsTabels, queryParamsValues})
+		resolve({fields, values})
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
@@ -68,7 +71,9 @@ var HandleInsertData = (rate, description, callback) => {
 var CreateQueryInsert = (rate, description, callback) => {
 	return new Promise((resolve, reject) => {
 		HandleInsertData(rate, description, (error, result) => {
-			resolve(`INSERT INTO ${tabel.tabel} (${result.queryParamsTabels}) VALUES ('${result.queryParamsValues}') RETURNING *`)
+			error 
+			? reject(error) 
+			: resolve(`INSERT INTO ${table.table} (${result.fields}) VALUES (${result.values}) RETURNING *`)
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -78,23 +83,22 @@ var CreateQueryInsert = (rate, description, callback) => {
 
 var HandleUpdateData = (id, rate, description, callback) => {
 	return new Promise((resolve, reject) => {
-        let queryParams = '', numberParameters = 0
+        let updateTo = '', numberParameters = 0
 		
 		if (isNaN(Number(id))) reject(db.message.dataError)
 		
 		if (rate) {
-			queryParams += `${tabel.rate} = ${rate}`
+			updateTo += `${table.rate} = ${rate}`
 			numberParameters++;
 		}
 
 		if (description) {
-			if (numberParameters) queryParams += ' AND '
-			
+			if (numberParameters) updateTo += ' AND '
 			description = description.replace("'", '%27')
-			queryParams += `${tabel.description} = '${description}'`
+			updateTo += `${table.description} = '${description}'`
 		}
 
-		resolve(queryParams)
+		resolve(updateTo)
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
@@ -107,7 +111,7 @@ var CreateQueryUpdate = (id, rate, description, callback) => {
 		HandleUpdateData(id, rate, description, (error, result) => {
 			error 
 			? reject(db.message.dataError) 
-			: resolve(`UPDATE ${tabel.tabel} SET ${result}' WHERE ${tabel.id} = ${id} RETURNING *`)
+			: resolve(`UPDATE ${table.table} SET ${result}' WHERE ${table.id} = ${id} RETURNING *`)
 		})
 		
 	}).then(
@@ -119,7 +123,7 @@ var CreateQueryUpdate = (id, rate, description, callback) => {
 //Delete an existing record and return the value deleted
 var CreateQueryDelete = (id, callback) => {
 	return new Promise((resolve, reject) => {
-		!isNaN(Number(id)) ? resolve(`DELETE FROM ${tabel.tabel} WHERE ${tabel.id} = ${id} RETURNING *`) : reject(db.message.dataError)
+		!isNaN(Number(id)) ? resolve(`DELETE FROM ${table.table} WHERE ${table.id} = ${id} RETURNING *`) : reject(db.message.dataError)
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
@@ -214,5 +218,6 @@ module.exports = {
   GetParentAdvisoryGame,
   CreateParentAdvisoryGame,
   UpdateParentAdvisoryGame,
-  DeleteParentAdvisoryGame
+  DeleteParentAdvisoryGame,
+  table
 }

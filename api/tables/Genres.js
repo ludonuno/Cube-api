@@ -2,14 +2,12 @@ const db = require('./../../db')
 const sizeOf = require('object-sizeof')
 
 const table = {
-    table: 'my_Company',
+    table: 'my_Genres',
     id: 'id',
-    name: 'name'
+    genre: 'genre'
 }
 
-//TODO: Posso adicionar campos como localização, morada, data de fundação, website
-
-var HandleSelectData = (id, name, callback) => {
+var HandleSelectData = (id, genre, callback) => {
 	return new Promise((resolve, reject) => {
         let searchFor = "", numberParameters = 0
         
@@ -20,9 +18,9 @@ var HandleSelectData = (id, name, callback) => {
             } else reject(db.message.dataError)            
         }
 
-        if (name) {
+        if (genre) {
 			if (numberParameters) searchFor += ' AND '
-			searchFor += `${table.name} LIKE '%${name}%'`
+			searchFor += `${table.genre} LIKE '%${genre}%'`
 		}
 		resolve(searchFor)
 	}).then(
@@ -31,10 +29,10 @@ var HandleSelectData = (id, name, callback) => {
 	)
 }
 
-var CreateQuerySelect = (id, name, callback) => {
+var CreateQuerySelect = (id, genre, callback) => {
 	return new Promise((resolve, reject) => {
-		if (id || name) {
-			HandleSelectData(id, name, (error, result) => {
+		if (id || genre) {
+			HandleSelectData(id, genre, (error, result) => {
 				error ? reject(error) : resolve(`SELECT * FROM ${table.table} WHERE ${result}`)
 			})
 		} else resolve(`SELECT * FROM ${table.table}`)
@@ -44,14 +42,14 @@ var CreateQuerySelect = (id, name, callback) => {
 	)
 }
 
-var HandleInsertData = (name, callback) => {
+var HandleInsertData = (genre, callback) => {
 	return new Promise((resolve, reject) => {
         let fields = '', values = ''
 
-		if (name) {
-			name = name.replace("'", '%27')
-			fields += `${table.name}`
-			values += `'${name}'`
+		if (genre) {
+			genre = genre.replace("'", '%27')
+			fields += `${table.genre}`
+			values += `'${genre}'`
 		}
 
 		resolve({fields, values})
@@ -62,40 +60,10 @@ var HandleInsertData = (name, callback) => {
 }
 
 //Create and return the record created
-var CreateQueryInsert = (name, callback) => {
+var CreateQueryInsert = (genre, callback) => {
 	return new Promise((resolve, reject) => {
-		HandleInsertData(name, (error, result) => {
+		HandleInsertData(genre, (error, result) => {
 			error ? reject(error) : resolve(`INSERT INTO ${table.table} (${result.fields}) VALUES (${result.values}) RETURNING *`)
-		})
-	}).then(
-		resolve => callback(undefined, resolve),
-		reject => callback(reject, undefined)
-	)
-}
-
-var HandleUpdateData = (id, name, callback) => {
-	return new Promise((resolve, reject) => {
-        let updateTo = ''
-		
-		if (isNaN(Number(id))) reject(db.message.dataError)
-				
-		if (name) {
-			description = description.replace("'", '%27')
-			updateTo += `${table.name} = '${name}'`
-		}
-
-		resolve(updateTo)
-	}).then(
-		resolve => callback(undefined, resolve),
-		reject => callback(reject, undefined)
-	)
-}
-
-//Update an existing record and return the value updated
-var CreateQueryUpdate = (id, name, callback) => {
-	return new Promise((resolve, reject) => {
-		HandleUpdateData(id, name, (error, result) => {
-			error ? reject(error) : resolve(`UPDATE ${table.table} SET ${result} WHERE ${table.id} = ${id} RETURNING *`)
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -113,17 +81,14 @@ var CreateQueryDelete = (id, callback) => {
 	)
 }
 
-var CreateQuery = (id, name, action, callback) => {
+var CreateQuery = (id, genre, action, callback) => {
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 
-				CreateQuerySelect(id, name, (error, result) => error ? reject(error) : resolve(result) )
+				CreateQuerySelect(id, genre, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'create': 
-                CreateQueryInsert(name, (error, result) => error ? reject(error) : resolve(result) )
-				break;
-			case 'update':
-                CreateQueryUpdate(id, name, (error, result) => error ? reject(error) : resolve(result) )
+                CreateQueryInsert(genre, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'delete':
                 CreateQueryDelete(id, (error, result) => error ? reject(error) : resolve(result) )
@@ -139,9 +104,9 @@ var CreateQuery = (id, name, action, callback) => {
 }
 
 //Exports
-var GetCompany = (id, name, callback) => {
+var GetGenres = (id, callback) => {
   	return new Promise((resolve, reject) => {
-		CreateQuery(id, name, 'get', (error, result) => {
+		CreateQuery(id, genre, 'get', (error, result) => {
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -154,9 +119,9 @@ var GetCompany = (id, name, callback) => {
 	)
 }		
 
-var CreateCompany = (name, callback) => {
+var CreateGenres = (genre, callback) => {
 	return new Promise((resolve, reject) => {
-        CreateQuery(undefined, name, 'create', (error, result) => {
+        CreateQuery(undefined, genre, 'create', (error, result) => {
             error ? reject(error) : db.query(result, (error, result) => {
                 error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
             })
@@ -167,24 +132,9 @@ var CreateCompany = (name, callback) => {
 	)
 }
 
-var UpdateCompany = (id, name, callback) => {
+var DeleteGenres = (id, callback) => {
 	return new Promise((resolve, reject) => {
-		GetCompany(id, undefined, (error, result) => {
-			error ? reject(error) :	CreateQuery(id, name, 'update', (error, result) => {
-				error ? reject(error) : db.query(result, (error, result) => {
-					error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
-				})
-			})
-		})
-	}).then(
-		resolve => callback(undefined, resolve),
-		reject => callback(reject, undefined)
-	)
-}
-
-var DeleteCompany = (id, callback) => {
-	return new Promise((resolve, reject) => {
-		GetCompany(id, undefined, (error, result) => {
+		GetGenres(id, undefined, (error, result) => {
 			error ? reject(error) :	CreateQuery(id, undefined, 'delete', (error, result) => {
 				error ? reject(error) : db.query(result, (error, result) => {
 					error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
@@ -198,9 +148,8 @@ var DeleteCompany = (id, callback) => {
 }
 
 module.exports = {
-  GetCompany,
-  CreateCompany,
-  UpdateCompany,
-  DeleteCompany,
+  GetGenres,
+  CreateGenres,
+  DeleteGenres,
   table
 }

@@ -2,7 +2,7 @@ const db = require('./../../db')
 const sizeOf = require('object-sizeof')
 
 const table = {
-    table: 'my_Company',
+    table: 'my_PublishingPublishingCompany',
     id: 'id',
     name: 'name'
 }
@@ -139,7 +139,7 @@ var CreateQuery = (id, name, action, callback) => {
 }
 
 //Exports
-var GetCompany = (id, name, callback) => {
+var GetPublishingCompany = (id, name, callback) => {
   	return new Promise((resolve, reject) => {
 		CreateQuery(id, name, 'get', (error, result) => {
 			error ? reject(error) :	db.query(result, (error, result) => {
@@ -154,7 +154,7 @@ var GetCompany = (id, name, callback) => {
 	)
 }		
 
-var CreateCompany = (name, callback) => {
+var CreatePublishingCompany = (name, callback) => {
 	return new Promise((resolve, reject) => {
         CreateQuery(undefined, name, 'create', (error, result) => {
             error ? reject(error) : db.query(result, (error, result) => {
@@ -167,9 +167,9 @@ var CreateCompany = (name, callback) => {
 	)
 }
 
-var UpdateCompany = (id, name, callback) => {
+var UpdatePublishingCompany = (id, name, callback) => {
 	return new Promise((resolve, reject) => {
-		GetCompany(id, undefined, (error, result) => {
+		GetPublishingCompany(id, undefined, (error, result) => {
 			error ? reject(error) :	CreateQuery(id, name, 'update', (error, result) => {
 				error ? reject(error) : db.query(result, (error, result) => {
 					error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
@@ -182,9 +182,9 @@ var UpdateCompany = (id, name, callback) => {
 	)
 }
 
-var DeleteCompany = (id, callback) => {
+var DeletePublishingCompany = (id, callback) => {
 	return new Promise((resolve, reject) => {
-		GetCompany(id, undefined, (error, result) => {
+		GetPublishingCompany(id, undefined, (error, result) => {
 			error ? reject(error) :	CreateQuery(id, undefined, 'delete', (error, result) => {
 				error ? reject(error) : db.query(result, (error, result) => {
 					error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
@@ -198,9 +198,9 @@ var DeleteCompany = (id, callback) => {
 }
 
 module.exports = {
-  GetCompany,
-  CreateCompany,
-  UpdateCompany,
-  DeleteCompany,
+  GetPublishingCompany,
+  CreatePublishingCompany,
+  UpdatePublishingCompany,
+  DeletePublishingCompany,
   table
 }
