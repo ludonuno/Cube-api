@@ -135,7 +135,6 @@ var CreateQuery = (bookId, genreId, action, callback) => {
 var GetGenreBook = (bookId, genreId, callback) => {
   	return new Promise((resolve, reject) => {
 		CreateQuery(bookId, genreId, 'get', (error, result) => {
-			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)

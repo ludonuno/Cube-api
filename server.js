@@ -39,7 +39,10 @@ const routeList = {
 	videoBook : 'VideoBook',
 	videoSeries : 'VideoSeries',
 	videoSeason : 'VideoSeason',
-	videoEpisode : 'VideoEpisode'	
+	videoEpisode : 'VideoEpisode',
+	assignment: 'Assignment',
+	celebrity: 'Celebrity',
+	celebrityGallery: 'CelebrityGallery'
 }
 
 
@@ -201,7 +204,20 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			? api.videoEpisode.GetVideoEpisode( req.query.id, req.query.episodeId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		
+		case routeList.assignment:
+			(req.query.id || !sizeOf(req.query)) 
+			? api.assignment.GetAssignment( req.query.id, (error, result) => res.json( error ? { error } : { result } ) ) 
+			: res.json(errorList.parameters)
+		case routeList.celebrity:
+			(req.query.id || req.query.name || req.query.birthday || !sizeOf(req.query)) 
+			? api.celebrity.GetCelebrity( req.query.id, req.query.name, req.query.birthday, (error, result) => res.json( error ? { error } : { result } ) ) 
+			: res.json(errorList.parameters)
+			break	
+		case routeList.celebrityGallery:
+			(req.query.id || req.query.celebrityId || !sizeOf(req.query)) 
+			? api.celebrityGallery.GetCelebrityGallery( req.query.id, req.query.celebrityId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			: res.json(errorList.parameters)
+			break		
 		default:
 			res.json(errorList.route)
 			break
@@ -358,6 +374,21 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			? api.videoEpisode.CreateGameGallery( req.query.link, req.query.episodeId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
+		case routeList.assignment:
+			(req.query.assignment) 
+			? api.assignment.CreateAssignment( req.query.assignment, req.query.description, (error, result) => res.json( error ? { error } : { result } ) ) 
+			: res.json(errorList.parameters)
+			break
+		case routeList.celebrity:
+			(req.query.name && (req.query.photo || req.query.birthday || req.query.biography)) 
+			? api.celebrity.CreateCelebrity( req.query.name, req.query.photo, req.query.birthday, req.query.biography, (error, result) => res.json( error ? { error } : { result } ) ) 
+			: res.json(errorList.parameters)
+			break
+		case routeList.celebrityGallery:
+			(req.query.photo && req.query.celebrityId) 
+			? api.celebrityGallery.CreateCelebrityGallery( req.query.photo, req.query.celebrityId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			: res.json(errorList.parameters)
+			break
 		default:
 			res.json(errorList.route)
 			break
@@ -427,6 +458,16 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 		case routeList.episode:
 			(req.query.id && (req.query.title || req.query.photo || req.query.releaseDate || req.query.synopsis || req.query.seasonId)) 
 			? api.episode.UpdateEpisode( req.query.id, req.query.title, req.query.photo, req.query.releaseDate, req.query.synopsis, req.query.seasonId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			: res.json(errorList.parameters)
+			break
+		case routeList.assignment:
+			(req.query.id && (req.query.assignment || req.query.description)) 
+			? api.assignment.UpdateAssignment( req.query.id,  req.query.assignment, req.query.description, (error, result) => res.json( error ? { error } : { result } ) ) 
+			: res.json(errorList.parameters)
+			break
+		case routeList.celebrity:
+			(req.query.id && (req.query.name || req.query.photo || req.query.birthday || req.query.biography )) 
+			? api.celebrity.UpdateCelebrity( req.query.id, req.query.name, req.query.photo, req.query.birthday, req.query.biography, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		default:
@@ -583,6 +624,21 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 		case routeList.videoEpisode:
 			(req.query.id) 
 			? api.videoEpisode.DeleteVideoEpisode( req.query.id, (error, result) => res.json( error ? { error } : { result } ) )
+			: res.json(errorList.parameters)
+			break
+		case routeList.assignment:
+			(req.query.id)
+			? api.assignment.DeleteAssignment( req.query.id, (error, result) => res.json( error ? { error } : { result } ) )
+			: res.json(errorList.parameters)
+			break
+		case routeList.celebrity:
+			(req.query.id) 
+			? api.celebrity.DeleteCelebrity( req.query.id, (error, result) => res.json( error ? { error } : { result } ) )
+			: res.json(errorList.parameters)
+			break
+		case routeList.celebrityGallery:
+			(req.query.id) 
+			? api.celebrityGallery.DeleteCelebrityGallery( req.query.id, (error, result) => res.json( error ? { error } : { result } ) )
 			: res.json(errorList.parameters)
 			break
 		default:

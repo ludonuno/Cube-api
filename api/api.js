@@ -35,6 +35,10 @@ const videoSeries = require('./tables/VideoSeries')
 const videoSeason = require('./tables/VideoSeason')
 const videoEpisode = require('./tables/VideoEpisode')
 // 30
+const assignment = require('./tables/Assignment')
+const celebrity = require('./tables/Celebrity')
+const celebrityGallery = require('./tables/CelebrityGallery')
+
 // 35
 // 40
 // 45
@@ -70,6 +74,8 @@ module.exports = {
 	videoBook,
 	videoSeries,
 	videoSeason,
-	videoEpisode
-
+	videoEpisode,
+	assignment,
+	celebrity,
+	celebrityGallery
 }
