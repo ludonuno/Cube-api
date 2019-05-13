@@ -1,6 +1,8 @@
 const db = require('../../db')
 const sizeOf = require('object-sizeof')
 
+const { CanUserEdit } = require('./User')
+
 const table = {
     table: 'my_Celebrity',
     id: 'id',
@@ -67,7 +69,7 @@ var HandleInsertData = (name, photo, birthday, biography, callback) => {
 				fields += ', '
 				values += ', '
 			}
-			fields += `${table.description}`
+			fields += `${table.photo}`
 			values += `decode('${photo}', 'hex')`
 		}
 
@@ -86,7 +88,7 @@ var HandleInsertData = (name, photo, birthday, biography, callback) => {
 				values += ', '
 			}
 			biography = biography.replace("'", '%27')
-			fields += `${table.description}`
+			fields += `${table.biography}`
 			values += `'${biography}'`
 		}
 
@@ -124,21 +126,21 @@ var HandleUpdateData = (id, name, photo, birthday, biography, callback) => {
 		}
 
 		if (photo) {
-			if (numberParameters) updateTo += ' AND '
-			updateTo += `${table.description} = decode('${photo}', 'hex')`
+			if (numberParameters) updateTo += ', '
+			updateTo += `${table.photo} = decode('${photo}', 'hex')`
 			numberParameters++
 		}
 
 		if (birthday) {
-			if (numberParameters) updateTo += ' AND '
+			if (numberParameters) updateTo += ', '
 			updateTo += `${table.birthday} = '${birthday}'`
 			numberParameters++
 		}
 
 		if (biography) {
-			if (numberParameters) updateTo += ' AND '
+			if (numberParameters) updateTo += ', '
 			biography = biography.replace("'", '%27')
-			updateTo += `${table.description} = '${biography}'`
+			updateTo += `${table.biography} = '${biography}'`
 			numberParameters++
 		}
 
@@ -155,7 +157,7 @@ var CreateQueryUpdate = (id, name, photo, birthday, biography, callback) => {
 		HandleUpdateData(id, name, photo, birthday, biography, (error, result) => {
 			error 
 			? reject(db.message.dataError) 
-			: resolve(`UPDATE ${table.table} SET ${result}' WHERE ${table.id} = ${id} RETURNING *`)
+			: resolve(`UPDATE ${table.table} SET ${result} WHERE ${table.id} = ${id} RETURNING *`)
 		})
 		
 	}).then(
@@ -203,6 +205,7 @@ var CreateQuery = (id, name, photo, birthday, biography, action, callback) => {
 var GetCelebrity = (id, name, birthday, callback) => {
   	return new Promise((resolve, reject) => {
 		CreateQuery(id, name, undefined, birthday, undefined, 'get', (error, result) => {
+			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -215,27 +218,18 @@ var GetCelebrity = (id, name, birthday, callback) => {
 	)
 }		
 
-var CreateCelebrity = (name, photo, birthday, biography, callback) => {
-	return new Promise((resolve, reject) => {
-        CreateQuery(undefined, name, photo, birthday, biography, 'create', (error, result) => {
-            error ? reject(error) : db.query(result, (error, result) => {
-                error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
-            })
-        })
-	}).then(
-		resolve => callback(undefined, resolve),
-		reject => callback(reject, undefined)
-	)
-}
-
-var UpdateCelebrity = (id, name, photo, birthday, biography, callback) => {
-	return new Promise((resolve, reject) => {
-		GetCelebrity(id, undefined, undefined, (error, result) => {
-			error ? reject(error) :	CreateQuery(id, name, photo, birthday, biography, 'update', (error, result) => {
-				error ? reject(error) : db.query(result, (error, result) => {
-					error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
+var CreateCelebrity = (userEmail, userPassword, name, photo, birthday, biography, callback) => {
+	return new Promise((resolve, reject) => {		
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				CreateQuery(undefined, name, photo, birthday, biography, 'create', (error, result) => {
+					console.log(error, result)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
+					})
 				})
-			})
+			} else reject('Não tem permissões')
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -243,14 +237,37 @@ var UpdateCelebrity = (id, name, photo, birthday, biography, callback) => {
 	)
 }
 
-var DeleteCelebrity = (id, callback) => {
+var UpdateCelebrity = (userEmail, userPassword, id, name, photo, birthday, biography, callback) => {
 	return new Promise((resolve, reject) => {
-		GetCelebrity(id, undefined, undefined, (error, result) => {
-			error ? reject(error) :	CreateQuery(id, undefined, undefined, undefined, undefined, 'delete', (error, result) => {
-				error ? reject(error) : db.query(result, (error, result) => {
-					error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				CreateQuery(id, name, photo, birthday, biography, 'update', (error, result) => {
+					console.log(error, result)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
+					})
 				})
-			})
+			} else reject('Não tem permissões')
+		})
+	}).then(
+		resolve => callback(undefined, resolve),
+		reject => callback(reject, undefined)
+	)
+}
+
+var DeleteCelebrity = (userEmail, userPassword, id, callback) => {
+	return new Promise((resolve, reject) => {
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				CreateQuery(id, undefined, undefined, undefined, undefined, 'delete', (error, result) => {
+					console.log(error, result)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
+					})
+				})
+			} else reject('Não tem permissões')
 		})
 	}).then(
 		resolve => callback(undefined, resolve),

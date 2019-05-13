@@ -1,6 +1,8 @@
 const db = require('./../../db')
 const sizeOf = require('object-sizeof')
 
+const { CanUserEdit } = require('./User')
+
 const table = {
     table: 'my_CelebrityGallery',
     id: 'id',
@@ -65,7 +67,7 @@ var HandleInsertData = (photo, celebrityId, callback) => {
 				}
 				fields += `${table.celebrityId}`
 				values += `${celebrityId}`
-			}
+			} else reject(db.message.dataError)
 		}
 
 		resolve({fields, values})
@@ -125,6 +127,7 @@ var CreateQuery = (id, photo, celebrityId, callback) => {
 var GetCelebrityGallery = (id, celebrityId, callback) => {
   	return new Promise((resolve, reject) => {
 		CreateQuery(id, undefined, celebrityId, 'get', (error, result) => {
+			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -137,27 +140,37 @@ var GetCelebrityGallery = (id, celebrityId, callback) => {
 	)
 }		
 
-var CreateCelebrityGallery = (photo, celebrityId, callback) => {
+var CreateCelebrityGallery = (userEmail, userPassword, photo, celebrityId, callback) => {
 	return new Promise((resolve, reject) => {
-        CreateQuery(undefined, photo, celebrityId, 'create', (error, result) => {
-            error ? reject(error) : db.query(result, (error, result) => {
-                error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
-            })
-        })
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				CreateQuery(undefined, photo, celebrityId, 'create', (error, result) => {
+					console.log(error, result)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
+					})
+				})
+			} else reject('Não tem permissões')
+		})
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
 	)
 }
 
-var DeleteCelebrityGallery = (id, callback) => {
+var DeleteCelebrityGallery = (userEmail, userPassword, id, callback) => {
 	return new Promise((resolve, reject) => {
-		GetCelebrityGallery(id, undefined, (error, result) => {
-			error ? reject(error) :	CreateQuery(id, undefined, undefined, 'delete', (error, result) => {
-				error ? reject(error) : db.query(result, (error, result) => {
-					error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				CreateQuery(id, undefined, undefined, 'delete', (error, result) => {
+					console.log(error, result)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
+					})
 				})
-			})
+			} else reject('Não tem permissões')
 		})
 	}).then(
 		resolve => callback(undefined, resolve),

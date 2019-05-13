@@ -4,6 +4,8 @@ const sizeOf = require('object-sizeof')
 const bookTable = require('./Book').table
 const genresTable = require('./Genres').table
 
+const { CanUserEdit } = require('./User')
+
 const table = {
     table: 'my_GenreBook',
     bookId: 'bookId',
@@ -61,7 +63,7 @@ var HandleInsertData = (bookId, genreId, callback) => {
 				fields += `${table.bookId}`
 				values += `${bookId}`
 				numberParameters++
-			}
+			} else reject(db.message.dataError)
 		}
 
 		if (genreId) {
@@ -72,7 +74,7 @@ var HandleInsertData = (bookId, genreId, callback) => {
 				}
 				fields += `${table.genreId}`
 				values += `${genreId}`
-			}
+			} else reject(db.message.dataError)
 		}
 
 		resolve({fields, values})
@@ -135,6 +137,7 @@ var CreateQuery = (bookId, genreId, action, callback) => {
 var GetGenreBook = (bookId, genreId, callback) => {
   	return new Promise((resolve, reject) => {
 		CreateQuery(bookId, genreId, 'get', (error, result) => {
+			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -147,27 +150,37 @@ var GetGenreBook = (bookId, genreId, callback) => {
 	)
 }		
 
-var CreateGenreBook = (bookId, genreId, callback) => {
+var CreateGenreBook = (userEmail, userPassword, bookId, genreId, callback) => {
 	return new Promise((resolve, reject) => {
-        CreateQuery(bookId, genreId, 'create', (error, result) => {
-            error ? reject(error) : db.query(result, (error, result) => {
-                error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
-            })
-        })
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				CreateQuery(bookId, genreId, 'create', (error, result) => {
+					console.log(error, result)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
+					})
+				})
+			} else reject('Não tem permissões')
+		})
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
 	)
 }
 
-var DeleteGenreBook = (bookId, genreId, callback) => {
+var DeleteGenreBook = (userEmail, userPassword, bookId, genreId, callback) => {
 	return new Promise((resolve, reject) => {
-		GetGenreBook(bookId, genreId, (error, result) => {
-			error ? reject(error) :	CreateQuery(bookId, genreId, 'delete', (error, result) => {
-				error ? reject(error) : db.query(result, (error, result) => {
-					error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				CreateQuery(bookId, genreId, 'delete', (error, result) => {
+					console.log(error, result)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
+					})
 				})
-			})
+			} else reject('Não tem permissões')
 		})
 	}).then(
 		resolve => callback(undefined, resolve),

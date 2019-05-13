@@ -1,6 +1,8 @@
 const db = require('./../../db')
 const sizeOf = require('object-sizeof')
 
+const { CanUserEdit } = require('./User')
+
 const table = {
     table: 'my_SeasonGallery',
     id: 'id',
@@ -65,7 +67,7 @@ var HandleInsertData = (photo, seasonId, callback) => {
 				}
 				fields += `${table.seasonId}`
 				values += `${seasonId}`
-			}
+			} else reject(db.message.dataError)
 		}
 
 		resolve({fields, values})
@@ -125,6 +127,7 @@ var CreateQuery = (id, photo, seasonId, callback) => {
 var GetSeasonGallery = (id, seasonId, callback) => {
   	return new Promise((resolve, reject) => {
 		CreateQuery(id, undefined, seasonId, 'get', (error, result) => {
+			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -137,27 +140,37 @@ var GetSeasonGallery = (id, seasonId, callback) => {
 	)
 }		
 
-var CreateSeasonGallery = (photo, seasonId, callback) => {
+var CreateSeasonGallery = (userEmail, userPassword, photo, seasonId, callback) => {
 	return new Promise((resolve, reject) => {
-        CreateQuery(undefined, photo, seasonId, 'create', (error, result) => {
-            error ? reject(error) : db.query(result, (error, result) => {
-                error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
-            })
-        })
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				CreateQuery(undefined, photo, seasonId, 'create', (error, result) => {
+					console.log(error, result)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
+					})
+				})
+			} else reject('Não tem permissões')
+		})
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
 	)
 }
 
-var DeleteSeasonGallery = (id, callback) => {
+var DeleteSeasonGallery = (userEmail, userPassword, id, callback) => {
 	return new Promise((resolve, reject) => {
-		GetSeasonGallery(id, undefined, (error, result) => {
-			error ? reject(error) :	CreateQuery(id, undefined, undefined, 'delete', (error, result) => {
-				error ? reject(error) : db.query(result, (error, result) => {
-					error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				CreateQuery(id, undefined, undefined, 'delete', (error, result) => {
+					console.log(error, result)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
+					})
 				})
-			})
+			} else reject('Não tem permissões')
 		})
 	}).then(
 		resolve => callback(undefined, resolve),

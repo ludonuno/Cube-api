@@ -1,29 +1,29 @@
-const db = require('./../../db')
+const db = require('../../db')
 const sizeOf = require('object-sizeof')
 
 const celebrityTable = require('./Celebrity').table
 const assignmentTable = require('./Assignment').table
-const gameTable = require('./Game').table
+const seriesTable = require('./Series').table
 
 const { CanUserEdit } = require('./User')
 
 const table = {
-    table: 'my_CelebrityAssignmentGame',
+    table: 'my_CelebrityAssignmentSeries',
 	celebrityId : 'celebrityId',
 	assignmentId : 'assignmentId',
-	gameId : 'gameId'
+	seriesId : 'seriesId'
 }
 
-//TODO: alterar as celebrityId e gameTable para celebrityTable e assignmentTable
-//TODO: adicionar a tabela gameTable nas queries
+//TODO: alterar as celebrityId e seriesTable para celebrityTable e assignmentTable
+//TODO: adicionar a tabela seriesTable nas queries
 
-var HandleSelectData = (celebrityId, assignmentId, gameId, callback) => {
+var HandleSelectData = (celebrityId, assignmentId, seriesId, callback) => {
 	return new Promise((resolve, reject) => {
         let fields = "", searchFor = "", numberParameters = 0
 
         if(celebrityId) {
             if (!isNaN(Number(celebrityId))) {
-				fields = `${assignmentTable.table}.${assignmentTable.id}, ${assignmentTable.table}.${assignmentTable.description}, ${gameTable.table}.${gameTable.id}, ${gameTable.table}.${gameTable.title}, ${gameTable.table}.${gameTable.photo}, ${gameTable.table}.${gameTable.releaseDate}, ${gameTable.table}.${gameTable.synopsis}, ${gameTable.table}.${gameTable.engineId}, ${gameTable.table}.${gameTable.parentAdvisoryId}, ${gameTable.table}.${gameTable.publicadorId}, ${gameTable.table}.${gameTable.sagaId}`
+				fields = `${assignmentTable.table}.${assignmentTable.id}, ${assignmentTable.table}.${assignmentTable.description}, ${seriesTable.table}.${seriesTable.id}, ${seriesTable.table}.${seriesTable.title}, ${seriesTable.table}.${seriesTable.photo}, ${seriesTable.table}.${seriesTable.releaseDate}, ${seriesTable.table}.${seriesTable.synopsis}, ${seriesTable.table}.${seriesTable.parentAdvisoryId}, ${seriesTable.table}.${seriesTable.sagaId}`
 				searchFor += `${table.celebrityId} = ${celebrityId}`
                 numberParameters++;
             } else reject(db.message.dataError)            
@@ -31,17 +31,17 @@ var HandleSelectData = (celebrityId, assignmentId, gameId, callback) => {
 		
 		if(assignmentId) {
             if (!isNaN(Number(assignmentId))) {
-				fields = `${celebrityTable.table}.${celebrityTable.id}, ${celebrityTable.table}.${celebrityTable.name}, ${celebrityTable.table}.${celebrityTable.photo}, ${celebrityTable.table}.${celebrityTable.birthday}, ${celebrityTable.table}.${celebrityTable.biography}, ${gameTable.table}.${gameTable.id}, ${gameTable.table}.${gameTable.title}, ${gameTable.table}.${gameTable.photo}, ${gameTable.table}.${gameTable.releaseDate}, ${gameTable.table}.${gameTable.synopsis}, ${gameTable.table}.${gameTable.engineId}, ${gameTable.table}.${gameTable.parentAdvisoryId}, ${gameTable.table}.${gameTable.publicadorId}, ${gameTable.table}.${gameTable.sagaId}`
+				fields = `${celebrityTable.table}.${celebrityTable.id}, ${celebrityTable.table}.${celebrityTable.name}, ${celebrityTable.table}.${celebrityTable.photo}, ${celebrityTable.table}.${celebrityTable.birthday}, ${celebrityTable.table}.${celebrityTable.biography}, ${seriesTable.table}.${seriesTable.id}, ${seriesTable.table}.${seriesTable.title}, ${seriesTable.table}.${seriesTable.photo}, ${seriesTable.table}.${seriesTable.releaseDate}, ${seriesTable.table}.${seriesTable.synopsis}, ${seriesTable.table}.${seriesTable.parentAdvisoryId}, ${seriesTable.table}.${seriesTable.sagaId}`
 				if (numberParameters) searchFor += ' AND '
 				searchFor += `${table.assignmentId} = ${assignmentId}`
             } else reject(db.message.dataError)            
 		}
 
-		if(gameId) {
-            if (!isNaN(Number(gameId))) {
+		if(seriesId) {
+            if (!isNaN(Number(seriesId))) {
 				fields = `${celebrityTable.table}.${celebrityTable.id}, ${celebrityTable.table}.${celebrityTable.name}, ${celebrityTable.table}.${celebrityTable.photo}, ${celebrityTable.table}.${celebrityTable.birthday}, ${celebrityTable.table}.${celebrityTable.biography}, ${assignmentTable.table}.${assignmentTable.id}, ${assignmentTable.table}.${assignmentTable.description}`
 				if (numberParameters) searchFor += ' AND '
-				searchFor += `${table.gameId} = ${gameId}`
+				searchFor += `${table.seriesId} = ${seriesId}`
             } else reject(db.message.dataError)            
 		}
 
@@ -52,20 +52,20 @@ var HandleSelectData = (celebrityId, assignmentId, gameId, callback) => {
 	)
 }
 
-var CreateQuerySelect = (celebrityId, assignmentId, gameId, callback) => {
+var CreateQuerySelect = (celebrityId, assignmentId, seriesId, callback) => {
 	return new Promise((resolve, reject) => {
-		if (celebrityId || assignmentId || gameId) {
-			HandleSelectData(celebrityId, assignmentId, gameId, (error, result) => {
-				error ? reject(error) : resolve(`SELECT ${result.fields} FROM ${table.table} INNER JOIN ${celebrityTable.table} ON ${celebrityTable.table}.${celebrityTable.id} = ${table.celebrityId} INNER JOIN ${assignmentTable.table} ON ${assignmentTable.table}.${assignmentTable.id} = ${table.assignmentId} INNER JOIN ${gameTable.table} ON ${gameTable.table}.${gameTable.id} = ${table.gameId} WHERE ${result.searchFor} ORDER BY (${table.celebrityId}, ${table.assignmentId}, ${table.gameId})`)
+		if (celebrityId || assignmentId || seriesId) {
+			HandleSelectData(celebrityId, assignmentId, seriesId, (error, result) => {
+				error ? reject(error) : resolve(`SELECT ${result.fields} FROM ${table.table} INNER JOIN ${celebrityTable.table} ON ${celebrityTable.table}.${celebrityTable.id} = ${table.celebrityId} INNER JOIN ${assignmentTable.table} ON ${assignmentTable.table}.${assignmentTable.id} = ${table.assignmentId} INNER JOIN ${seriesTable.table} ON ${seriesTable.table}.${seriesTable.id} = ${table.seriesId} WHERE ${result.searchFor} ORDER BY (${table.celebrityId}, ${table.assignmentId}, ${table.seriesId})`)
 			})
-		} else resolve(`SELECT * FROM ${table.table} INNER JOIN ${celebrityTable.table} ON ${celebrityTable.table}.${celebrityTable.id} = ${table.celebrityId} INNER JOIN ${assignmentTable.table} ON ${assignmentTable.table}.${assignmentTable.id} = ${table.assignmentId} INNER JOIN ${gameTable.table} ON ${gameTable.table}.${gameTable.id} = ${table.gameId} ORDER BY (${table.celebrityId}, ${table.assignmentId})`)
+		} else resolve(`SELECT * FROM ${table.table} INNER JOIN ${celebrityTable.table} ON ${celebrityTable.table}.${celebrityTable.id} = ${table.celebrityId} INNER JOIN ${assignmentTable.table} ON ${assignmentTable.table}.${assignmentTable.id} = ${table.assignmentId} INNER JOIN ${seriesTable.table} ON ${seriesTable.table}.${seriesTable.id} = ${table.seriesId} ORDER BY (${table.celebrityId}, ${table.assignmentId})`)
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
 	)
 }
 
-var HandleInsertData = (celebrityId, assignmentId, gameId, callback) => {
+var HandleInsertData = (celebrityId, assignmentId, seriesId, callback) => {
 	return new Promise((resolve, reject) => {
         let fields = '', values = '', numberParameters = 0
 
@@ -88,14 +88,14 @@ var HandleInsertData = (celebrityId, assignmentId, gameId, callback) => {
 			} else reject(db.message.dataError)
 		}
 
-		if (gameId) {
-			if (!isNaN(Number(gameId))) {
+		if (seriesId) {
+			if (!isNaN(Number(seriesId))) {
 				if (numberParameters) {
 					fields += ', '
 					values += ', '
 				}
-				fields += `${table.gameId}`
-				values += `${gameId}`
+				fields += `${table.seriesId}`
+				values += `${seriesId}`
 			} else reject(db.message.dataError)
 		}
 
@@ -107,9 +107,9 @@ var HandleInsertData = (celebrityId, assignmentId, gameId, callback) => {
 }
 
 //Create and return the record created
-var CreateQueryInsert = (celebrityId, assignmentId, gameId, callback) => {
+var CreateQueryInsert = (celebrityId, assignmentId, seriesId, callback) => {
 	return new Promise((resolve, reject) => {
-		HandleInsertData(celebrityId, assignmentId, gameId, (error, result) => {
+		HandleInsertData(celebrityId, assignmentId, seriesId, (error, result) => {
 			error 
 			? reject(error) 
 			: resolve(`INSERT INTO ${table.table} (${result.fields}) VALUES (${result.values}) RETURNING *`)
@@ -122,10 +122,10 @@ var CreateQueryInsert = (celebrityId, assignmentId, gameId, callback) => {
 
 
 //Delete an existing record and return the value deleted
-var CreateQueryDelete = (celebrityId, assignmentId, gameId, callback) => {
+var CreateQueryDelete = (celebrityId, assignmentId, seriesId, callback) => {
 	return new Promise((resolve, reject) => {
-		(!isNaN(Number(celebrityId)) && !isNaN(Number(assignmentId)) && !isNaN(Number(gameId)) )
-		? resolve(`DELETE FROM ${table.table} WHERE ${table.celebrityId} = ${celebrityId} AND ${table.assignmentId} = ${assignmentId} AND ${table.gameId} = ${gameId} RETURNING *`) 
+		(!isNaN(Number(celebrityId)) && !isNaN(Number(assignmentId)) && !isNaN(Number(seriesId)) )
+		? resolve(`DELETE FROM ${table.table} WHERE ${table.celebrityId} = ${celebrityId} AND ${table.assignmentId} = ${assignmentId} AND ${table.seriesId} = ${seriesId} RETURNING *`) 
 		: reject(db.message.dataError)
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -133,17 +133,17 @@ var CreateQueryDelete = (celebrityId, assignmentId, gameId, callback) => {
 	)
 }
 
-var CreateQuery = (celebrityId, assignmentId, gameId, action, callback) => {
+var CreateQuery = (celebrityId, assignmentId, seriesId, action, callback) => {
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 
-				CreateQuerySelect(celebrityId, assignmentId, gameId, (error, result) => error ? reject(error) : resolve(result) )
+				CreateQuerySelect(celebrityId, assignmentId, seriesId, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'create': 
-                CreateQueryInsert(celebrityId, assignmentId, gameId, (error, result) => error ? reject(error) : resolve(result) )
+                CreateQueryInsert(celebrityId, assignmentId, seriesId, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'delete':
-                CreateQueryDelete(celebrityId, assignmentId, gameId, (error, result) => error ? reject(error) : resolve(result) )
+                CreateQueryDelete(celebrityId, assignmentId, seriesId, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			default:
 				reject(db.message.dataError)
@@ -156,9 +156,9 @@ var CreateQuery = (celebrityId, assignmentId, gameId, action, callback) => {
 }
 
 //Exports
-var GetCelebrityAssignmentGame = (celebrityId, assignmentId, gameId, callback) => {
+var GetCelebrityAssignmentSeries = (celebrityId, assignmentId, seriesId, callback) => {
   	return new Promise((resolve, reject) => {
-		CreateQuery(celebrityId, assignmentId, gameId, 'get', (error, result) => {
+		CreateQuery(celebrityId, assignmentId, seriesId, 'get', (error, result) => {
 			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
@@ -172,12 +172,12 @@ var GetCelebrityAssignmentGame = (celebrityId, assignmentId, gameId, callback) =
 	)
 }		
 
-var CreateCelebrityAssignmentGame = (userEmail, userPassword, celebrityId, assignmentId, gameId, callback) => {
+var CreateCelebrityAssignmentSeries = (userEmail, userPassword, celebrityId, assignmentId, seriesId, callback) => {
 	return new Promise((resolve, reject) => {
 		CanUserEdit(userEmail, userPassword, (error, result) => {
 			if (error) reject(error)
 			else if(result) {
-				CreateQuery(celebrityId, assignmentId, gameId, 'create', (error, result) => {
+				CreateQuery(celebrityId, assignmentId, seriesId, 'create', (error, result) => {
 					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
@@ -191,13 +191,12 @@ var CreateCelebrityAssignmentGame = (userEmail, userPassword, celebrityId, assig
 	)
 }
 
-var DeleteCelebrityAssignmentGame = (userEmail, userPassword, celebrityId, assignmentId, gameId, callback) => {
+var DeleteCelebrityAssignmentSeries = (userEmail, userPassword, celebrityId, assignmentId, seriesId, callback) => {
 	return new Promise((resolve, reject) => {
 		CanUserEdit(userEmail, userPassword, (error, result) => {
 			if (error) reject(error)
 			else if(result) {
-				CreateQuery(celebrityId, assignmentId, gameId, 'delete', (error, result) => {
-					console.log(error, result)
+				CreateQuery(celebrityId, assignmentId, seriesId, 'delete', (error, result) => {
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
 					})
@@ -211,8 +210,8 @@ var DeleteCelebrityAssignmentGame = (userEmail, userPassword, celebrityId, assig
 }
 
 module.exports = {
-  GetCelebrityAssignmentGame,
-  CreateCelebrityAssignmentGame,
-  DeleteCelebrityAssignmentGame,
+  GetCelebrityAssignmentSeries,
+  CreateCelebrityAssignmentSeries,
+  DeleteCelebrityAssignmentSeries,
   table
 }

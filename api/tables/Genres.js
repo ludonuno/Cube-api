@@ -1,6 +1,8 @@
 const db = require('./../../db')
 const sizeOf = require('object-sizeof')
 
+const { CanUserEdit } = require('./User')
+
 const table = {
     table: 'my_Genres',
     id: 'id',
@@ -107,6 +109,7 @@ var CreateQuery = (id, genre, action, callback) => {
 var GetGenres = (id, callback) => {
   	return new Promise((resolve, reject) => {
 		CreateQuery(id, genre, 'get', (error, result) => {
+			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -119,27 +122,37 @@ var GetGenres = (id, callback) => {
 	)
 }		
 
-var CreateGenres = (genre, callback) => {
+var CreateGenres = (userEmail, userPassword, genre, callback) => {
 	return new Promise((resolve, reject) => {
-        CreateQuery(undefined, genre, 'create', (error, result) => {
-            error ? reject(error) : db.query(result, (error, result) => {
-                error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
-            })
-        })
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				CreateQuery(undefined, genre, 'create', (error, result) => {
+					console.log(error, result)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
+					})
+				})
+			} else reject('Não tem permissões')
+		})
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
 	)
 }
 
-var DeleteGenres = (id, callback) => {
+var DeleteGenres = (userEmail, userPassword, id, callback) => {
 	return new Promise((resolve, reject) => {
-		GetGenres(id, undefined, (error, result) => {
-			error ? reject(error) :	CreateQuery(id, undefined, 'delete', (error, result) => {
-				error ? reject(error) : db.query(result, (error, result) => {
-					error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				CreateQuery(id, undefined, 'delete', (error, result) => {
+					console.log(error, result)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
+					})
 				})
-			})
+			} else reject('Não tem permissões')
 		})
 	}).then(
 		resolve => callback(undefined, resolve),

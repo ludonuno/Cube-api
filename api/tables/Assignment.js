@@ -1,6 +1,8 @@
 const db = require('../../db')
 const sizeOf = require('object-sizeof')
 
+const { CanUserEdit } = require('./User')
+
 const table = {
     table: 'my_Assignment',
     id: 'id',
@@ -93,7 +95,7 @@ var HandleUpdateData = (id, assignment, description, callback) => {
 		}
 
 		if (description) {
-			if (numberParameters) updateTo += ' AND '
+			if (numberParameters) updateTo += ', '
 			description = description.replace("'", '%27')
 			updateTo += `${table.description} = '${description}'`
 		}
@@ -111,7 +113,7 @@ var CreateQueryUpdate = (id, assignment, description, callback) => {
 		HandleUpdateData(id, assignment, description, (error, result) => {
 			error 
 			? reject(db.message.dataError) 
-			: resolve(`UPDATE ${table.table} SET ${result}' WHERE ${table.id} = ${id} RETURNING *`)
+			: resolve(`UPDATE ${table.table} SET ${result} WHERE ${table.id} = ${id} RETURNING *`)
 		})
 		
 	}).then(
@@ -159,6 +161,7 @@ var CreateQuery = (id, assignment, description, action, callback) => {
 var GetAssignment = (id,  callback) => {
   	return new Promise((resolve, reject) => {
 		CreateQuery(id, undefined, undefined, 'get', (error, result) => {
+			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -169,29 +172,20 @@ var GetAssignment = (id,  callback) => {
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
 	)
-}		
-
-var CreateAssignment = (assignment, description, callback) => {
-	return new Promise((resolve, reject) => {
-        CreateQuery(undefined, assignment, description, 'create', (error, result) => {
-            error ? reject(error) : db.query(result, (error, result) => {
-                error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
-            })
-        })
-	}).then(
-		resolve => callback(undefined, resolve),
-		reject => callback(reject, undefined)
-	)
 }
 
-var UpdateAssignment = (id, assignment, description, callback) => {
+var CreateAssignment = (userEmail, userPassword, assignment, description, callback) => {
 	return new Promise((resolve, reject) => {
-		GetAssignment(id, (error, result) => {
-			error ? reject(error) :	CreateQuery(id, assignment, description, 'update', (error, result) => {
-				error ? reject(error) : db.query(result, (error, result) => {
-					error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				CreateQuery(undefined, assignment, description, 'create', (error, result) => {
+					console.log(error, result)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
+					})
 				})
-			})
+			} else reject('Não tem permissões')
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -199,14 +193,41 @@ var UpdateAssignment = (id, assignment, description, callback) => {
 	)
 }
 
-var DeleteAssignment = (id, callback) => {
+var UpdateAssignment = (userEmail, userPassword, id, assignment, description, callback) => {
 	return new Promise((resolve, reject) => {
-		GetAssignment(id, (error, result) => {
-			error ? reject(error) :	CreateQuery(id, undefined, undefined, 'delete', (error, result) => {
-				error ? reject(error) : db.query(result, (error, result) => {
-					error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				GetAssignment(id, (error, result) => {
+					error ? reject(error) :	CreateQuery(id, assignment, description, 'update', (error, result) => {
+						console.log(error, result)
+						error ? reject(error) : db.query(result, (error, result) => {
+							error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
+						})
+					})
 				})
-			})
+			} else reject('Não tem permissões')
+		})
+	}).then(
+		resolve => callback(undefined, resolve),
+		reject => callback(reject, undefined)
+	)
+}
+
+var DeleteAssignment = (userEmail, userPassword, id, callback) => {
+	return new Promise((resolve, reject) => {
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				GetAssignment(id, (error, result) => {
+					error ? reject(error) :	CreateQuery(id, undefined, undefined, 'delete', (error, result) => {
+						console.log(error, result)
+						error ? reject(error) : db.query(result, (error, result) => {
+							error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
+						})
+					})
+				})
+			} else reject('Não tem permissões')
 		})
 	}).then(
 		resolve => callback(undefined, resolve),

@@ -1,6 +1,8 @@
 const db = require('../../db')
 const sizeOf = require('object-sizeof')
 
+const { CanUserEdit } = require('./User')
+
 const table = {
     table: 'my_Saga',
     id: 'id',
@@ -100,7 +102,7 @@ var HandleUpdateData = (id, name, description, callback) => {
 		}
 
 		if (description) {
-			if (numberParameters) updateTo += ' AND '
+			if (numberParameters) updateTo += ', '
 			description = description.replace("'", '%27')
 			updateTo += `${table.description} = '${description}'`
 		}
@@ -118,7 +120,7 @@ var CreateQueryUpdate = (id, name, description, callback) => {
 		HandleUpdateData(id, name, description, (error, result) => {
 			error 
 			? reject(db.message.dataError) 
-			: resolve(`UPDATE ${table.table} SET ${result}' WHERE ${table.id} = ${id} RETURNING *`)
+			: resolve(`UPDATE ${table.table} SET ${result} WHERE ${table.id} = ${id} RETURNING *`)
 		})
 		
 	}).then(
@@ -166,6 +168,7 @@ var CreateQuery = (id, name, description, action, callback) => {
 var GetSaga = (id, name, callback) => {
   	return new Promise((resolve, reject) => {
 		CreateQuery(id, name, undefined, 'get', (error, result) => {
+			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -178,27 +181,18 @@ var GetSaga = (id, name, callback) => {
 	)
 }		
 
-var CreateSaga = (name, description, callback) => {
+var CreateSaga = (userEmail, userPassword, name, description, callback) => {
 	return new Promise((resolve, reject) => {
-        CreateQuery(undefined, name, description, 'create', (error, result) => {
-            error ? reject(error) : db.query(result, (error, result) => {
-                error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
-            })
-        })
-	}).then(
-		resolve => callback(undefined, resolve),
-		reject => callback(reject, undefined)
-	)
-}
-
-var UpdateSaga = (id, name, description, callback) => {
-	return new Promise((resolve, reject) => {
-		GetSaga(id, (error, result) => {
-			error ? reject(error) :	CreateQuery(id, name, description, 'update', (error, result) => {
-				error ? reject(error) : db.query(result, (error, result) => {
-					error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				CreateQuery(undefined, name, description, 'create', (error, result) => {
+					console.log(error, result)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
+					})
 				})
-			})
+			} else reject('Não tem permissões')
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -206,14 +200,37 @@ var UpdateSaga = (id, name, description, callback) => {
 	)
 }
 
-var DeleteSaga = (id, callback) => {
+var UpdateSaga = (userEmail, userPassword, id, name, description, callback) => {
 	return new Promise((resolve, reject) => {
-		GetSaga(id, (error, result) => {
-			error ? reject(error) :	CreateQuery(id, undefined, undefined, 'delete', (error, result) => {
-				error ? reject(error) : db.query(result, (error, result) => {
-					error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				CreateQuery(id, name, description, 'update', (error, result) => {
+					console.log(error, result)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
+					})
 				})
-			})
+			} else reject('Não tem permissões')
+		})
+	}).then(
+		resolve => callback(undefined, resolve),
+		reject => callback(reject, undefined)
+	)
+}
+
+var DeleteSaga = (userEmail, userPassword, id, callback) => {
+	return new Promise((resolve, reject) => {
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				CreateQuery(id, undefined, undefined, 'delete', (error, result) => {
+					console.log(error, result)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
+					})
+				})
+			} else reject('Não tem permissões')
 		})
 	}).then(
 		resolve => callback(undefined, resolve),

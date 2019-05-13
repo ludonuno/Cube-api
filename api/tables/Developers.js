@@ -4,6 +4,8 @@ const sizeOf = require('object-sizeof')
 const gameTable = require('./Game').table
 const companyTable = require('./Company').table
 
+const { CanUserEdit } = require('./User')
+
 const table = {
     table: 'my_Developers',
     gameId: 'gameId',
@@ -58,7 +60,7 @@ var HandleInsertData = (gameId, companyId, callback) => {
 				fields += `${table.gameId}`
 				values += `${gameId}`
 				numberParameters++
-			}
+			} else reject(db.message.dataError)
 		}
 
 		if (companyId) {
@@ -69,7 +71,7 @@ var HandleInsertData = (gameId, companyId, callback) => {
 				}
 				fields += `${table.companyId}`
 				values += `${companyId}`
-			}
+			} else reject(db.message.dataError)
 		}
 
 		resolve({fields, values})
@@ -132,6 +134,7 @@ var CreateQuery = (gameId, companyId, action, callback) => {
 var GetDevelopers = (gameId, companyId, callback) => {
   	return new Promise((resolve, reject) => {
 		CreateQuery(gameId, companyId, 'get', (error, result) => {
+			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -144,27 +147,37 @@ var GetDevelopers = (gameId, companyId, callback) => {
 	)
 }		
 
-var CreateDevelopers = (gameId, companyId, callback) => {
+var CreateDevelopers = (userEmail, userPassword, gameId, companyId, callback) => {
 	return new Promise((resolve, reject) => {
-        CreateQuery(gameId, companyId, 'create', (error, result) => {
-            error ? reject(error) : db.query(result, (error, result) => {
-                error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
-            })
-        })
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				CreateQuery(gameId, companyId, 'create', (error, result) => {
+					console.log(error, result)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
+					})
+				})
+			} else reject('Não tem permissões')
+		})
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
 	)
 }
 
-var DeleteDevelopers = (gameId, companyId, callback) => {
+var DeleteDevelopers = (userEmail, userPassword, gameId, companyId, callback) => {
 	return new Promise((resolve, reject) => {
-		GetDevelopers(gameId, companyId, (error, result) => {
-			error ? reject(error) :	CreateQuery(gameId, companyId, 'delete', (error, result) => {
-				error ? reject(error) : db.query(result, (error, result) => {
-					error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				CreateQuery(gameId, companyId, 'delete', (error, result) => {
+					console.log(error, result)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
+					})
 				})
-			})
+			} else reject('Não tem permissões')
 		})
 	}).then(
 		resolve => callback(undefined, resolve),

@@ -4,6 +4,7 @@ const pool = process.env.DATABASE_URL ? new Pool({ connectionString: process.env
 
 query = (text, callback) => {
 	return new Promise((resolve, reject) => {
+		console.log(text)
 		pool.query(text, (err, res) => err ? reject(err) : resolve(res.rows) )
 	}).then(
 		resolve => callback(undefined, resolve),

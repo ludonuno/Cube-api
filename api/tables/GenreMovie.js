@@ -4,6 +4,8 @@ const sizeOf = require('object-sizeof')
 const movieTable = require('./Movie').table
 const genresTable = require('./Genres').table
 
+const { CanUserEdit } = require('./User')
+
 const table = {
     table: 'my_GenreMovie',
     movieId: 'movieId',
@@ -58,7 +60,7 @@ var HandleInsertData = (movieId, genreId, callback) => {
 				fields += `${table.movieId}`
 				values += `${movieId}`
 				numberParameters++
-			}
+			} else reject(db.message.dataError)
 		}
 
 		if (genreId) {
@@ -69,7 +71,7 @@ var HandleInsertData = (movieId, genreId, callback) => {
 				}
 				fields += `${table.genreId}`
 				values += `${genreId}`
-			}
+			} else reject(db.message.dataError)
 		}
 
 		resolve({fields, values})
@@ -145,27 +147,37 @@ var GetGenreMovie = (movieId, genreId, callback) => {
 	)
 }		
 
-var CreateGenreMovie = (movieId, genreId, callback) => {
+var CreateGenreMovie = (userEmail, userPassword, movieId, genreId, callback) => {
 	return new Promise((resolve, reject) => {
-        CreateQuery(movieId, genreId, 'create', (error, result) => {
-            error ? reject(error) : db.query(result, (error, result) => {
-                error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
-            })
-        })
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				CreateQuery(movieId, genreId, 'create', (error, result) => {
+					console.log(error, result)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
+					})
+				})
+			} else reject('Não tem permissões')
+		})
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
 	)
 }
 
-var DeleteGenreMovie = (movieId, genreId, callback) => {
+var DeleteGenreMovie = (userEmail, userPassword, movieId, genreId, callback) => {
 	return new Promise((resolve, reject) => {
-		GetGenreMovie(movieId, genreId, (error, result) => {
-			error ? reject(error) :	CreateQuery(movieId, genreId, 'delete', (error, result) => {
-				error ? reject(error) : db.query(result, (error, result) => {
-					error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				CreateQuery(movieId, genreId, 'delete', (error, result) => {
+					console.log(error, result)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
+					})
 				})
-			})
+			} else reject('Não tem permissões')
 		})
 	}).then(
 		resolve => callback(undefined, resolve),

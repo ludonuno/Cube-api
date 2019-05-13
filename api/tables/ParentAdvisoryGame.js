@@ -1,6 +1,8 @@
 const db = require('../../db')
 const sizeOf = require('object-sizeof')
 
+const { CanUserEdit } = require('./User')
+
 const table = {
     table: 'my_ParentAdvisoryGame',
     id: 'id',
@@ -93,7 +95,7 @@ var HandleUpdateData = (id, rate, description, callback) => {
 		}
 
 		if (description) {
-			if (numberParameters) updateTo += ' AND '
+			if (numberParameters) updateTo += ', '
 			description = description.replace("'", '%27')
 			updateTo += `${table.description} = '${description}'`
 		}
@@ -111,7 +113,7 @@ var CreateQueryUpdate = (id, rate, description, callback) => {
 		HandleUpdateData(id, rate, description, (error, result) => {
 			error 
 			? reject(db.message.dataError) 
-			: resolve(`UPDATE ${table.table} SET ${result}' WHERE ${table.id} = ${id} RETURNING *`)
+			: resolve(`UPDATE ${table.table} SET ${result} WHERE ${table.id} = ${id} RETURNING *`)
 		})
 		
 	}).then(
@@ -159,6 +161,7 @@ var CreateQuery = (id, rate, description, action, callback) => {
 var GetParentAdvisoryGame = (id,  callback) => {
   	return new Promise((resolve, reject) => {
 		CreateQuery(id, undefined, undefined, 'get', (error, result) => {
+			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -171,27 +174,18 @@ var GetParentAdvisoryGame = (id,  callback) => {
 	)
 }		
 
-var CreateParentAdvisoryGame = (rate, description, callback) => {
+var CreateParentAdvisoryGame = (userEmail, userPassword, rate, description, callback) => {
 	return new Promise((resolve, reject) => {
-        CreateQuery(undefined, rate, description, 'create', (error, result) => {
-            error ? reject(error) : db.query(result, (error, result) => {
-                error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
-            })
-        })
-	}).then(
-		resolve => callback(undefined, resolve),
-		reject => callback(reject, undefined)
-	)
-}
-
-var UpdateParentAdvisoryGame = (id, rate, description, callback) => {
-	return new Promise((resolve, reject) => {
-		GetParentAdvisoryGame(id, (error, result) => {
-			error ? reject(error) :	CreateQuery(id, rate, description, 'update', (error, result) => {
-				error ? reject(error) : db.query(result, (error, result) => {
-					error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				CreateQuery(undefined, rate, description, 'create', (error, result) => {
+					console.log(error, result)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
+					})
 				})
-			})
+			} else reject('Não tem permissões')
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -199,14 +193,37 @@ var UpdateParentAdvisoryGame = (id, rate, description, callback) => {
 	)
 }
 
-var DeleteParentAdvisoryGame = (id, callback) => {
+var UpdateParentAdvisoryGame = (userEmail, userPassword, id, rate, description, callback) => {
 	return new Promise((resolve, reject) => {
-		GetParentAdvisoryGame(id, (error, result) => {
-			error ? reject(error) :	CreateQuery(id, undefined, undefined, 'delete', (error, result) => {
-				error ? reject(error) : db.query(result, (error, result) => {
-					error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				CreateQuery(id, rate, description, 'update', (error, result) => {
+					console.log(error, result)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
+					})
 				})
-			})
+			} else reject('Não tem permissões')
+		})
+	}).then(
+		resolve => callback(undefined, resolve),
+		reject => callback(reject, undefined)
+	)
+}
+
+var DeleteParentAdvisoryGame = (userEmail, userPassword, id, callback) => {
+	return new Promise((resolve, reject) => {
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				CreateQuery(id, undefined, undefined, 'delete', (error, result) => {
+					console.log(error, result)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
+					})
+				})
+			} else reject('Não tem permissões')
 		})
 	}).then(
 		resolve => callback(undefined, resolve),

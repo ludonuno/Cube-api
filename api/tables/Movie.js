@@ -1,6 +1,8 @@
 const db = require('../../db')
 const sizeOf = require('object-sizeof')
 
+const { CanUserEdit } = require('./User')
+
 const table = {
     table: 'my_Movie',
     id: 'id',
@@ -102,7 +104,7 @@ var HandleInsertData = (title, photo, releaseDate, synopsis, duration, parentAdv
 				fields += ', '
 				values += ', '
 			}
-			fields += `${table.description}`
+			fields += `${table.photo}`
 			values += `decode('${photo}', 'hex')`
 		}
 
@@ -121,7 +123,7 @@ var HandleInsertData = (title, photo, releaseDate, synopsis, duration, parentAdv
 				values += ', '
 			}
 			synopsis = synopsis.replace("'", '%27')
-			fields += `${table.description}`
+			fields += `${table.synopsis}`
 			values += `'${synopsis}'`
 		}
 
@@ -192,27 +194,27 @@ var HandleUpdateData = (id, title, photo, releaseDate, synopsis, duration, paren
 		}
 
 		if (photo) {
-			if (numberParameters) updateTo += ' AND '
-			updateTo += `${table.description} = decode('${photo}', 'hex')`
+			if (numberParameters) updateTo += ', '
+			updateTo += `${table.photo} = decode('${photo}', 'hex')`
 			numberParameters++
 		}
 
 		if (releaseDate) {
-			if (numberParameters) updateTo += ' AND '
+			if (numberParameters) updateTo += ', '
 			updateTo += `${table.releaseDate} = '${releaseDate}'`
 			numberParameters++
 		}
 
 		if (synopsis) {
-			if (numberParameters) updateTo += ' AND '
+			if (numberParameters) updateTo += ', '
 			synopsis = synopsis.replace("'", '%27')
-			updateTo += `${table.description} = '${synopsis}'`
+			updateTo += `${table.synopsis} = '${synopsis}'`
 			numberParameters++
 		}
 
 		if (duration) {
 			if (!isNaN(Number(duration))) {
-				if (numberParameters) updateTo += ' AND '
+				if (numberParameters) updateTo += ', '
 				updateTo += `${table.duration} = ${duration}`
 				numberParameters++
             } else reject(db.message.dataError) 
@@ -220,7 +222,7 @@ var HandleUpdateData = (id, title, photo, releaseDate, synopsis, duration, paren
 
 		if (parentAdvisoryId) {
 			if (!isNaN(Number(parentAdvisoryId))) {
-				if (numberParameters) updateTo += ' AND '
+				if (numberParameters) updateTo += ', '
 				updateTo += `${table.parentAdvisoryId} = ${parentAdvisoryId}`
 				numberParameters++
             } else reject(db.message.dataError) 
@@ -228,7 +230,7 @@ var HandleUpdateData = (id, title, photo, releaseDate, synopsis, duration, paren
 
 		if (sagaId) {
 			if (!isNaN(Number(sagaId))) {
-				if (numberParameters) updateTo += ' AND '
+				if (numberParameters) updateTo += ', '
 				updateTo += `${table.sagaId} = ${sagaId}`
 				numberParameters++
             } else reject(db.message.dataError) 
@@ -247,7 +249,7 @@ var CreateQueryUpdate = (id, title, photo, releaseDate, synopsis, duration, pare
 		HandleUpdateData(id, title, photo, releaseDate, synopsis, duration, parentAdvisoryId, sagaId, (error, result) => {
 			error 
 			? reject(db.message.dataError) 
-			: resolve(`UPDATE ${table.table} SET ${result}' WHERE ${table.id} = ${id} RETURNING *`)
+			: resolve(`UPDATE ${table.table} SET ${result} WHERE ${table.id} = ${id} RETURNING *`)
 		})
 		
 	}).then(
@@ -295,6 +297,7 @@ var CreateQuery = (id, title, photo, releaseDate, synopsis, duration, durationMi
 var GetMovie = (id, title, releaseDate, durationMin, durationMax, parentAdvisoryId, sagaId, callback) => {
   	return new Promise((resolve, reject) => {
 		CreateQuery(id, title, undefined, releaseDate, undefined, undefined, durationMin, durationMax, parentAdvisoryId, sagaId, 'get', (error, result) => {
+			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -307,27 +310,18 @@ var GetMovie = (id, title, releaseDate, durationMin, durationMax, parentAdvisory
 	)
 }		
 
-var CreateMovie = (title, photo, releaseDate, synopsis, duration, parentAdvisoryId, sagaId, callback) => {
+var CreateMovie = (userEmail, userPassword, title, photo, releaseDate, synopsis, duration, parentAdvisoryId, sagaId, callback) => {
 	return new Promise((resolve, reject) => {
-        CreateQuery(undefined, title, photo, releaseDate, synopsis, duration, undefined, undefined, parentAdvisoryId, sagaId, 'create', (error, result) => {
-            error ? reject(error) : db.query(result, (error, result) => {
-                error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
-            })
-        })
-	}).then(
-		resolve => callback(undefined, resolve),
-		reject => callback(reject, undefined)
-	)
-}
-
-var UpdateMovie = (id, title, photo, releaseDate, synopsis, duration, parentAdvisoryId, sagaId, callback) => {
-	return new Promise((resolve, reject) => {
-		GetMovie(id, undefined, undefined, undefined, undefined, undefined, undefined, (error, result) => {
-			error ? reject(error) :	CreateQuery(id, title, photo, releaseDate, synopsis, duration, undefined, undefined, parentAdvisoryId, sagaId, 'update', (error, result) => {
-				error ? reject(error) : db.query(result, (error, result) => {
-					error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				CreateQuery(undefined, title, photo, releaseDate, synopsis, duration, undefined, undefined, parentAdvisoryId, sagaId, 'create', (error, result) => {
+					console.log(error, result)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
+					})
 				})
-			})
+			} else reject('Não tem permissões')
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -335,14 +329,37 @@ var UpdateMovie = (id, title, photo, releaseDate, synopsis, duration, parentAdvi
 	)
 }
 
-var DeleteMovie = (id, callback) => {
+var UpdateMovie = (userEmail, userPassword, id, title, photo, releaseDate, synopsis, duration, parentAdvisoryId, sagaId, callback) => {
 	return new Promise((resolve, reject) => {
-		GetMovie(id, undefined, undefined, undefined, undefined, undefined, undefined, (error, result) => {
-			error ? reject(error) :	CreateQuery(id, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 'delete', (error, result) => {
-				error ? reject(error) : db.query(result, (error, result) => {
-					error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				CreateQuery(id, title, photo, releaseDate, synopsis, duration, undefined, undefined, parentAdvisoryId, sagaId, 'update', (error, result) => {
+					console.log(error, result)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
+					})
 				})
-			})
+			} else reject('Não tem permissões')
+		})
+	}).then(
+		resolve => callback(undefined, resolve),
+		reject => callback(reject, undefined)
+	)
+}
+
+var DeleteMovie = (userEmail, userPassword, id, callback) => {
+	return new Promise((resolve, reject) => {
+		CanUserEdit(userEmail, userPassword, (error, result) => {
+			if (error) reject(error)
+			else if(result) {
+				CreateQuery(id, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 'delete', (error, result) => {
+					console.log(error, result)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
+					})
+				})
+			} else reject('Não tem permissões')
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
