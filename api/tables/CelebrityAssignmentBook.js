@@ -14,9 +14,6 @@ const table = {
 	bookId : 'bookId'
 }
 
-//TODO: alterar as celebrityId e bookTable para celebrityTable e assignmentTable
-//TODO: adicionar a tabela bookTable nas queries
-
 var HandleSelectData = (celebrityId, assignmentId, bookId, callback) => {
 	return new Promise((resolve, reject) => {
         let fields = "", searchFor = "", numberParameters = 0
@@ -34,6 +31,7 @@ var HandleSelectData = (celebrityId, assignmentId, bookId, callback) => {
 				fields = `${celebrityTable.table}.${celebrityTable.id}, ${celebrityTable.table}.${celebrityTable.name}, ${celebrityTable.table}.${celebrityTable.photo}, ${celebrityTable.table}.${celebrityTable.birthday}, ${celebrityTable.table}.${celebrityTable.biography}, ${bookTable.table}.${bookTable.id}, ${bookTable.table}.${bookTable.title}, ${bookTable.table}.${bookTable.photo}, ${bookTable.table}.${bookTable.releaseDate}, ${bookTable.table}.${bookTable.synopsis}, ${bookTable.table}.${bookTable.publishingCompanyId}, ${bookTable.table}.${bookTable.sagaId}`
 				if (numberParameters) searchFor += ' AND '
 				searchFor += `${table.assignmentId} = ${assignmentId}`
+				numberParameters++
             } else reject(db.message.dataError)            
 		}
 
@@ -85,6 +83,7 @@ var HandleInsertData = (celebrityId, assignmentId, bookId, callback) => {
 				}
 				fields += `${table.assignmentId}`
 				values += `${assignmentId}`
+				numberParameters++
 			} else reject(db.message.dataError)
 		}
 

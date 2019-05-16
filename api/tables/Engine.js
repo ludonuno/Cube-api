@@ -22,6 +22,7 @@ var HandleSelectData = (id, name, callback) => {
 
         if (name) {
 			if (numberParameters) search += ' AND '
+			name = name.replace( new RegExp("'", 'g') , '%27')
 			search += `${table.name} LIKE '%${name}%'`
 		}
 		resolve(search)
@@ -51,7 +52,7 @@ var HandleInsertData = (name, callback) => {
         let fields = '', values = ''
 
 		if (name) {
-			name = name.replace("'", '%27')
+			name = name.replace( new RegExp("'", 'g') , '%27')
 			fields += `${table.name}`
 			values += `'${name}'`
 		}
@@ -84,7 +85,7 @@ var HandleUpdateData = (id, name, callback) => {
 		if (isNaN(Number(id))) reject(db.message.dataError)
 				
 		if (name) {
-			name = name.replace("'", '%27')
+			name = name.replace( new RegExp("'", 'g') , '%27')
 			updateTo += `${table.name} = '${name}'`
 		}
 

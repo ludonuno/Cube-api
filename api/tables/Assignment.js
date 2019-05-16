@@ -10,15 +10,23 @@ const table = {
 	description: 'description'
 }
 
-var HandleSelectData = (id, callback) => {
+var HandleSelectData = (id, assignment, callback) => {
 	return new Promise((resolve, reject) => {
-        let searchFor = ""
+        let searchFor = "", numberParameters = 0
         
         if(id) {
             if (!isNaN(Number(id))) {
-                searchFor += `${table.id} = ${id}`
+				searchFor += `${table.id} = ${id}`
+				numberParameters++
             } else reject(db.message.dataError)            
-        }
+		}
+		
+		if(assignment) {
+			if(numberParameters) searchFor+= ' AND '
+			assignment = assignment.replace( new RegExp("'", 'g') , '%27')
+			searchFor += `${table.assignment} = '${assignment}'`
+		}
+
 		resolve(searchFor)
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -26,10 +34,10 @@ var HandleSelectData = (id, callback) => {
 	)
 }
 
-var CreateQuerySelect = (id, callback) => {
+var CreateQuerySelect = (id, assignment, callback) => {
 	return new Promise((resolve, reject) => {
-		if (id) {
-			HandleSelectData(id, (error, result) => {
+		if (id || assignment) {
+			HandleSelectData(id, assignment, (error, result) => {
 				error 
 				? reject(error) 
 				: resolve(`SELECT * FROM ${table.table} WHERE ${result}`)
@@ -46,7 +54,7 @@ var HandleInsertData = (assignment, description, callback) => {
         let fields = '', values = '', numberParameters = 0
 
 		if (assignment) {
-			assignment = assignment.replace("'", '%27')
+			assignment = assignment.replace( new RegExp("'", 'g') , '%27')
 			fields += `${table.assignment}`
 			values += `'${assignment}'`
 			numberParameters++;
@@ -57,7 +65,7 @@ var HandleInsertData = (assignment, description, callback) => {
 				fields += ', '
 				values += ', '
 			}
-			description = description.replace("'", '%27')
+			description = description.replace( new RegExp("'", 'g') , '%27')
 			fields += `${table.description}`
 			values += `'${description}'`
 		}
@@ -90,13 +98,14 @@ var HandleUpdateData = (id, assignment, description, callback) => {
 		if (isNaN(Number(id))) reject(db.message.dataError)
 		
 		if (assignment) {
+			assignment = assignment.replace( new RegExp("'", 'g') , '%27')
 			updateTo += `${table.assignment} = ${assignment}`
 			numberParameters++;
 		}
 
 		if (description) {
 			if (numberParameters) updateTo += ', '
-			description = description.replace("'", '%27')
+			description = description.replace( new RegExp("'", 'g') , '%27')
 			updateTo += `${table.description} = '${description}'`
 		}
 
@@ -136,7 +145,7 @@ var CreateQuery = (id, assignment, description, action, callback) => {
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 
-				CreateQuerySelect(id, (error, result) => error ? reject(error) : resolve(result) )
+				CreateQuerySelect(id, assignment, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'create': 
                 CreateQueryInsert(assignment, description, (error, result) => error ? reject(error) : resolve(result) )
@@ -158,9 +167,9 @@ var CreateQuery = (id, assignment, description, action, callback) => {
 }
 
 //Exports
-var GetAssignment = (id,  callback) => {
+var GetAssignment = (id, assignment,  callback) => {
   	return new Promise((resolve, reject) => {
-		CreateQuery(id, undefined, undefined, 'get', (error, result) => {
+		CreateQuery(id, assignment, undefined, 'get', (error, result) => {
 			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
@@ -179,11 +188,16 @@ var CreateAssignment = (userEmail, userPassword, assignment, description, callba
 		CanUserEdit(userEmail, userPassword, (error, result) => {
 			if (error) reject(error)
 			else if(result) {
-				CreateQuery(undefined, assignment, description, 'create', (error, result) => {
-					console.log(error, result)
-					error ? reject(error) : db.query(result, (error, result) => {
-						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
-					})
+				GetAssignment(undefined, assignment, (error, result) => {
+					if(error == db.message.dataNotFound) {
+						CreateQuery(undefined, assignment, description, 'create', (error, result) => {
+							console.log(error, result)
+							error ? reject(error) : db.query(result, (error, result) => {
+								error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
+							})
+						})
+					} else if(result) reject(db.message.dataFound)
+					else reject(error)
 				})
 			} else reject('Não tem permissões')
 		})
@@ -198,12 +212,10 @@ var UpdateAssignment = (userEmail, userPassword, id, assignment, description, ca
 		CanUserEdit(userEmail, userPassword, (error, result) => {
 			if (error) reject(error)
 			else if(result) {
-				GetAssignment(id, (error, result) => {
-					error ? reject(error) :	CreateQuery(id, assignment, description, 'update', (error, result) => {
-						console.log(error, result)
-						error ? reject(error) : db.query(result, (error, result) => {
-							error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
-						})
+				CreateQuery(id, assignment, description, 'update', (error, result) => {
+					console.log(error, result)
+					error ? reject(error) : db.query(result, (error, result) => {
+						error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
 					})
 				})
 			} else reject('Não tem permissões')

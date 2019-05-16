@@ -10,15 +10,22 @@ const table = {
 	description: 'description'
 }
 
-var HandleSelectData = (id, callback) => {
+var HandleSelectData = (id, rate, callback) => {
 	return new Promise((resolve, reject) => {
-        let searchFor = ""
+        let searchFor = "", numberParameters = 0
         
         if(id) {
             if (!isNaN(Number(id))) {
-                searchFor += `${table.id} = ${id}`
+				searchFor += `${table.id} = ${id}`
+				numberParameters++
             } else reject(db.message.dataError)            
-        }
+		}
+		
+		if(rate) {
+			if(numberParameters) searchFor+= ' AND '
+			rate = rate.replace( new RegExp("'", 'g') , '%27')
+			searchFor += `${table.rate} = '${rate}'`
+		}
 		resolve(searchFor)
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -26,10 +33,10 @@ var HandleSelectData = (id, callback) => {
 	)
 }
 
-var CreateQuerySelect = (id, callback) => {
+var CreateQuerySelect = (id, rate, callback) => {
 	return new Promise((resolve, reject) => {
-		if (id) {
-			HandleSelectData(id, (error, result) => {
+		if (id || rate) {
+			HandleSelectData(id, rate, (error, result) => {
 				error 
 				? reject(error) 
 				: resolve(`SELECT * FROM ${table.table} WHERE ${result}`)
@@ -46,7 +53,7 @@ var HandleInsertData = (rate, description, callback) => {
         let fields = '', values = '', numberParameters = 0
 
 		if (rate) {
-			rate = rate.replace("'", '%27')
+			rate = rate.replace( new RegExp("'", 'g') , '%27')
 			fields += `${table.rate}`
 			values += `'${rate}'`
 			numberParameters++;
@@ -57,7 +64,7 @@ var HandleInsertData = (rate, description, callback) => {
 				fields += ', '
 				values += ', '
 			}
-			description = description.replace("'", '%27')
+			description = description.replace( new RegExp("'", 'g') , '%27')
 			fields += `${table.description}`
 			values += `'${description}'`
 		}
@@ -90,13 +97,14 @@ var HandleUpdateData = (id, rate, description, callback) => {
 		if (isNaN(Number(id))) reject(db.message.dataError)
 		
 		if (rate) {
+			rate = rate.replace( new RegExp("'", 'g') , '%27')
 			updateTo += `${table.rate} = ${rate}`
 			numberParameters++;
 		}
 
 		if (description) {
 			if (numberParameters) updateTo += ', '
-			description = description.replace("'", '%27')
+			description = description.replace( new RegExp("'", 'g') , '%27')
 			updateTo += `${table.description} = '${description}'`
 		}
 
@@ -136,7 +144,7 @@ var CreateQuery = (id, rate, description, action, callback) => {
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 
-				CreateQuerySelect(id, (error, result) => error ? reject(error) : resolve(result) )
+				CreateQuerySelect(id, rate, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'create': 
                 CreateQueryInsert(rate, description, (error, result) => error ? reject(error) : resolve(result) )
@@ -158,9 +166,9 @@ var CreateQuery = (id, rate, description, action, callback) => {
 }
 
 //Exports
-var GetParentAdvisoryGame = (id,  callback) => {
+var GetParentAdvisoryGame = (id, rate,  callback) => {
   	return new Promise((resolve, reject) => {
-		CreateQuery(id, undefined, undefined, 'get', (error, result) => {
+		CreateQuery(id, rate, undefined, 'get', (error, result) => {
 			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
@@ -179,11 +187,16 @@ var CreateParentAdvisoryGame = (userEmail, userPassword, rate, description, call
 		CanUserEdit(userEmail, userPassword, (error, result) => {
 			if (error) reject(error)
 			else if(result) {
-				CreateQuery(undefined, rate, description, 'create', (error, result) => {
-					console.log(error, result)
-					error ? reject(error) : db.query(result, (error, result) => {
-						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
-					})
+				GetParentAdvisoryGame(undefined, rate, (error, result) => {
+					if(error == db.message.dataNotFound) {
+						CreateQuery(undefined, rate, description, 'create', (error, result) => {
+							console.log(error, result)
+							error ? reject(error) : db.query(result, (error, result) => {
+								error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
+							})
+						})
+					} else if(result) reject(db.message.dataFound)
+					else reject(error)
 				})
 			} else reject('Não tem permissões')
 		})

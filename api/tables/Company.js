@@ -9,8 +9,6 @@ const table = {
     name: 'name'
 }
 
-//TODO: Posso adicionar campos como localização, morada, data de fundação, website
-
 var HandleSelectData = (id, name, callback) => {
 	return new Promise((resolve, reject) => {
         let searchFor = "", numberParameters = 0
@@ -24,6 +22,7 @@ var HandleSelectData = (id, name, callback) => {
 
         if (name) {
 			if (numberParameters) searchFor += ' AND '
+			name = name.replace( new RegExp("'", 'g') , '%27')
 			searchFor += `${table.name} LIKE '%${name}%'`
 		}
 		resolve(searchFor)
@@ -51,7 +50,7 @@ var HandleInsertData = (name, callback) => {
         let fields = '', values = ''
 
 		if (name) {
-			name = name.replace("'", '%27')
+			name = name.replace( new RegExp("'", 'g') , '%27')
 			fields += `${table.name}`
 			values += `'${name}'`
 		}
@@ -82,7 +81,7 @@ var HandleUpdateData = (id, name, callback) => {
 		if (isNaN(Number(id))) reject(db.message.dataError)
 				
 		if (name) {
-			name = name.replace("'", '%27')
+			name = name.replace( new RegExp("'", 'g') , '%27')
 			updateTo += `${table.name} = '${name}'`
 		}
 

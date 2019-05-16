@@ -127,7 +127,7 @@ var HandleInsertData = (name, password, email, photo, birthday, description, cal
         let fields = '', values = '', numberParameters = 0
 
 		if (name) {
-			name = name.replace("'", '%27')
+			name = name.replace( new RegExp("'", 'g') , '%27')
 			fields += `${table.name}`
 			values += `'${name}'`
 			numberParameters++;
@@ -140,6 +140,7 @@ var HandleInsertData = (name, password, email, photo, birthday, description, cal
 			}
 			fields += `${table.password}`
 			values += `'${bcrypt.hashSync(password, saltRounds)}'`
+			numberParameters++
 		}
 
 		if (email) {
@@ -147,8 +148,10 @@ var HandleInsertData = (name, password, email, photo, birthday, description, cal
 				fields += ', '
 				values += ', '
 			}
+			email = email.replace( new RegExp("'", 'g') , '%27')
 			fields += `${table.email}`
 			values += `'${email}'`
+			numberParameters++
 		}
 
 		if (photo) {
@@ -156,8 +159,10 @@ var HandleInsertData = (name, password, email, photo, birthday, description, cal
 				fields += ', '
 				values += ', '
 			}
+			photo = photo.replace( new RegExp("'", 'g') , '%27')
 			fields += `${table.photo}`
 			values += `'decode('${photo}', 'hex')'`
+			numberParameters++
 		}
 
 		if (birthday) {
@@ -165,8 +170,10 @@ var HandleInsertData = (name, password, email, photo, birthday, description, cal
 				fields += ', '
 				values += ', '
 			}
+			birthday = birthday.replace( new RegExp("'", 'g') , '%27')
 			fields += `${table.birthday}`
 			values += `'${birthday}'`
+			numberParameters++
 		}
 
 		if (description) {
@@ -174,7 +181,7 @@ var HandleInsertData = (name, password, email, photo, birthday, description, cal
 				fields += ', '
 				values += ', '
 			}
-			description = description.replace("'", '%27')
+			description = description.replace( new RegExp("'", 'g') , '%27')
 			fields += `${table.description}`
 			values += `'${description}'`
 		}
@@ -207,7 +214,7 @@ var HandleUpdateData = (id, name, password, email, photo, birthday, description,
 		if (isNaN(Number(id))) reject(db.message.dataError)
 		
 		if (name) {
-			name = name.replace("'", '%27')
+			name = name.replace( new RegExp("'", 'g') , '%27')
 			updateTo += `${table.name} = '${name}'`
 			numberParameters++;
 		}
@@ -220,25 +227,28 @@ var HandleUpdateData = (id, name, password, email, photo, birthday, description,
 
 		if (email) {
 			if (numberParameters) updateTo += ', '
+			email = email.replace( new RegExp("'", 'g') , '%27')
 			updateTo += `${table.email} = '${email}'`
 			numberParameters++
 		}
 
 		if (photo) {
 			if (numberParameters) updateTo += ', '
+			photo = photo.replace( new RegExp("'", 'g') , '%27')
 			updateTo += `${table.photo} = 'decode('${photo}', 'hex')'`
 			numberParameters++
 		}
 
 		if (birthday) {
 			if (numberParameters) updateTo += ', '
+			birthday = birthday.replace( new RegExp("'", 'g') , '%27')
 			updateTo += `${table.birthday} = '${birthday}'`
 			numberParameters++
 		}
 
 		if (description) {
 			if (numberParameters) updateTo += ', '
-			description = description.replace("'", '%27')
+			description = description.replace( new RegExp("'", 'g') , '%27')
 			updateTo += `${table.description} = '${description}'`
 			numberParameters++
 		}

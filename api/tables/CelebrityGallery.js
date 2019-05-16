@@ -101,7 +101,7 @@ var CreateQueryDelete = (id, callback) => {
 	)
 }
 
-var CreateQuery = (id, photo, celebrityId, callback) => {
+var CreateQuery = (id, photo, celebrityId, action, callback) => {
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 

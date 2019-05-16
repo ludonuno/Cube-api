@@ -23,6 +23,7 @@ var HandleSelectData = (id, name, callback) => {
 		
         if (name) {
 			if (numberParameters) searchFor += ' AND '
+			name = name.replace( new RegExp("'", 'g') , '%27')
 			searchFor += `${table.name} LIKE '%${name}%'`
 		}
 		
@@ -51,9 +52,8 @@ var CreateQuerySelect = (id, name, callback) => {
 var HandleInsertData = (name, description, callback) => {
 	return new Promise((resolve, reject) => {
         let fields = '', values = '', numberParameters = 0
-
 		if (name) {
-			name = name.replace("'", '%27')
+			name = name.replace( new RegExp("'", 'g') , '%27')
 			fields += `${table.name}`
 			values += `'${name}'`
 			numberParameters++;
@@ -64,7 +64,7 @@ var HandleInsertData = (name, description, callback) => {
 				fields += ', '
 				values += ', '
 			}
-			description = description.replace("'", '%27')
+			description = description.replace( new RegExp("'", 'g') , '%27')
 			fields += `${table.description}`
 			values += `'${description}'`
 		}
@@ -97,13 +97,14 @@ var HandleUpdateData = (id, name, description, callback) => {
 		if (isNaN(Number(id))) reject(db.message.dataError)
 		
 		if (name) {
+			name = name.replace( new RegExp("'", 'g') , '%27')
 			updateTo += `${table.name} = ${name}`
 			numberParameters++;
 		}
 
 		if (description) {
 			if (numberParameters) updateTo += ', '
-			description = description.replace("'", '%27')
+			description = description.replace( new RegExp("'", 'g') , '%27')
 			updateTo += `${table.description} = '${description}'`
 		}
 
@@ -186,11 +187,16 @@ var CreateSaga = (userEmail, userPassword, name, description, callback) => {
 		CanUserEdit(userEmail, userPassword, (error, result) => {
 			if (error) reject(error)
 			else if(result) {
-				CreateQuery(undefined, name, description, 'create', (error, result) => {
-					console.log(error, result)
-					error ? reject(error) : db.query(result, (error, result) => {
-						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
-					})
+				GetSaga(undefined, name, (error, result) => {
+					if(error == db.message.dataNotFound) {
+						CreateQuery(undefined, name, description, 'create', (error, result) => {
+							console.log(error, result)
+							error ? reject(error) : db.query(result, (error, result) => {
+								error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
+							})
+						})
+					} else if(result) reject(db.message.dataFound)
+					else reject(error)
 				})
 			} else reject('Não tem permissões')
 		})

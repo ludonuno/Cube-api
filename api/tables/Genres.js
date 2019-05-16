@@ -22,6 +22,7 @@ var HandleSelectData = (id, genre, callback) => {
 
         if (genre) {
 			if (numberParameters) searchFor += ' AND '
+			genre = genre.replace( new RegExp("'", 'g') , '%27')
 			searchFor += `${table.genre} LIKE '%${genre}%'`
 		}
 		resolve(searchFor)
@@ -49,7 +50,7 @@ var HandleInsertData = (genre, callback) => {
         let fields = '', values = ''
 
 		if (genre) {
-			genre = genre.replace("'", '%27')
+			genre = genre.replace( new RegExp("'", 'g') , '%27')
 			fields += `${table.genre}`
 			values += `'${genre}'`
 		}
@@ -106,7 +107,7 @@ var CreateQuery = (id, genre, action, callback) => {
 }
 
 //Exports
-var GetGenres = (id, callback) => {
+var GetGenres = (id, genre, callback) => {
   	return new Promise((resolve, reject) => {
 		CreateQuery(id, genre, 'get', (error, result) => {
 			console.log(error, result)
@@ -127,11 +128,16 @@ var CreateGenres = (userEmail, userPassword, genre, callback) => {
 		CanUserEdit(userEmail, userPassword, (error, result) => {
 			if (error) reject(error)
 			else if(result) {
-				CreateQuery(undefined, genre, 'create', (error, result) => {
-					console.log(error, result)
-					error ? reject(error) : db.query(result, (error, result) => {
-						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
-					})
+				GetGenres(undefined, genre, (error, result) => {
+					if(error == db.message.dataNotFound) {
+						CreateQuery(undefined, genre, 'create', (error, result) => {
+							console.log(error, result)
+							error ? reject(error) : db.query(result, (error, result) => {
+								error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
+							})
+						})
+					} else if(result) reject(db.message.dataFound)
+					else reject(error)
 				})
 			} else reject('Não tem permissões')
 		})

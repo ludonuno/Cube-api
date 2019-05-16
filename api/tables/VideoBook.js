@@ -54,6 +54,7 @@ var HandleInsertData = (link, bookId, callback) => {
         let fields = '', values = '', numberParameters = 0
 
 		if (link) {
+			link = link.replace( new RegExp("'", 'g') , '%27')
 			fields += `${table.link}`
 			values += `'${link}'`
 			numberParameters++
@@ -101,7 +102,7 @@ var CreateQueryDelete = (id, callback) => {
 	)
 }
 
-var CreateQuery = (id, link, bookId, callback) => {
+var CreateQuery = (id, link, bookId, action, callback) => {
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 

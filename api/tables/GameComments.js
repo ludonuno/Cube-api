@@ -4,18 +4,25 @@ const sizeOf = require('object-sizeof')
 const { UserAutentication } = require('./User')
 
 const table = {
-    table: 'my_GameRating',
-    userId: 'userId',
+	table: 'my_GameComments',
+	id: 'id',
+	userId: 'userId',
 	gameId: 'gameId',
-	rate: 'rate'
+	comment: 'comment',
+	responseTo: 'responseTo'
 }
 
-var HandleSelectData = (gameId, callback) => {
+var HandleSelectData = (gameId, responseTo, callback) => {
 	return new Promise((resolve, reject) => {
 		if(gameId) {
-            if (!isNaN(Number(gameId))) {
-				resolve(`${table.gameId} = ${gameId}`)
-            } else reject(db.message.dataError)            
+			if (!isNaN(Number(gameId))) {
+				resolve(`${table.gameId} = ${gameId} AND ${table.responseTo} IS NULL`)
+			} else reject(db.message.dataError)            
+		}
+		if(responseTo) {
+			if (!isNaN(Number(responseTo))) {
+				resolve(`${table.responseTo} = ${responseTo}`)
+			} else reject(db.message.dataError)            
 		}
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -23,10 +30,10 @@ var HandleSelectData = (gameId, callback) => {
 	)
 }
 
-var CreateQuerySelect = (gameId, callback) => {
+var CreateQuerySelect = (gameId, responseTo, callback) => {
 	return new Promise((resolve, reject) => {
-		HandleSelectData(gameId, (error, result) => {
-			error ? reject(error) : resolve(`SELECT AVG(${table.rate}), COUNT(${table.rate}) FROM ${table.table} WHERE ${result}`)
+		HandleSelectData(gameId, responseTo, (error, result) => {
+			error ? reject(error) : resolve(`SELECT * FROM ${table.table} WHERE ${result}`)
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -34,9 +41,9 @@ var CreateQuerySelect = (gameId, callback) => {
 	)
 }
 
-var HandleInsertData = (userId, gameId, rate, callback) => {
+var HandleInsertData = (userId, gameId, comment, responseTo, callback) => {
 	return new Promise((resolve, reject) => {
-        let fields = '', values = '', numberParameters = 0
+		let fields = '', values = '', numberParameters = 0
 		if (userId) {
 			if (!isNaN(Number(userId))) {
 				fields += `${table.userId}`
@@ -56,15 +63,26 @@ var HandleInsertData = (userId, gameId, rate, callback) => {
 				numberParameters++
 			} else reject(db.message.dataError)
 		}
-		if (rate) {
-			if (!isNaN(Number(rate))) {
-				if (rate < 0 || rate > 10) reject(db.message.dataError)
+
+		if (comment) {
+			if (numberParameters) {
+				fields += ', '
+				values += ', '
+			}
+			comment = comment.replace( new RegExp("'", 'g') , '%27')
+			fields += `${table.comment}`
+			values += `'${comment}'`
+			numberParameters++
+		}
+
+		if (responseTo) {
+			if (!isNaN(Number(responseTo))) {
 				if (numberParameters) {
 					fields += ', '
 					values += ', '
 				}
-				fields += `${table.rate}`
-				values += `${rate}`
+				fields += `${table.responseTo}`
+				values += `${responseTo}`
 			} else reject(db.message.dataError)
 		}
 
@@ -76,9 +94,9 @@ var HandleInsertData = (userId, gameId, rate, callback) => {
 }
 
 //Create and return the record created
-var CreateQueryInsert = (userId, gameId, rate, callback) => {
+var CreateQueryInsert = (userId, gameId, comment, responseTo, callback) => {
 	return new Promise((resolve, reject) => {
-		HandleInsertData(userId, gameId, rate, (error, result) => {
+		HandleInsertData(userId, gameId, comment, responseTo, (error, result) => {
 			error 
 			? reject(error) 
 			: resolve(`INSERT INTO ${table.table} (${result.fields}) VALUES (${result.values}) RETURNING *`)
@@ -89,45 +107,27 @@ var CreateQueryInsert = (userId, gameId, rate, callback) => {
 	)
 }
 
-var HandleUpdateData = (userId, gameId, rate, callback) => {
+//Delete an existing record and return the value deleted
+var CreateQueryDelete = (id, callback) => {
 	return new Promise((resolve, reject) => {
-		if (isNaN(Number(userId)) || isNaN(Number(gameId))) reject(db.message.dataError)
-		if (!isNaN(Number(rate))) {
-			if (rate < 0 || rate > 10) reject(db.message.dataError)
-			else resolve(`${table.rate} = ${rate}`)
-		}
-		else reject(db.message.dataError)
+		!isNaN(Number(id)) ? resolve(`DELETE FROM ${table.table} WHERE ${table.id} = ${id} RETURNING *`) : reject(db.message.dataError)
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
 	)
 }
 
-//Update an existing record and return the value updated
-var CreateQueryUpdate = (userId, gameId, rate, callback) => {
-	return new Promise((resolve, reject) => {
-		HandleUpdateData(userId, gameId, rate, (error, result) => {
-			error 
-			? reject(error) 
-			: resolve(`UPDATE ${table.table} SET ${result} WHERE ${table.userId} = ${userId} AND ${table.gameId} = ${gameId} RETURNING *`)
-		})
-	}).then(
-		resolve => callback(undefined, resolve),
-		reject => callback(reject, undefined)
-	)
-}
-
-var CreateQuery = (userId, gameId, rate, action, callback) => {
+var CreateQuery = (id, userId, gameId, comment, responseTo, action, callback) => {
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 
-				CreateQuerySelect(gameId, (error, result) => error ? reject(error) : resolve(result) )
+				CreateQuerySelect(gameId, responseTo, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'create': 
-                CreateQueryInsert(userId, gameId, rate, (error, result) => error ? reject(error) : resolve(result) )
+				CreateQueryInsert(userId, gameId, comment, responseTo, (error, result) => error ? reject(error) : resolve(result) )
 				break;
-			case 'update':
-                CreateQueryUpdate(userId, gameId, rate, (error, result) => error ? reject(error) : resolve(result) )
+			case 'delete':
+			CreateQueryDelete(id, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			default:
 				reject(db.message.dataError)
@@ -140,9 +140,9 @@ var CreateQuery = (userId, gameId, rate, action, callback) => {
 }
 
 //Exports
-var GetGameRating = (gameId, callback) => {
+var GetGameComments = (gameId, responseTo, callback) => {
   	return new Promise((resolve, reject) => {
-		CreateQuery(undefined, gameId, undefined, 'get', (error, result) => {
+		CreateQuery(undefined, undefined, gameId, undefined, responseTo, 'get', (error, result) => {
 			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
@@ -156,12 +156,12 @@ var GetGameRating = (gameId, callback) => {
 	)
 }		
 
-var CreateGameRating = (userEmail, userPassword, userId, gameId, rate, callback) => {
+var CreateGameComments = (userEmail, userPassword, userId, gameId, comment, responseTo, callback) => {
 	return new Promise((resolve, reject) => {
 		UserAutentication(userEmail, userPassword, (error, result) => {
 			if (error) reject(error)
 			else if(result[0].id == userId) {
-				CreateQuery(userId, gameId, rate, 'create', (error, result) => {
+				CreateQuery(undefined, userId, gameId, comment, responseTo, 'create', (error, result) => {
 					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
@@ -175,12 +175,12 @@ var CreateGameRating = (userEmail, userPassword, userId, gameId, rate, callback)
 	)
 }
 
-var UpdateGameRating = (userEmail, userPassword, userId, gameId, rate, callback) => {
+var DeleteGameComments = (userEmail, userPassword, userId, id, callback) => {
 	return new Promise((resolve, reject) => {
 		UserAutentication(userEmail, userPassword, (error, result) => {
 			if (error) reject(error)
 			else if(result[0].id == userId) {
-				CreateQuery(userId, gameId, rate, 'update', (error, result) => {
+				CreateQuery(id, undefined, undefined, undefined, undefined, 'delete', (error, result) => {
 					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
@@ -195,8 +195,8 @@ var UpdateGameRating = (userEmail, userPassword, userId, gameId, rate, callback)
 }
 
 module.exports = {
-  GetGameRating,
-  CreateGameRating,
-  UpdateGameRating,
+  GetGameComments,
+  CreateGameComments,
+  DeleteGameComments,
   table
 }

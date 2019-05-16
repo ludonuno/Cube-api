@@ -4,17 +4,17 @@ const sizeOf = require('object-sizeof')
 const { UserAutentication } = require('./User')
 
 const table = {
-    table: 'my_GameRating',
+    table: 'my_MovieRating',
     userId: 'userId',
-	gameId: 'gameId',
+	movieId: 'movieId',
 	rate: 'rate'
 }
 
-var HandleSelectData = (gameId, callback) => {
+var HandleSelectData = (movieId, callback) => {
 	return new Promise((resolve, reject) => {
-		if(gameId) {
-            if (!isNaN(Number(gameId))) {
-				resolve(`${table.gameId} = ${gameId}`)
+		if(movieId) {
+            if (!isNaN(Number(movieId))) {
+				resolve(`${table.movieId} = ${movieId}`)
             } else reject(db.message.dataError)            
 		}
 	}).then(
@@ -23,9 +23,9 @@ var HandleSelectData = (gameId, callback) => {
 	)
 }
 
-var CreateQuerySelect = (gameId, callback) => {
+var CreateQuerySelect = (movieId, callback) => {
 	return new Promise((resolve, reject) => {
-		HandleSelectData(gameId, (error, result) => {
+		HandleSelectData(movieId, (error, result) => {
 			error ? reject(error) : resolve(`SELECT AVG(${table.rate}), COUNT(${table.rate}) FROM ${table.table} WHERE ${result}`)
 		})
 	}).then(
@@ -34,7 +34,7 @@ var CreateQuerySelect = (gameId, callback) => {
 	)
 }
 
-var HandleInsertData = (userId, gameId, rate, callback) => {
+var HandleInsertData = (userId, movieId, rate, callback) => {
 	return new Promise((resolve, reject) => {
         let fields = '', values = '', numberParameters = 0
 		if (userId) {
@@ -45,14 +45,14 @@ var HandleInsertData = (userId, gameId, rate, callback) => {
 			} else reject(db.message.dataError)
 		}
 
-		if (gameId) {
-			if (!isNaN(Number(gameId))) {
+		if (movieId) {
+			if (!isNaN(Number(movieId))) {
 				if (numberParameters) {
 					fields += ', '
 					values += ', '
 				}
-				fields += `${table.gameId}`
-				values += `${gameId}`
+				fields += `${table.movieId}`
+				values += `${movieId}`
 				numberParameters++
 			} else reject(db.message.dataError)
 		}
@@ -76,9 +76,9 @@ var HandleInsertData = (userId, gameId, rate, callback) => {
 }
 
 //Create and return the record created
-var CreateQueryInsert = (userId, gameId, rate, callback) => {
+var CreateQueryInsert = (userId, movieId, rate, callback) => {
 	return new Promise((resolve, reject) => {
-		HandleInsertData(userId, gameId, rate, (error, result) => {
+		HandleInsertData(userId, movieId, rate, (error, result) => {
 			error 
 			? reject(error) 
 			: resolve(`INSERT INTO ${table.table} (${result.fields}) VALUES (${result.values}) RETURNING *`)
@@ -89,13 +89,13 @@ var CreateQueryInsert = (userId, gameId, rate, callback) => {
 	)
 }
 
-var HandleUpdateData = (userId, gameId, rate, callback) => {
+var HandleUpdateData = (userId, movieId, rate, callback) => {
 	return new Promise((resolve, reject) => {
-		if (isNaN(Number(userId)) || isNaN(Number(gameId))) reject(db.message.dataError)
+		if (isNaN(Number(userId)) || isNaN(Number(movieId))) reject(db.message.dataError)
 		if (!isNaN(Number(rate))) {
 			if (rate < 0 || rate > 10) reject(db.message.dataError)
 			else resolve(`${table.rate} = ${rate}`)
-		}
+		} 
 		else reject(db.message.dataError)
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -104,12 +104,12 @@ var HandleUpdateData = (userId, gameId, rate, callback) => {
 }
 
 //Update an existing record and return the value updated
-var CreateQueryUpdate = (userId, gameId, rate, callback) => {
+var CreateQueryUpdate = (userId, movieId, rate, callback) => {
 	return new Promise((resolve, reject) => {
-		HandleUpdateData(userId, gameId, rate, (error, result) => {
+		HandleUpdateData(userId, movieId, rate, (error, result) => {
 			error 
 			? reject(error) 
-			: resolve(`UPDATE ${table.table} SET ${result} WHERE ${table.userId} = ${userId} AND ${table.gameId} = ${gameId} RETURNING *`)
+			: resolve(`UPDATE ${table.table} SET ${result} WHERE ${table.userId} = ${userId} AND ${table.movieId} = ${movieId} RETURNING *`)
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -117,17 +117,17 @@ var CreateQueryUpdate = (userId, gameId, rate, callback) => {
 	)
 }
 
-var CreateQuery = (userId, gameId, rate, action, callback) => {
+var CreateQuery = (userId, movieId, rate, action, callback) => {
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 
-				CreateQuerySelect(gameId, (error, result) => error ? reject(error) : resolve(result) )
+				CreateQuerySelect(movieId, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'create': 
-                CreateQueryInsert(userId, gameId, rate, (error, result) => error ? reject(error) : resolve(result) )
+                CreateQueryInsert(userId, movieId, rate, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'update':
-                CreateQueryUpdate(userId, gameId, rate, (error, result) => error ? reject(error) : resolve(result) )
+                CreateQueryUpdate(userId, movieId, rate, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			default:
 				reject(db.message.dataError)
@@ -140,9 +140,9 @@ var CreateQuery = (userId, gameId, rate, action, callback) => {
 }
 
 //Exports
-var GetGameRating = (gameId, callback) => {
+var GetMovieRating = (movieId, callback) => {
   	return new Promise((resolve, reject) => {
-		CreateQuery(undefined, gameId, undefined, 'get', (error, result) => {
+		CreateQuery(undefined, movieId, undefined, 'get', (error, result) => {
 			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
@@ -156,12 +156,12 @@ var GetGameRating = (gameId, callback) => {
 	)
 }		
 
-var CreateGameRating = (userEmail, userPassword, userId, gameId, rate, callback) => {
+var CreateMovieRating = (userEmail, userPassword, userId, movieId, rate, callback) => {
 	return new Promise((resolve, reject) => {
 		UserAutentication(userEmail, userPassword, (error, result) => {
 			if (error) reject(error)
 			else if(result[0].id == userId) {
-				CreateQuery(userId, gameId, rate, 'create', (error, result) => {
+				CreateQuery(userId, movieId, rate, 'create', (error, result) => {
 					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
@@ -175,12 +175,12 @@ var CreateGameRating = (userEmail, userPassword, userId, gameId, rate, callback)
 	)
 }
 
-var UpdateGameRating = (userEmail, userPassword, userId, gameId, rate, callback) => {
+var UpdateMovieRating = (userEmail, userPassword, userId, movieId, rate, callback) => {
 	return new Promise((resolve, reject) => {
 		UserAutentication(userEmail, userPassword, (error, result) => {
 			if (error) reject(error)
 			else if(result[0].id == userId) {
-				CreateQuery(userId, gameId, rate, 'update', (error, result) => {
+				CreateQuery(userId, movieId, rate, 'update', (error, result) => {
 					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
@@ -195,8 +195,8 @@ var UpdateGameRating = (userEmail, userPassword, userId, gameId, rate, callback)
 }
 
 module.exports = {
-  GetGameRating,
-  CreateGameRating,
-  UpdateGameRating,
+  GetMovieRating,
+  CreateMovieRating,
+  UpdateMovieRating,
   table
 }

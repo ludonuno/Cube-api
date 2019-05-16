@@ -374,7 +374,7 @@ CREATE TABLE my_GameComments
     userId int REFERENCES my_User(id) ON DELETE CASCADE NOT NULL,
     gameId int REFERENCES my_Game(id) ON DELETE CASCADE NOT NULL,
     comment text,
-    responseTo integer REFERENCES my_GameComments(id),
+    responseTo integer REFERENCES my_GameComments(id) ON DELETE CASCADE CHECK (responseTo <> id),
     CONSTRAINT pkGameComments PRIMARY KEY (id)
 );
 
@@ -384,7 +384,7 @@ CREATE TABLE my_MovieComments
     userId int REFERENCES my_User(id) ON DELETE CASCADE NOT NULL,
     movieId int REFERENCES my_Movie(id) ON DELETE CASCADE NOT NULL,
     comment text,
-    responseTo integer REFERENCES my_MovieComments(id),
+    responseTo integer REFERENCES my_MovieComments(id) ON DELETE CASCADE CHECK (responseTo <> id),
     CONSTRAINT pkMovieComments PRIMARY KEY (id)
 );
 
@@ -394,7 +394,7 @@ CREATE TABLE my_BookComments
     userId int REFERENCES my_User(id) ON DELETE CASCADE NOT NULL,
     bookId int REFERENCES my_Book(id) ON DELETE CASCADE NOT NULL,
     comment text,
-    responseTo integer REFERENCES my_BookComments(id),
+    responseTo integer REFERENCES my_BookComments(id) ON DELETE CASCADE CHECK (responseTo <> id),
     CONSTRAINT pkBookComments PRIMARY KEY (id)
 );
 
@@ -404,12 +404,11 @@ CREATE TABLE my_SeriesComments
     userId int REFERENCES my_User(id) ON DELETE CASCADE NOT NULL,
     seriesId int REFERENCES my_Series(id) ON DELETE CASCADE NOT NULL,
     comment text,
-    responseTo integer REFERENCES my_SeriesComments(id),
+    responseTo integer REFERENCES my_SeriesComments(id) ON DELETE CASCADE CHECK (responseTo <> id),
     CONSTRAINT pkSeriesComments PRIMARY KEY (id)
 );
 
 -- 45
-
 
 CREATE TABLE my_EpisodeRating
 (
@@ -425,7 +424,7 @@ CREATE TABLE my_EpisodeComments
     userId int REFERENCES my_User(id) ON DELETE CASCADE NOT NULL,
     episodeId int REFERENCES my_Episode(id) ON DELETE CASCADE NOT NULL,
     comment text,
-    responseTo integer REFERENCES my_EpisodeComments(id),
+    responseTo integer REFERENCES my_EpisodeComments(id) ON DELETE CASCADE CHECK (responseTo <> id),
     CONSTRAINT pkEpisodeComments PRIMARY KEY (id)
 );
 

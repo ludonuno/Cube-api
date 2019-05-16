@@ -45,8 +45,16 @@ const celebrityAssignmentSeries = require('./tables/CelebrityAssignmentSeries')
 const celebrityAssignmentBook = require('./tables/CelebrityAssignmentBook')
 const user = require('./tables/User')
 const gameRating = require('./tables/GameRating')
+const movieRating = require('./tables/MovieRating')
 // 40
+const bookRating = require('./tables/BookRating')
+const gameComments = require('./tables/GameComments')
+const movieComments = require('./tables/MovieComments')
+const bookComments = require('./tables/BookComments')
+const seriesComments = require('./tables/SeriesComments')
 // 45
+const episodeRating = require('./tables/EpisodeRating')
+const episodeComments = require('./tables/EpisodeComments')
 
 module.exports = {
 	company,
@@ -87,5 +95,14 @@ module.exports = {
 	celebrityAssignmentSeries,
 	celebrityAssignmentBook,
 	user,
-	gameRating
+	gameRating,
+	movieRating,
+	bookRating,
+	episodeRating,
+	gameComments,
+	movieComments,
+	bookComments,
+	seriesComments,
+	episodeComments
+
 }

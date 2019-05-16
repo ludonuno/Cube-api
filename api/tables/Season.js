@@ -26,19 +26,22 @@ var HandleSelectData = (id, title, releaseDate, seriesId, callback) => {
 		
         if (title) {
 			if (numberParameters) searchFor += ' AND '
+			title = title.replace( new RegExp("'", 'g') , '%27')
 			searchFor += `${table.title} LIKE '%${title}%'`
+			numberParameters++
 		}
 
 		if (releaseDate) {
 			if (numberParameters) searchFor += ' AND '
+			releaseDate = releaseDate.replace( new RegExp("'", 'g') , '%27')
 			searchFor += `${table.releaseDate} = '${releaseDate}'`
+			numberParameters++
 		}
 
 		if (seriesId) {
 			if (!isNaN(Number(seriesId))) {
 				if (numberParameters) searchFor += ' AND '
 				searchFor += `${table.seriesId} = ${seriesId}`
-				numberParameters++
             } else reject(db.message.dataError)
 		}
 
@@ -67,7 +70,7 @@ var HandleInsertData = (title, photo, releaseDate, synopsis, seriesId, callback)
         let fields = '', values = '', numberParameters = 0
 
 		if (title) {
-			title = title.replace("'", '%27')
+			title = title.replace( new RegExp("'", 'g') , '%27')
 			fields += `${table.title}`
 			values += `'${title}'`
 			numberParameters++;
@@ -78,8 +81,10 @@ var HandleInsertData = (title, photo, releaseDate, synopsis, seriesId, callback)
 				fields += ', '
 				values += ', '
 			}
+			photo = photo.replace( new RegExp("'", 'g') , '%27')
 			fields += `${table.photo}`
 			values += `decode('${photo}', 'hex')`
+			numberParameters++
 		}
 
 		if (releaseDate) {
@@ -87,8 +92,10 @@ var HandleInsertData = (title, photo, releaseDate, synopsis, seriesId, callback)
 				fields += ', '
 				values += ', '
 			}
+			releaseDate = releaseDate.replace( new RegExp("'", 'g') , '%27')
 			fields += `${table.releaseDate}`
 			values += `'${releaseDate}'`
+			numberParameters++
 		}
 
 		if (synopsis) {
@@ -96,9 +103,10 @@ var HandleInsertData = (title, photo, releaseDate, synopsis, seriesId, callback)
 				fields += ', '
 				values += ', '
 			}
-			synopsis = synopsis.replace("'", '%27')
+			synopsis = synopsis.replace( new RegExp("'", 'g') , '%27')
 			fields += `${table.synopsis}`
 			values += `'${synopsis}'`
+			numberParameters++
 		}
 
 		if (seriesId) {
@@ -140,26 +148,28 @@ var HandleUpdateData = (id, title, photo, releaseDate, synopsis, seriesId, callb
 		if (isNaN(Number(id))) reject(db.message.dataError)
 		
 		if (title) {
-			title = title.replace("'", '%27')
+			title = title.replace( new RegExp("'", 'g') , '%27')
 			updateTo += `${table.title} = '${title}'`
 			numberParameters++;
 		}
 
 		if (photo) {
 			if (numberParameters) updateTo += ', '
+			photo = photo.replace( new RegExp("'", 'g') , '%27')
 			updateTo += `${table.photo} = decode('${photo}', 'hex')`
 			numberParameters++
 		}
 
 		if (releaseDate) {
 			if (numberParameters) updateTo += ', '
+			releaseDate = releaseDate.replace( new RegExp("'", 'g') , '%27')
 			updateTo += `${table.releaseDate} = '${releaseDate}'`
 			numberParameters++
 		}
 
 		if (synopsis) {
 			if (numberParameters) updateTo += ', '
-			synopsis = synopsis.replace("'", '%27')
+			synopsis = synopsis.replace( new RegExp("'", 'g') , '%27')
 			updateTo += `${table.synopsis} = '${synopsis}'`
 			numberParameters++
 		}

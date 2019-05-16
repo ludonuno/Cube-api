@@ -25,11 +25,14 @@ var HandleSelectData = (id, name, birthday, callback) => {
 		
         if (name) {
 			if (numberParameters) searchFor += ' AND '
+			name = name.replace( new RegExp("'", 'g') , '%27')
 			searchFor += `${table.name} LIKE '%${name}%'`
+			numberParameters++
 		}
 
 		if (birthday) {
 			if (numberParameters) searchFor += ' AND '
+			birthday = birthday.replace( new RegExp("'", 'g') , '%27')
 			searchFor += `${table.birthday} = '${birthday}'`
 		}
 
@@ -58,7 +61,7 @@ var HandleInsertData = (name, photo, birthday, biography, callback) => {
         let fields = '', values = '', numberParameters = 0
 
 		if (name) {
-			name = name.replace("'", '%27')
+			name = name.replace( new RegExp("'", 'g') , '%27')
 			fields += `${table.name}`
 			values += `'${name}'`
 			numberParameters++;
@@ -69,8 +72,10 @@ var HandleInsertData = (name, photo, birthday, biography, callback) => {
 				fields += ', '
 				values += ', '
 			}
+			photo = photo.replace( new RegExp("'", 'g') , '%27')
 			fields += `${table.photo}`
 			values += `decode('${photo}', 'hex')`
+			numberParameters++
 		}
 
 		if (birthday) {
@@ -78,8 +83,10 @@ var HandleInsertData = (name, photo, birthday, biography, callback) => {
 				fields += ', '
 				values += ', '
 			}
+			birthday = birthday.replace( new RegExp("'", 'g') , '%27')
 			fields += `${table.birthday}`
 			values += `'${birthday}'`
+			numberParameters++
 		}
 
 		if (biography) {
@@ -87,7 +94,7 @@ var HandleInsertData = (name, photo, birthday, biography, callback) => {
 				fields += ', '
 				values += ', '
 			}
-			biography = biography.replace("'", '%27')
+			biography = biography.replace( new RegExp("'", 'g') , '%27')
 			fields += `${table.biography}`
 			values += `'${biography}'`
 		}
@@ -120,28 +127,29 @@ var HandleUpdateData = (id, name, photo, birthday, biography, callback) => {
 		if (isNaN(Number(id))) reject(db.message.dataError)
 		
 		if (name) {
-			name = name.replace("'", '%27')
+			name = name.replace( new RegExp("'", 'g') , '%27')
 			updateTo += `${table.name} = '${name}'`
 			numberParameters++;
 		}
 
 		if (photo) {
 			if (numberParameters) updateTo += ', '
+			photo = photo.replace( new RegExp("'", 'g') , '%27')
 			updateTo += `${table.photo} = decode('${photo}', 'hex')`
 			numberParameters++
 		}
 
 		if (birthday) {
 			if (numberParameters) updateTo += ', '
+			birthday = birthday.replace( new RegExp("'", 'g') , '%27')
 			updateTo += `${table.birthday} = '${birthday}'`
 			numberParameters++
 		}
 
 		if (biography) {
 			if (numberParameters) updateTo += ', '
-			biography = biography.replace("'", '%27')
+			biography = biography.replace( new RegExp("'", 'g') , '%27')
 			updateTo += `${table.biography} = '${biography}'`
-			numberParameters++
 		}
 
 		resolve(updateTo)

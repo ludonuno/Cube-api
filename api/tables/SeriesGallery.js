@@ -54,6 +54,7 @@ var HandleInsertData = (photo, seriesId, callback) => {
         let fields = '', values = '', numberParameters = 0
 
 		if (photo) {
+			photo = photo.replace( new RegExp("'", 'g') , '%27')
 			fields += `${table.photo}`
 			values += `decode('${photo}', 'hex')`
 			numberParameters++
@@ -101,7 +102,7 @@ var CreateQueryDelete = (id, callback) => {
 	)
 }
 
-var CreateQuery = (id, photo, seriesId, callback) => {
+var CreateQuery = (id, photo, seriesId, action, callback) => {
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 
