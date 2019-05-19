@@ -4,7 +4,7 @@ const sizeOf = require('object-sizeof')
 const { CanUserEdit } = require('./User')
 
 const table = {
-    table: 'my_ParentAdvisorySeries',
+    table: 'my_ParentAdvisory',
     id: 'id',
 	rate: 'rate',
 	description: 'description'
@@ -166,7 +166,7 @@ var CreateQuery = (id, rate, description, action, callback) => {
 }
 
 //Exports
-var GetParentAdvisorySeries = (id, rate, callback) => {
+var GetParentAdvisory = (id, rate,  callback) => {
   	return new Promise((resolve, reject) => {
 		CreateQuery(id, rate, undefined, 'get', (error, result) => {
 			console.log(error, result)
@@ -182,12 +182,12 @@ var GetParentAdvisorySeries = (id, rate, callback) => {
 	)
 }		
 
-var CreateParentAdvisorySeries = (userEmail, userPassword, rate, description, callback) => {
+var CreateParentAdvisory = (userEmail, userPassword, rate, description, callback) => {
 	return new Promise((resolve, reject) => {
 		CanUserEdit(userEmail, userPassword, (error, result) => {
 			if (error) reject(error)
 			else if(result) {
-				GetParentAdvisorySeries(undefined, rate, (error, result) => {
+				GetParentAdvisory(undefined, rate, (error, result) => {
 					if(error == db.message.dataNotFound) {
 						CreateQuery(undefined, rate, description, 'create', (error, result) => {
 							console.log(error, result)
@@ -206,7 +206,7 @@ var CreateParentAdvisorySeries = (userEmail, userPassword, rate, description, ca
 	)
 }
 
-var UpdateParentAdvisorySeries = (userEmail, userPassword, id, rate, description, callback) => {
+var UpdateParentAdvisory = (userEmail, userPassword, id, rate, description, callback) => {
 	return new Promise((resolve, reject) => {
 		CanUserEdit(userEmail, userPassword, (error, result) => {
 			if (error) reject(error)
@@ -225,7 +225,7 @@ var UpdateParentAdvisorySeries = (userEmail, userPassword, id, rate, description
 	)
 }
 
-var DeleteParentAdvisorySeries = (userEmail, userPassword, id, callback) => {
+var DeleteParentAdvisory = (userEmail, userPassword, id, callback) => {
 	return new Promise((resolve, reject) => {
 		CanUserEdit(userEmail, userPassword, (error, result) => {
 			if (error) reject(error)
@@ -245,9 +245,9 @@ var DeleteParentAdvisorySeries = (userEmail, userPassword, id, callback) => {
 }
 
 module.exports = {
-  GetParentAdvisorySeries,
-  CreateParentAdvisorySeries,
-  UpdateParentAdvisorySeries,
-  DeleteParentAdvisorySeries,
+  GetParentAdvisory,
+  CreateParentAdvisory,
+  UpdateParentAdvisory,
+  DeleteParentAdvisory,
   table
 }

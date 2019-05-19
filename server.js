@@ -12,17 +12,15 @@ const errorList = {
 const routeList = {
 	company: 'Company',
 	engine: 'Engine',
-	parentAdvisoryGame: 'ParentAdvisoryGame',
+	parentAdvisory: 'ParentAdvisory',
 	saga: 'Saga',
 	game: 'Game',
 	gameGallery: 'GameGallery',
 	developers: 'Developers',
-	parentAdvisoryMovie: 'ParentAdvisoryMovie',
 	movie: 'Movie',
 	movieGallery: 'MovieGallery',
 	publishingCompany: 'PublishingCompany',
 	book: 'Book',
-	parentAdvisorySeries: 'ParentAdvisorySeries',
 	series: 'Series',
 	seriesGallery: 'SeriesGallery',
 	season: 'Season',
@@ -82,9 +80,9 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			? api.engine.GetEngine( req.query.id, req.query.name, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.parentAdvisoryGame: //DONE
+		case routeList.parentAdvisory: //DONE
 			(req.query.id || !sizeOf(req.query)) 
-			? api.parentAdvisoryGame.GetParentAdvisoryGame( req.query.id, undefined, (error, result) => res.json( error ? { error } : { result } ) ) 
+			? api.parentAdvisory.GetParentAdvisory( req.query.id, undefined, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.saga: // DONE
@@ -107,11 +105,6 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			? api.developers.GetDevelopers( req.query.gameId, req.query.companyId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.parentAdvisoryMovie: // DONE
-			(req.query.id || !sizeOf(req.query)) 
-			? api.parentAdvisoryMovie.GetParentAdvisoryMovie( req.query.id, undefined, (error, result) => res.json( error ? { error } : { result } ) ) 
-			: res.json(errorList.parameters)
-			break
 		case routeList.movie: // DONE
 			(req.query.id || req.query.title || req.query.releaseDate || req.query.durationMin || req.query.durationMax || req.query.parentAdvisoryId || req.query.sagaId || !sizeOf(req.query)) 
 			? api.movie.GetMovie( req.query.id, req.query.title, req.query.releaseDate, req.query.durationMin, req.query.durationMax, req.query.parentAdvisoryId, req.query.sagaId, (error, result) => res.json( error ? { error } : { result } ) ) 
@@ -130,11 +123,6 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 		case routeList.book: // DONE
 			(req.query.id || req.query.title || req.query.releaseDate || req.query.publishingCompanyId || req.query.sagaId || !sizeOf(req.query)) 
 			? api.book.GetBook( req.query.id, req.query.title, req.query.releaseDate, req.query.publishingCompanyId, req.query.sagaId, (error, result) => res.json( error ? { error } : { result } ) ) 
-			: res.json(errorList.parameters)
-			break
-		case routeList.parentAdvisorySeries: // DONE
-			(req.query.id || !sizeOf(req.query)) 
-			? api.parentAdvisorySeries.GetParentAdvisorySeries( req.query.id, undefined, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.series: // DONE
@@ -338,9 +326,9 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			? api.engine.CreateEngine( req.query.userEmail, req.query.userPassword, req.query.name, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.parentAdvisoryGame: // DONE
+		case routeList.parentAdvisory: // DONE
 			(req.query.userEmail && req.query.userPassword && req.query.rate) 
-			? api.parentAdvisoryGame.CreateParentAdvisoryGame( req.query.userEmail, req.query.userPassword, req.query.rate, req.query.description, (error, result) => res.json( error ? { error } : { result } ) ) 
+			? api.parentAdvisory.CreateParentAdvisory( req.query.userEmail, req.query.userPassword, req.query.rate, req.query.description, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.saga: // DONE
@@ -363,11 +351,6 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			? api.developers.CreateDevelopers( req.query.userEmail, req.query.userPassword, req.query.gameId, req.query.companyId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.parentAdvisoryMovie: //DONE
-			(req.query.userEmail && req.query.userPassword && req.query.rate) 
-			? api.parentAdvisoryMovie.CreateParentAdvisoryMovie( req.query.userEmail, req.query.userPassword, req.query.rate, req.query.description, (error, result) => res.json( error ? { error } : { result } ) ) 
-			: res.json(errorList.parameters)
-			break
 		case routeList.movie: // DONE
 			(req.query.userEmail && req.query.userPassword && req.query.title && req.query.parentAdvisoryId && req.query.sagaId)
 			? api.movie.CreateMovie( req.query.userEmail, req.query.userPassword, req.query.title, req.query.photo, req.query.releaseDate, req.query.synopsis, req.query.duration, req.query.parentAdvisoryId, req.query.sagaId, (error, result) => res.json( error ? { error } : { result } ) ) 
@@ -386,11 +369,6 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 		case routeList.book: // DONE
 			(req.query.userEmail && req.query.userPassword && req.query.title && req.query.publishingCompanyId && req.query.sagaId) 
 			? api.book.CreateBook( req.query.userEmail, req.query.userPassword, req.query.title, req.query.photo, req.query.releaseDate, req.query.synopsis, req.query.publishingCompanyId, req.query.sagaId, (error, result) => res.json( error ? { error } : { result } ) ) 
-			: res.json(errorList.parameters)
-			break
-		case routeList.parentAdvisorySeries: // DONE
-			(req.query.userEmail && req.query.userPassword && req.query.rate) 
-			? api.parentAdvisorySeries.CreateParentAdvisorySeries( req.query.userEmail, req.query.userPassword, req.query.rate, req.query.description, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.series: // DONE
@@ -579,9 +557,9 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			? api.engine.UpdateEngine( req.query.userEmail, req.query.userPassword, req.query.id, req.query.name, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.parentAdvisoryGame:
+		case routeList.parentAdvisory:
 			(req.query.userEmail && req.query.userPassword && req.query.id && (req.query.rate || req.query.description)) 
-			? api.parentAdvisoryGame.UpdateParentAdvisoryGame( req.query.userEmail, req.query.userPassword, req.query.id,  req.query.rate, req.query.description, (error, result) => res.json( error ? { error } : { result } ) ) 
+			? api.parentAdvisory.UpdateParentAdvisory( req.query.userEmail, req.query.userPassword, req.query.id,  req.query.rate, req.query.description, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.saga:
@@ -592,11 +570,6 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 		case routeList.game:
 			(req.query.userEmail && req.query.userPassword && req.query.id && (req.query.title || req.query.photo || req.query.releaseDate || req.query.synopsis || req.query.engineId || req.query.parentAdvisoryId || req.query.publicadorId || req.query.sagaId)) 
 			? api.game.UpdateGame( req.query.userEmail, req.query.userPassword, req.query.id, req.query.title, req.query.photo, req.query.releaseDate, req.query.synopsis, req.query.engineId, req.query.parentAdvisoryId, req.query.publicadorId, req.query.sagaId, (error, result) => res.json( error ? { error } : { result } ) ) 
-			: res.json(errorList.parameters)
-			break
-		case routeList.parentAdvisoryMovie:
-			(req.query.userEmail && req.query.userPassword && req.query.id && (req.query.rate || req.query.description)) 
-			? api.parentAdvisoryMovie.UpdateParentAdvisoryMovie( req.query.userEmail, req.query.userPassword, req.query.id,  req.query.rate, req.query.description, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.movie:
@@ -612,11 +585,6 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 		case routeList.book:
 			(req.query.userEmail && req.query.userPassword && req.query.id && (req.query.title || req.query.photo || req.query.releaseDate || req.query.synopsis || req.query.publishingCompanyId || req.query.sagaId)) 
 			? api.book.UpdateBook( req.query.userEmail, req.query.userPassword, req.query.id, req.query.title, req.query.photo, req.query.releaseDate, req.query.synopsis, req.query.publishingCompanyId, req.query.sagaId, (error, result) => res.json( error ? { error } : { result } ) ) 
-			: res.json(errorList.parameters)
-			break
-		case routeList.parentAdvisorySeries:
-			(req.query.userEmail && req.query.userPassword && req.query.id && (req.query.rate || req.query.description)) 
-			? api.parentAdvisorySeries.UpdateParentAdvisorySeries( req.query.userEmail, req.query.userPassword, req.query.id,  req.query.rate, req.query.description, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.series:
@@ -685,9 +653,9 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			? api.engine.DeleteEngine( req.query.userEmail, req.query.userPassword, req.query.id, (error, result) => res.json( error ? { error } : { result } ) )
 			: res.json(errorList.parameters)
 			break
-		case routeList.parentAdvisoryGame:
+		case routeList.parentAdvisory:
 			(req.query.userEmail && req.query.userPassword && req.query.id) 
-			? api.parentAdvisoryGame.DeleteParentAdvisoryGame( req.query.userEmail, req.query.userPassword, req.query.id, (error, result) => res.json( error ? { error } : { result } ) )
+			? api.parentAdvisory.DeleteParentAdvisory( req.query.userEmail, req.query.userPassword, req.query.id, (error, result) => res.json( error ? { error } : { result } ) )
 			: res.json(errorList.parameters)
 			break
 		case routeList.saga:
@@ -710,11 +678,6 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			? api.developers.DeleteDevelopers( req.query.userEmail, req.query.userPassword, req.query.gameId, req.query.companyId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.parentAdvisoryMovie:
-			(req.query.userEmail && req.query.userPassword && req.query.id)
-			? api.parentAdvisoryMovie.DeleteParentAdvisoryMovie( req.query.userEmail, req.query.userPassword, req.query.id, (error, result) => res.json( error ? { error } : { result } ) )
-			: res.json(errorList.parameters)
-			break
 		case routeList.movie:
 			(req.query.userEmail && req.query.userPassword && req.query.id) 
 			? api.movie.DeleteMovie( req.query.userEmail, req.query.userPassword, req.query.id, (error, result) => res.json( error ? { error } : { result } ) )
@@ -733,11 +696,6 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 		case routeList.book:
 			(req.query.userEmail && req.query.userPassword && req.query.id) 
 			? api.book.DeleteBook( req.query.userEmail, req.query.userPassword, req.query.id, (error, result) => res.json( error ? { error } : { result } ) )
-			: res.json(errorList.parameters)
-			break
-		case routeList.parentAdvisorySeries:
-			(req.query.userEmail && req.query.userPassword && req.query.id)
-			? api.parentAdvisorySeries.DeleteParentAdvisorySeries( req.query.userEmail, req.query.userPassword, req.query.id, (error, result) => res.json( error ? { error } : { result } ) )
 			: res.json(errorList.parameters)
 			break
 		case routeList.series:
