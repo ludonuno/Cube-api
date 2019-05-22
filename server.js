@@ -68,6 +68,11 @@ const port = process.env.PORT || 3000
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
+//Headers
+request.setHeader('Access-Control-Allow-Origin', request.getHeader('Origin'))
+request.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
+
+
 app.get("/API/:tabela", (req, res, next) => { //Search
 	switch (req.params.tabela) {
 		case routeList.company: // DONE
