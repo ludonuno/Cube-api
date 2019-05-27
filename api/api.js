@@ -5,20 +5,15 @@ const parentAdvisory = require('./tables/ParentAdvisory')
 const saga = require('./tables/Saga')
 const game = require('./tables/Game')
 // 5
-const gameGallery = require('./tables/GameGallery')
 const developers = require('./tables/Developers')
 const movie = require('./tables/Movie')
-const movieGallery = require('./tables/MovieGallery')
 const publishingCompany = require('./tables/PublishingCompany')
 // 10
 const book = require('./tables/Book')
 const series = require('./tables/Series')
-const seriesGallery = require('./tables/SeriesGallery')
 const season = require('./tables/Season')
-const seasonGallery = require('./tables/SeasonGallery')
 // 15
 const episode = require('./tables/Episode')
-const episodeGallery = require('./tables/EpisodeGallery')
 const genres = require('./tables/Genres')
 const genreGame = require('./tables/GenreGame')
 const genreMovie = require('./tables/GenreMovie')
@@ -35,7 +30,6 @@ const videoEpisode = require('./tables/VideoEpisode')
 const assignment = require('./tables/Assignment')
 const celebrity = require('./tables/Celebrity')
 // 30
-const celebrityGallery = require('./tables/CelebrityGallery')
 const celebrityAssignmentGame = require('./tables/CelebrityAssignmentGame')
 const celebrityAssignmentMovie = require('./tables/CelebrityAssignmentMovie')
 const celebrityAssignmentSeries = require('./tables/CelebrityAssignmentSeries')
@@ -59,18 +53,13 @@ module.exports = {
 	parentAdvisory,
 	saga,
 	game,
-	gameGallery,
 	developers,
 	movie,
-	movieGallery,
 	publishingCompany,
 	book,
 	series,
-	seriesGallery,
 	season,
-	seasonGallery,
 	episode,
-	episodeGallery,
 	genres,
 	genreGame,
 	genreMovie,
@@ -84,7 +73,6 @@ module.exports = {
 	videoEpisode,
 	assignment,
 	celebrity,
-	celebrityGallery,
 	celebrityAssignmentGame,
 	celebrityAssignmentMovie,
 	celebrityAssignmentSeries,
