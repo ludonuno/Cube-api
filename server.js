@@ -57,7 +57,8 @@ const routeList = {
 	movieComments: 'MovieComments',
 	bookComments: 'BookComments',
 	seriesComments: 'SeriesComments',
-	episodeComments: 'EpisodeComments'
+	episodeComments: 'EpisodeComments',
+	test: 'test'
 
 }
 
@@ -540,6 +541,9 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			(req.query.userEmail && req.query.userPassword && req.query.userId && req.query.episodeId && req.query.comment)
 			? api.episodeComments.CreateEpisodeComments(req.query.userEmail, req.query.userPassword, req.query.userId, req.query.episodeId, req.query.comment, req.query.responseTo, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
+			break
+		case routeList.test:
+			res.json(req.query)
 			break
 		default:
 			res.json(errorList.route)
