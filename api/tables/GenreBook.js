@@ -26,7 +26,7 @@ var HandleSelectData = (bookId, genreId, callback) => {
 		
 		if(genreId) {
             if (!isNaN(Number(genreId))) {
-				fields = `${bookTable.table}.${bookTable.id}, ${bookTable.table}.${bookTable.title}, ${bookTable.table}.${bookTable.photo}, ${bookTable.table}.${bookTable.releaseDate}, ${bookTable.table}.${bookTable.synopsis}, ${bookTable.table}.${bookTable.publishingCompanyId}, ${bookTable.table}.${bookTable.sagaId}`
+				fields = `${bookTable.table}.${bookTable.id}, ${bookTable.table}.${bookTable.title}, ${bookTable.table}.${bookTable.releaseDate}, ${bookTable.table}.${bookTable.synopsis}, ${bookTable.table}.${bookTable.publishingCompanyId}, ${bookTable.table}.${bookTable.sagaId}`
 				if (numberParameters) searchFor += ' AND '
 				searchFor += `${table.genreId} = ${genreId}`
             } else reject(db.message.dataError)            
@@ -137,7 +137,6 @@ var CreateQuery = (bookId, genreId, action, callback) => {
 var GetGenreBook = (bookId, genreId, callback) => {
   	return new Promise((resolve, reject) => {
 		CreateQuery(bookId, genreId, 'get', (error, result) => {
-			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -156,7 +155,6 @@ var CreateGenreBook = (userEmail, userPassword, bookId, genreId, callback) => {
 			if (error) reject(error)
 			else if(result) {
 				CreateQuery(bookId, genreId, 'create', (error, result) => {
-					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
 					})
@@ -175,7 +173,6 @@ var DeleteGenreBook = (userEmail, userPassword, bookId, genreId, callback) => {
 			if (error) reject(error)
 			else if(result) {
 				CreateQuery(bookId, genreId, 'delete', (error, result) => {
-					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
 					})

@@ -15,18 +15,13 @@ const routeList = {
 	parentAdvisory: 'ParentAdvisory',
 	saga: 'Saga',
 	game: 'Game',
-	gameGallery: 'GameGallery',
 	developers: 'Developers',
 	movie: 'Movie',
-	movieGallery: 'MovieGallery',
 	publishingCompany: 'PublishingCompany',
 	book: 'Book',
 	series: 'Series',
-	seriesGallery: 'SeriesGallery',
 	season: 'Season',
-	seasonGallery: 'SeasonGallery',
 	episode: 'Episode',
-	episodeGallery: 'EpisodeGallery',
 	genres: 'Genres',
 	genresGame: 'GenresGame',
 	genresMovie: 'GenresMovie',
@@ -40,7 +35,6 @@ const routeList = {
 	videoEpisode : 'VideoEpisode',
 	assignment: 'Assignment',
 	celebrity: 'Celebrity',
-	celebrityGallery: 'CelebrityGallery',
 	celebrityAssignmentGame: 'CelebrityAssignmentGame',
 	celebrityAssignmentMovie: 'CelebrityAssignmentMovie',
 	celebrityAssignmentSeries: 'CelebrityAssignmentSeries',
@@ -57,9 +51,7 @@ const routeList = {
 	movieComments: 'MovieComments',
 	bookComments: 'BookComments',
 	seriesComments: 'SeriesComments',
-	episodeComments: 'EpisodeComments',
-	test: 'test'
-
+	episodeComments: 'EpisodeComments'
 }
 
 const app = express()
@@ -96,11 +88,6 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			? api.game.GetGame( req.query.id, req.query.title, req.query.releaseDate, req.query.engineId, req.query.parentAdvisoryId, req.query.publicadorId, req.query.sagaId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.gameGallery: // DONE
-			(req.query.id || req.query.gameId || !sizeOf(req.query)) 
-			? api.gameGallery.GetGameGallery( req.query.id, req.query.gameId, (error, result) => res.json( error ? { error } : { result } ) ) 
-			: res.json(errorList.parameters)
-			break
 		case routeList.developers: // DONE
 			(((req.query.gameId && !req.query.companyId) || (!req.query.gameId && req.query.companyId)) || !sizeOf(req.query)) 
 			? api.developers.GetDevelopers( req.query.gameId, req.query.companyId, (error, result) => res.json( error ? { error } : { result } ) ) 
@@ -109,11 +96,6 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 		case routeList.movie: // DONE
 			(req.query.id || req.query.title || req.query.releaseDate || req.query.durationMin || req.query.durationMax || req.query.parentAdvisoryId || req.query.sagaId || !sizeOf(req.query)) 
 			? api.movie.GetMovie( req.query.id, req.query.title, req.query.releaseDate, req.query.durationMin, req.query.durationMax, req.query.parentAdvisoryId, req.query.sagaId, (error, result) => res.json( error ? { error } : { result } ) ) 
-			: res.json(errorList.parameters)
-			break
-		case routeList.movieGallery: // DONE
-			(req.query.id || req.query.movieId || !sizeOf(req.query)) 
-			? api.movieGallery.GetMovieGallery( req.query.id, req.query.movieId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.publishingCompany: // DONE
@@ -131,29 +113,14 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			? api.series.GetSeries( req.query.id, req.query.title, req.query.releaseDate, req.query.parentAdvisoryId, req.query.sagaId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.seriesGallery: // DONE
-			(req.query.id || req.query.seriesId || !sizeOf(req.query)) 
-			? api.seriesGallery.GetSeriesGallery( req.query.id, req.query.seriesId, (error, result) => res.json( error ? { error } : { result } ) ) 
-			: res.json(errorList.parameters)
-			break
 		case routeList.season: // DONE
 			(req.query.id || req.query.title || req.query.releaseDate || req.query.seriesId || !sizeOf(req.query)) 
 			? api.season.GetSeason( req.query.id, req.query.title, req.query.releaseDate, req.query.seriesId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.seasonGallery: // DONE
-			(req.query.id || req.query.seasonId || !sizeOf(req.query)) 
-			? api.seasonGallery.GetSeasonGallery( req.query.id, req.query.seasonId, (error, result) => res.json( error ? { error } : { result } ) ) 
-			: res.json(errorList.parameters)
-			break
 		case routeList.episode: // DONE
 			(req.query.id || req.query.title || req.query.releaseDate || req.query.seasonId || !sizeOf(req.query)) 
 			? api.episode.GetEpisode( req.query.id, req.query.title, req.query.releaseDate, req.query.seasonId, (error, result) => res.json( error ? { error } : { result } ) ) 
-			: res.json(errorList.parameters)
-			break
-		case routeList.episodeGallery: // DONE
-			(req.query.id || req.query.episodeId || !sizeOf(req.query)) 
-			? api.episodeGallery.GetEpisodeGallery( req.query.id, req.query.episodeId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.genres: // DONE
@@ -219,11 +186,6 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 		case routeList.celebrity: // DONE
 			(req.query.id || req.query.name || req.query.birthday || !sizeOf(req.query)) 
 			? api.celebrity.GetCelebrity( req.query.id, req.query.name, req.query.birthday, (error, result) => res.json( error ? { error } : { result } ) ) 
-			: res.json(errorList.parameters)
-			break	
-		case routeList.celebrityGallery: // DONE
-			(req.query.id || req.query.celebrityId || !sizeOf(req.query)) 
-			? api.celebrityGallery.GetCelebrityGallery( req.query.id, req.query.celebrityId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.celebrityAssignmentGame: // DONE
@@ -342,12 +304,7 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			break
 		case routeList.game: // DONE
 			(req.query.userEmail && req.query.userPassword && req.query.title && req.query.engineId && req.query.parentAdvisoryId && req.query.publicadorId && req.query.sagaId)
-			? api.game.CreateGame( req.query.userEmail, req.query.userPassword, req.query.title, req.query.photo, req.query.releaseDate, req.query.synopsis, req.query.engineId, req.query.parentAdvisoryId, req.query.publicadorId, req.query.sagaId, (error, result) => res.json( error ? { error } : { result } ) ) 
-			: res.json(errorList.parameters)
-			break
-		case routeList.gameGallery: //DONE
-			(req.query.userEmail && req.query.userPassword && req.query.photo && req.query.gameId) 
-			? api.gameGallery.CreateGameGallery( req.query.userEmail, req.query.userPassword, req.query.photo, req.query.gameId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			? api.game.CreateGame( req.query.userEmail, req.query.userPassword, req.query.title, req.query.releaseDate, req.query.synopsis, req.query.engineId, req.query.parentAdvisoryId, req.query.publicadorId, req.query.sagaId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.developers: // DONE 
@@ -357,12 +314,7 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			break
 		case routeList.movie: // DONE
 			(req.query.userEmail && req.query.userPassword && req.query.title && req.query.parentAdvisoryId && req.query.sagaId)
-			? api.movie.CreateMovie( req.query.userEmail, req.query.userPassword, req.query.title, req.query.photo, req.query.releaseDate, req.query.synopsis, req.query.duration, req.query.parentAdvisoryId, req.query.sagaId, (error, result) => res.json( error ? { error } : { result } ) ) 
-			: res.json(errorList.parameters)
-			break
-		case routeList.movieGallery: // DONE
-			(req.query.userEmail && req.query.userPassword && req.query.photo && req.query.movieId) 
-			? api.movieGallery.CreateMovieGallery( req.query.userEmail, req.query.userPassword, req.query.photo, req.query.movieId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			? api.movie.CreateMovie( req.query.userEmail, req.query.userPassword, req.query.title, req.query.releaseDate, req.query.synopsis, req.query.duration, req.query.parentAdvisoryId, req.query.sagaId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.publishingCompany: // DONE
@@ -372,37 +324,22 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			break
 		case routeList.book: // DONE
 			(req.query.userEmail && req.query.userPassword && req.query.title && req.query.publishingCompanyId && req.query.sagaId) 
-			? api.book.CreateBook( req.query.userEmail, req.query.userPassword, req.query.title, req.query.photo, req.query.releaseDate, req.query.synopsis, req.query.publishingCompanyId, req.query.sagaId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			? api.book.CreateBook( req.query.userEmail, req.query.userPassword, req.query.title, req.query.releaseDate, req.query.synopsis, req.query.publishingCompanyId, req.query.sagaId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.series: // DONE
 			(req.query.userEmail && req.query.userPassword && req.query.title && req.query.parentAdvisoryId && req.query.sagaId)
-			? api.series.CreateSeries( req.query.userEmail, req.query.userPassword, req.query.title, req.query.photo, req.query.releaseDate, req.query.synopsis, req.query.parentAdvisoryId, req.query.sagaId, (error, result) => res.json( error ? { error } : { result } ) ) 
-			: res.json(errorList.parameters)
-			break
-		case routeList.seriesGallery: // DONE
-			(req.query.userEmail && req.query.userPassword && req.query.photo && req.query.seriesId) 
-			? api.seriesGallery.CreateSeriesGallery( req.query.userEmail, req.query.userPassword, req.query.photo, req.query.seriesId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			? api.series.CreateSeries( req.query.userEmail, req.query.userPassword, req.query.title, req.query.releaseDate, req.query.synopsis, req.query.parentAdvisoryId, req.query.sagaId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.season: //DONE
 			(req.query.userEmail && req.query.userPassword && req.query.title && req.query.seriesId)
-			? api.season.CreateSeason( req.query.userEmail, req.query.userPassword, req.query.title, req.query.photo, req.query.releaseDate, req.query.synopsis, req.query.seriesId, (error, result) => res.json( error ? { error } : { result } ) ) 
-			: res.json(errorList.parameters)
-			break
-		case routeList.seasonGallery: //DONE
-			(req.query.userEmail && req.query.userPassword && req.query.photo && req.query.seasonId) 
-			? api.seasonGallery.CreateSeasonGallery( req.query.userEmail, req.query.userPassword, req.query.photo, req.query.seasonId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			? api.season.CreateSeason( req.query.userEmail, req.query.userPassword, req.query.title, req.query.releaseDate, req.query.synopsis, req.query.seriesId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.episode: // DONE
 			(req.query.userEmail && req.query.userPassword && req.query.title && req.query.seasonId)
-			? api.episode.CreateEpisode( req.query.userEmail, req.query.userPassword, req.query.title, req.query.photo, req.query.releaseDate, req.query.synopsis, req.query.seasonId, (error, result) => res.json( error ? { error } : { result } ) ) 
-			: res.json(errorList.parameters)
-			break
-		case routeList.episodeGallery: // DONE
-			(req.query.userEmail && req.query.userPassword && req.query.photo && req.query.episodeId) 
-			? api.episodeGallery.CreateEpisodeGallery( req.query.userEmail, req.query.userPassword, req.query.photo, req.query.episodeId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			? api.episode.CreateEpisode( req.query.userEmail, req.query.userPassword, req.query.title, req.query.releaseDate, req.query.synopsis, req.query.seasonId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.genres: // DONE
@@ -457,7 +394,7 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			break
 		case routeList.videoEpisode: // DONE
 			(req.query.userEmail && req.query.userPassword && req.query.link && req.query.episodeId) 
-			? api.videoEpisode.CreateGameGallery( req.query.userEmail, req.query.userPassword, req.query.link, req.query.episodeId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			? api.videoEpisode.CreateVideoEpisode( req.query.userEmail, req.query.userPassword, req.query.link, req.query.episodeId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.assignment: // DONE
@@ -467,12 +404,7 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			break
 		case routeList.celebrity: // DONE
 			(req.query.userEmail && req.query.userPassword && req.query.name) 
-			? api.celebrity.CreateCelebrity( req.query.userEmail, req.query.userPassword, req.query.name, req.query.photo, req.query.birthday, req.query.biography, (error, result) => res.json( error ? { error } : { result } ) ) 
-			: res.json(errorList.parameters)
-			break
-		case routeList.celebrityGallery: // DONE
-			(req.query.userEmail && req.query.userPassword && req.query.photo && req.query.celebrityId) 
-			? api.celebrityGallery.CreateCelebrityGallery( req.query.userEmail, req.query.userPassword, req.query.photo, req.query.celebrityId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			? api.celebrity.CreateCelebrity( req.query.userEmail, req.query.userPassword, req.query.name, req.query.birthday, req.query.biography, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.celebrityAssignmentGame: // DONE
@@ -497,7 +429,7 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			break
 		case routeList.user: // DONE
 			(req.query.name && req.query.password && req.query.email) 
-			? api.user.CreateUser( req.query.name, req.query.password, req.query.email, req.query.photo, req.query.birthday, req.query.description, (error, result) => res.json( error ? { error } : { result } ) ) 
+			? api.user.CreateUser( req.query.name, req.query.password, req.query.email, req.query.birthday, req.query.description, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.gameRating: // DONE
@@ -572,13 +504,13 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			: res.json(errorList.parameters)
 			break
 		case routeList.game:
-			(req.query.userEmail && req.query.userPassword && req.query.id && (req.query.title || req.query.photo || req.query.releaseDate || req.query.synopsis || req.query.engineId || req.query.parentAdvisoryId || req.query.publicadorId || req.query.sagaId)) 
-			? api.game.UpdateGame( req.query.userEmail, req.query.userPassword, req.query.id, req.query.title, req.query.photo, req.query.releaseDate, req.query.synopsis, req.query.engineId, req.query.parentAdvisoryId, req.query.publicadorId, req.query.sagaId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			(req.query.userEmail && req.query.userPassword && req.query.id && (req.query.title || req.query.releaseDate || req.query.synopsis || req.query.engineId || req.query.parentAdvisoryId || req.query.publicadorId || req.query.sagaId)) 
+			? api.game.UpdateGame( req.query.userEmail, req.query.userPassword, req.query.id, req.query.title, req.query.releaseDate, req.query.synopsis, req.query.engineId, req.query.parentAdvisoryId, req.query.publicadorId, req.query.sagaId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.movie:
-			(req.query.userEmail && req.query.userPassword && req.query.id && (req.query.title || req.query.photo || req.query.releaseDate || req.query.synopsis || req.query.duration || req.query.parentAdvisoryId || req.query.sagaId)) 
-			? api.movie.UpdateMovie( req.query.userEmail, req.query.userPassword, req.query.id, req.query.title, req.query.photo, req.query.releaseDate, req.query.synopsis, req.query.duration, req.query.parentAdvisoryId, req.query.sagaId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			(req.query.userEmail && req.query.userPassword && req.query.id && (req.query.title || req.query.releaseDate || req.query.synopsis || req.query.duration || req.query.parentAdvisoryId || req.query.sagaId)) 
+			? api.movie.UpdateMovie( req.query.userEmail, req.query.userPassword, req.query.id, req.query.title, req.query.releaseDate, req.query.synopsis, req.query.duration, req.query.parentAdvisoryId, req.query.sagaId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.publishingCompany:
@@ -587,23 +519,23 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			: res.json(errorList.parameters)
 			break
 		case routeList.book:
-			(req.query.userEmail && req.query.userPassword && req.query.id && (req.query.title || req.query.photo || req.query.releaseDate || req.query.synopsis || req.query.publishingCompanyId || req.query.sagaId)) 
-			? api.book.UpdateBook( req.query.userEmail, req.query.userPassword, req.query.id, req.query.title, req.query.photo, req.query.releaseDate, req.query.synopsis, req.query.publishingCompanyId, req.query.sagaId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			(req.query.userEmail && req.query.userPassword && req.query.id && (req.query.title || req.query.releaseDate || req.query.synopsis || req.query.publishingCompanyId || req.query.sagaId)) 
+			? api.book.UpdateBook( req.query.userEmail, req.query.userPassword, req.query.id, req.query.title, req.query.releaseDate, req.query.synopsis, req.query.publishingCompanyId, req.query.sagaId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.series:
-			(req.query.userEmail && req.query.userPassword && req.query.id && (req.query.title || req.query.photo || req.query.releaseDate || req.query.synopsis || req.query.parentAdvisoryId || req.query.sagaId)) 
-			? api.series.UpdateSeries( req.query.userEmail, req.query.userPassword, req.query.id, req.query.title, req.query.photo, req.query.releaseDate, req.query.synopsis, req.query.parentAdvisoryId, req.query.sagaId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			(req.query.userEmail && req.query.userPassword && req.query.id && (req.query.title || req.query.releaseDate || req.query.synopsis || req.query.parentAdvisoryId || req.query.sagaId)) 
+			? api.series.UpdateSeries( req.query.userEmail, req.query.userPassword, req.query.id, req.query.title, req.query.releaseDate, req.query.synopsis, req.query.parentAdvisoryId, req.query.sagaId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.season:
-			(req.query.userEmail && req.query.userPassword && req.query.id && (req.query.title || req.query.photo || req.query.releaseDate || req.query.synopsis || req.query.seriesId)) 
-			? api.season.UpdateSeason( req.query.userEmail, req.query.userPassword, req.query.id, req.query.title, req.query.photo, req.query.releaseDate, req.query.synopsis, req.query.seriesId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			(req.query.userEmail && req.query.userPassword && req.query.id && (req.query.title || req.query.releaseDate || req.query.synopsis || req.query.seriesId)) 
+			? api.season.UpdateSeason( req.query.userEmail, req.query.userPassword, req.query.id, req.query.title, req.query.releaseDate, req.query.synopsis, req.query.seriesId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.episode:
-			(req.query.userEmail && req.query.userPassword && req.query.id && (req.query.title || req.query.photo || req.query.releaseDate || req.query.synopsis || req.query.seasonId)) 
-			? api.episode.UpdateEpisode( req.query.userEmail, req.query.userPassword, req.query.id, req.query.title, req.query.photo, req.query.releaseDate, req.query.synopsis, req.query.seasonId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			(req.query.userEmail && req.query.userPassword && req.query.id && (req.query.title || req.query.releaseDate || req.query.synopsis || req.query.seasonId)) 
+			? api.episode.UpdateEpisode( req.query.userEmail, req.query.userPassword, req.query.id, req.query.title, req.query.releaseDate, req.query.synopsis, req.query.seasonId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.assignment:
@@ -612,13 +544,13 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			: res.json(errorList.parameters)
 			break
 		case routeList.celebrity:
-			(req.query.userEmail && req.query.userPassword && req.query.id && (req.query.name || req.query.photo || req.query.birthday || req.query.biography )) 
-			? api.celebrity.UpdateCelebrity( req.query.userEmail, req.query.userPassword, req.query.id, req.query.name, req.query.photo, req.query.birthday, req.query.biography, (error, result) => res.json( error ? { error } : { result } ) ) 
+			(req.query.userEmail && req.query.userPassword && req.query.id && (req.query.name || req.query.birthday || req.query.biography )) 
+			? api.celebrity.UpdateCelebrity( req.query.userEmail, req.query.userPassword, req.query.id, req.query.name, req.query.birthday, req.query.biography, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.user:
-			(req.query.userEmail && req.query.userPassword && req.query.id && (req.query.name || req.query.password || req.query.email || req.query.photo || req.query.birthday || req.query.description || req.query.canEdit)) 
-			? api.user.UpdateUser( req.query.userEmail, req.query.userPassword, req.query.id, req.query.name, req.query.password, req.query.email, req.query.photo, req.query.birthday, req.query.description, req.query.canEdit, (error, result) => res.json( error ? { error } : { result } ) ) 
+			(req.query.userEmail && req.query.userPassword && req.query.id && (req.query.name || req.query.password || req.query.email || req.query.birthday || req.query.description || req.query.canEdit)) 
+			? api.user.UpdateUser( req.query.userEmail, req.query.userPassword, req.query.id, req.query.name, req.query.password, req.query.email, req.query.birthday, req.query.description, req.query.canEdit, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.gameRating: // DONE
@@ -672,11 +604,6 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			? api.game.DeleteGame( req.query.userEmail, req.query.userPassword, req.query.id, (error, result) => res.json( error ? { error } : { result } ) )
 			: res.json(errorList.parameters)
 			break
-		case routeList.gameGallery:
-			(req.query.userEmail && req.query.userPassword && req.query.id) 
-			? api.gameGallery.DeleteGameGallery( req.query.userEmail, req.query.userPassword, req.query.id, (error, result) => res.json( error ? { error } : { result } ) )
-			: res.json(errorList.parameters)
-			break
 		case routeList.developers: // DONE
 			(req.query.userEmail && req.query.userPassword && req.query.gameId && req.query.companyId)
 			? api.developers.DeleteDevelopers( req.query.userEmail, req.query.userPassword, req.query.gameId, req.query.companyId, (error, result) => res.json( error ? { error } : { result } ) ) 
@@ -685,11 +612,6 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 		case routeList.movie:
 			(req.query.userEmail && req.query.userPassword && req.query.id) 
 			? api.movie.DeleteMovie( req.query.userEmail, req.query.userPassword, req.query.id, (error, result) => res.json( error ? { error } : { result } ) )
-			: res.json(errorList.parameters)
-			break
-		case routeList.movieGallery:
-			(req.query.userEmail && req.query.userPassword && req.query.id) 
-			? api.movieGallery.DeleteMovieGallery( req.query.userEmail, req.query.userPassword, req.query.id, (error, result) => res.json( error ? { error } : { result } ) )
 			: res.json(errorList.parameters)
 			break
 		case routeList.publishingCompany:
@@ -707,29 +629,14 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			? api.series.DeleteSeries( req.query.userEmail, req.query.userPassword, req.query.id, (error, result) => res.json( error ? { error } : { result } ) )
 			: res.json(errorList.parameters)
 			break
-		case routeList.seriesGallery:
-			(req.query.userEmail && req.query.userPassword && req.query.id) 
-			? api.seriesGallery.DeleteSeriesGallery( req.query.userEmail, req.query.userPassword, req.query.id, (error, result) => res.json( error ? { error } : { result } ) )
-			: res.json(errorList.parameters)
-			break
 		case routeList.season:
 			(req.query.userEmail && req.query.userPassword && req.query.id) 
 			? api.season.DeleteSeason( req.query.userEmail, req.query.userPassword, req.query.id, (error, result) => res.json( error ? { error } : { result } ) )
 			: res.json(errorList.parameters)
 			break
-		case routeList.seasonGallery:
-			(req.query.userEmail && req.query.userPassword && req.query.id) 
-			? api.seasonGallery.DeleteSeasonGallery( req.query.userEmail, req.query.userPassword, req.query.id, (error, result) => res.json( error ? { error } : { result } ) )
-			: res.json(errorList.parameters)
-			break
 		case routeList.episode:
 			(req.query.userEmail && req.query.userPassword && req.query.id) 
 			? api.episode.DeleteEpisode( req.query.userEmail, req.query.userPassword, req.query.id, (error, result) => res.json( error ? { error } : { result } ) )
-			: res.json(errorList.parameters)
-			break
-		case routeList.episodeGallery:
-			(req.query.userEmail && req.query.userPassword && req.query.id) 
-			? api.episodeGallery.DeleteEpisodeGallery( req.query.userEmail, req.query.userPassword, req.query.id, (error, result) => res.json( error ? { error } : { result } ) )
 			: res.json(errorList.parameters)
 			break
 		case routeList.genres:
@@ -795,11 +702,6 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 		case routeList.celebrity:
 			(req.query.userEmail && req.query.userPassword && req.query.id) 
 			? api.celebrity.DeleteCelebrity( req.query.userEmail, req.query.userPassword, req.query.id, (error, result) => res.json( error ? { error } : { result } ) )
-			: res.json(errorList.parameters)
-			break
-		case routeList.celebrityGallery:
-			(req.query.userEmail && req.query.userPassword && req.query.id) 
-			? api.celebrityGallery.DeleteCelebrityGallery( req.query.userEmail, req.query.userPassword, req.query.id, (error, result) => res.json( error ? { error } : { result } ) )
 			: res.json(errorList.parameters)
 			break
 		case routeList.celebrityAssignmentGame:

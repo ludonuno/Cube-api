@@ -7,7 +7,6 @@ const table = {
     table: 'my_Movie',
     id: 'id',
 	title: 'title',
-	photo: 'photo',
 	releaseDate: 'releaseDate',
 	synopsis: 'synopsis',
 	duration: 'duration',
@@ -90,7 +89,7 @@ var CreateQuerySelect = (id, title, releaseDate, durationMin, durationMax, paren
 	)
 }
 
-var HandleInsertData = (title, photo, releaseDate, synopsis, duration, parentAdvisoryId, sagaId, callback) => {
+var HandleInsertData = (title, releaseDate, synopsis, duration, parentAdvisoryId, sagaId, callback) => {
 	return new Promise((resolve, reject) => {
         let fields = '', values = '', numberParameters = 0
 
@@ -99,17 +98,6 @@ var HandleInsertData = (title, photo, releaseDate, synopsis, duration, parentAdv
 			fields += `${table.title}`
 			values += `'${title}'`
 			numberParameters++;
-		}
-
-		if (photo) {
-			if (numberParameters) {
-				fields += ', '
-				values += ', '
-			}
-			photo = photo.replace( new RegExp("'", 'g') , '%27')
-			fields += `${table.photo}`
-			values += `decode('${photo}', 'hex')`
-			numberParameters++
 		}
 
 		if (releaseDate) {
@@ -177,9 +165,9 @@ var HandleInsertData = (title, photo, releaseDate, synopsis, duration, parentAdv
 }
 
 //Create and return the record created
-var CreateQueryInsert = (title, photo, releaseDate, synopsis, duration, parentAdvisoryId, sagaId, callback) => {
+var CreateQueryInsert = (title, releaseDate, synopsis, duration, parentAdvisoryId, sagaId, callback) => {
 	return new Promise((resolve, reject) => {
-		HandleInsertData(title, photo, releaseDate, synopsis, duration, parentAdvisoryId, sagaId, (error, result) => {
+		HandleInsertData(title, releaseDate, synopsis, duration, parentAdvisoryId, sagaId, (error, result) => {
 			error 
 			? reject(error) 
 			: resolve(`INSERT INTO ${table.table} (${result.fields}) VALUES (${result.values}) RETURNING *`)
@@ -190,7 +178,7 @@ var CreateQueryInsert = (title, photo, releaseDate, synopsis, duration, parentAd
 	)
 }
 
-var HandleUpdateData = (id, title, photo, releaseDate, synopsis, duration, parentAdvisoryId, sagaId, callback) => {
+var HandleUpdateData = (id, title, releaseDate, synopsis, duration, parentAdvisoryId, sagaId, callback) => {
 	return new Promise((resolve, reject) => {
         let updateTo = '', numberParameters = 0
 		
@@ -200,13 +188,6 @@ var HandleUpdateData = (id, title, photo, releaseDate, synopsis, duration, paren
 			title = title.replace( new RegExp("'", 'g') , '%27')
 			updateTo += `${table.title} = '${title}'`
 			numberParameters++;
-		}
-
-		if (photo) {
-			if (numberParameters) updateTo += ', '
-			photo = photo.replace( new RegExp("'", 'g') , '%27')
-			updateTo += `${table.photo} = decode('${photo}', 'hex')`
-			numberParameters++
 		}
 
 		if (releaseDate) {
@@ -255,9 +236,9 @@ var HandleUpdateData = (id, title, photo, releaseDate, synopsis, duration, paren
 }
 
 //Update an existing record and return the value updated
-var CreateQueryUpdate = (id, title, photo, releaseDate, synopsis, duration, parentAdvisoryId, sagaId, callback) => {
+var CreateQueryUpdate = (id, title, releaseDate, synopsis, duration, parentAdvisoryId, sagaId, callback) => {
 	return new Promise((resolve, reject) => {
-		HandleUpdateData(id, title, photo, releaseDate, synopsis, duration, parentAdvisoryId, sagaId, (error, result) => {
+		HandleUpdateData(id, title, releaseDate, synopsis, duration, parentAdvisoryId, sagaId, (error, result) => {
 			error 
 			? reject(db.message.dataError) 
 			: resolve(`UPDATE ${table.table} SET ${result} WHERE ${table.id} = ${id} RETURNING *`)
@@ -279,17 +260,17 @@ var CreateQueryDelete = (id, callback) => {
 	)
 }
 
-var CreateQuery = (id, title, photo, releaseDate, synopsis, duration, durationMin, durationMax, parentAdvisoryId, sagaId, action, callback) => {
+var CreateQuery = (id, title, releaseDate, synopsis, duration, durationMin, durationMax, parentAdvisoryId, sagaId, action, callback) => {
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 
 				CreateQuerySelect(id, title, releaseDate, durationMin, durationMax, parentAdvisoryId, sagaId, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'create': 
-                CreateQueryInsert(title, photo, releaseDate, synopsis, duration, parentAdvisoryId, sagaId, (error, result) => error ? reject(error) : resolve(result) )
+                CreateQueryInsert(title, releaseDate, synopsis, duration, parentAdvisoryId, sagaId, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'update':
-                CreateQueryUpdate(id, title, photo, releaseDate, synopsis, duration, parentAdvisoryId, sagaId, (error, result) => error ? reject(error) : resolve(result) )
+                CreateQueryUpdate(id, title, releaseDate, synopsis, duration, parentAdvisoryId, sagaId, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'delete':
                 CreateQueryDelete(id, (error, result) => error ? reject(error) : resolve(result) )
@@ -307,7 +288,7 @@ var CreateQuery = (id, title, photo, releaseDate, synopsis, duration, durationMi
 //Exports
 var GetMovie = (id, title, releaseDate, durationMin, durationMax, parentAdvisoryId, sagaId, callback) => {
   	return new Promise((resolve, reject) => {
-		CreateQuery(id, title, undefined, releaseDate, undefined, undefined, durationMin, durationMax, parentAdvisoryId, sagaId, 'get', (error, result) => {
+		CreateQuery(id, title, releaseDate, undefined, undefined, durationMin, durationMax, parentAdvisoryId, sagaId, 'get', (error, result) => {
 			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
@@ -321,12 +302,12 @@ var GetMovie = (id, title, releaseDate, durationMin, durationMax, parentAdvisory
 	)
 }		
 
-var CreateMovie = (userEmail, userPassword, title, photo, releaseDate, synopsis, duration, parentAdvisoryId, sagaId, callback) => {
+var CreateMovie = (userEmail, userPassword, title, releaseDate, synopsis, duration, parentAdvisoryId, sagaId, callback) => {
 	return new Promise((resolve, reject) => {
 		CanUserEdit(userEmail, userPassword, (error, result) => {
 			if (error) reject(error)
 			else if(result) {
-				CreateQuery(undefined, title, photo, releaseDate, synopsis, duration, undefined, undefined, parentAdvisoryId, sagaId, 'create', (error, result) => {
+				CreateQuery(undefined, title, releaseDate, synopsis, duration, undefined, undefined, parentAdvisoryId, sagaId, 'create', (error, result) => {
 					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
@@ -340,12 +321,12 @@ var CreateMovie = (userEmail, userPassword, title, photo, releaseDate, synopsis,
 	)
 }
 
-var UpdateMovie = (userEmail, userPassword, id, title, photo, releaseDate, synopsis, duration, parentAdvisoryId, sagaId, callback) => {
+var UpdateMovie = (userEmail, userPassword, id, title, releaseDate, synopsis, duration, parentAdvisoryId, sagaId, callback) => {
 	return new Promise((resolve, reject) => {
 		CanUserEdit(userEmail, userPassword, (error, result) => {
 			if (error) reject(error)
 			else if(result) {
-				CreateQuery(id, title, photo, releaseDate, synopsis, duration, undefined, undefined, parentAdvisoryId, sagaId, 'update', (error, result) => {
+				CreateQuery(id, title, releaseDate, synopsis, duration, undefined, undefined, parentAdvisoryId, sagaId, 'update', (error, result) => {
 					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
@@ -364,7 +345,7 @@ var DeleteMovie = (userEmail, userPassword, id, callback) => {
 		CanUserEdit(userEmail, userPassword, (error, result) => {
 			if (error) reject(error)
 			else if(result) {
-				CreateQuery(id, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 'delete', (error, result) => {
+				CreateQuery(id, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 'delete', (error, result) => {
 					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 

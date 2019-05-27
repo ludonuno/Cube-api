@@ -26,7 +26,7 @@ var HandleSelectData = (movieId, genreId, callback) => {
 		
 		if(genreId) {
             if (!isNaN(Number(genreId))) {
-				fields = `${movieTable.table}.${movieTable.id}, ${movieTable.table}.${movieTable.title}, ${movieTable.table}.${movieTable.photo}, ${movieTable.table}.${movieTable.releaseDate}, ${movieTable.table}.${movieTable.synopsis}, ${movieTable.table}.${movieTable.duration}, ${movieTable.table}.${movieTable.parentAdvisoryId}, ${movieTable.table}.${movieTable.sagaId}`
+				fields = `${movieTable.table}.${movieTable.id}, ${movieTable.table}.${movieTable.title}, ${movieTable.table}.${movieTable.releaseDate}, ${movieTable.table}.${movieTable.synopsis}, ${movieTable.table}.${movieTable.duration}, ${movieTable.table}.${movieTable.parentAdvisoryId}, ${movieTable.table}.${movieTable.sagaId}`
 				if (numberParameters) searchFor += ' AND '
 				searchFor += `${table.genreId} = ${genreId}`
             } else reject(db.message.dataError)            
@@ -134,7 +134,6 @@ var CreateQuery = (movieId, genreId, action, callback) => {
 var GetGenreMovie = (movieId, genreId, callback) => {
   	return new Promise((resolve, reject) => {
 		CreateQuery(movieId, genreId, 'get', (error, result) => {
-			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -153,7 +152,6 @@ var CreateGenreMovie = (userEmail, userPassword, movieId, genreId, callback) => 
 			if (error) reject(error)
 			else if(result) {
 				CreateQuery(movieId, genreId, 'create', (error, result) => {
-					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
 					})
@@ -172,7 +170,6 @@ var DeleteGenreMovie = (userEmail, userPassword, movieId, genreId, callback) => 
 			if (error) reject(error)
 			else if(result) {
 				CreateQuery(movieId, genreId, 'delete', (error, result) => {
-					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
 					})

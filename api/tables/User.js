@@ -10,7 +10,6 @@ const table = {
 	name: 'name',
 	password: 'password',
 	email: 'email',
-	photo: 'photo',
 	birthday: 'birthday',
 	description: 'description',
 	creationDate: 'creationDate',
@@ -21,7 +20,7 @@ const table = {
 var UserAutentication = (email, password, callback) => {
 	return new Promise((resolve,reject) => {
 		if(email && password) {
-			let fields = `${table.id}, ${table.name}, ${table.password}, ${table.email}, ${table.photo}, ${table.birthday}, ${table.description}, ${table.creationDate}`
+			let fields = `${table.id}, ${table.name}, ${table.password}, ${table.email}, ${table.birthday}, ${table.description}, ${table.creationDate}`
 			let query = `SELECT ${fields} FROM ${table.table} WHERE ${table.email} = '${email}'`
 			db.query(query, (error, result) => {
 				if (error) reject(db.message.internalError)
@@ -95,13 +94,12 @@ var HandleSelectData = (id, callback) => {
 	)
 }
 
-var CheckForUnregularData = (id, name, password, email, photo, birthday, description, callback) => {
+var CheckForUnregularData = (id, name, password, email, birthday, description, callback) => {
 	return new Promise((resolve, reject) => {
 		if (id && (id.toLowerCase().includes("canedit") || id.toLowerCase().includes("issystemadmin"))) reject(true)
 		if (name && (name.toLowerCase().includes("canedit") || name.toLowerCase().includes("issystemadmin"))) reject(true)
 		if (password && (password.toLowerCase().includes("canedit") || password.toLowerCase().includes("issystemadmin"))) reject(true)
 		if (email && (email.toLowerCase().includes("canedit") || email.toLowerCase().includes("issystemadmin"))) reject(true)
-		if (photo && (photo.toLowerCase().includes("canedit") || photo.toLowerCase().includes("issystemadmin"))) reject(true)
 		if (birthday && (birthday.toLowerCase().includes("canedit") || birthday.toLowerCase().includes("issystemadmin"))) reject(true)
 		if (description && (description.toLowerCase().includes("canedit") || description.toLowerCase().includes("issystemadmin"))) reject(true)
 	}).then(
@@ -113,7 +111,7 @@ var CheckForUnregularData = (id, name, password, email, photo, birthday, descrip
 var CreateQuerySelect = (id, callback) => {
 	return new Promise((resolve, reject) => {
 		HandleSelectData(id, (error, result) => {
-			fields = `${table.id}, ${table.name}, ${table.photo}, ${table.birthday}, ${table.description}, ${table.creationDate}`
+			fields = `${table.id}, ${table.name}, ${table.birthday}, ${table.description}, ${table.creationDate}`
 			error ? reject(error) : resolve(`SELECT ${fields} FROM ${table.table} WHERE ${result}`)
 		})
 	}).then(
@@ -122,7 +120,7 @@ var CreateQuerySelect = (id, callback) => {
 	)
 }
 
-var HandleInsertData = (name, password, email, photo, birthday, description, callback) => {
+var HandleInsertData = (name, password, email, birthday, description, callback) => {
 	return new Promise((resolve, reject) => {
         let fields = '', values = '', numberParameters = 0
 
@@ -151,17 +149,6 @@ var HandleInsertData = (name, password, email, photo, birthday, description, cal
 			email = email.replace( new RegExp("'", 'g') , '%27')
 			fields += `${table.email}`
 			values += `'${email}'`
-			numberParameters++
-		}
-
-		if (photo) {
-			if (numberParameters) {
-				fields += ', '
-				values += ', '
-			}
-			photo = photo.replace( new RegExp("'", 'g') , '%27')
-			fields += `${table.photo}`
-			values += `'decode('${photo}', 'hex')'`
 			numberParameters++
 		}
 
@@ -194,9 +181,9 @@ var HandleInsertData = (name, password, email, photo, birthday, description, cal
 }
 
 //Create and return the record created
-var CreateQueryInsert = (name, password, email, photo, birthday, description, callback) => {
+var CreateQueryInsert = (name, password, email, birthday, description, callback) => {
 	return new Promise((resolve, reject) => {
-		HandleInsertData(name, password, email, photo, birthday, description, (error, result) => {
+		HandleInsertData(name, password, email, birthday, description, (error, result) => {
 			error 
 			? reject(error) 
 			: resolve(`INSERT INTO ${table.table} (${result.fields}) VALUES (${result.values})`)
@@ -207,7 +194,7 @@ var CreateQueryInsert = (name, password, email, photo, birthday, description, ca
 	)
 }
 
-var HandleUpdateData = (id, name, password, email, photo, birthday, description, canEdit, callback) => {
+var HandleUpdateData = (id, name, password, email, birthday, description, canEdit, callback) => {
 	return new Promise((resolve, reject) => {
         let updateTo = '', numberParameters = 0
 		
@@ -232,13 +219,6 @@ var HandleUpdateData = (id, name, password, email, photo, birthday, description,
 			numberParameters++
 		}
 
-		if (photo) {
-			if (numberParameters) updateTo += ', '
-			photo = photo.replace( new RegExp("'", 'g') , '%27')
-			updateTo += `${table.photo} = 'decode('${photo}', 'hex')'`
-			numberParameters++
-		}
-
 		if (birthday) {
 			if (numberParameters) updateTo += ', '
 			birthday = birthday.replace( new RegExp("'", 'g') , '%27')
@@ -253,6 +233,13 @@ var HandleUpdateData = (id, name, password, email, photo, birthday, description,
 			numberParameters++
 		}
 
+		if (canEdit) {
+			if (numberParameters) updateTo += ', '
+			canEdit = canEdit.replace( new RegExp("'", 'g') , '%27')
+			updateTo += `${table.canEdit} = ${canEdit}`
+			numberParameters++
+		}
+
 		resolve(updateTo)
 	}).then(
 		resolve => callback(undefined, resolve),
@@ -261,9 +248,9 @@ var HandleUpdateData = (id, name, password, email, photo, birthday, description,
 }
 
 //Update an existing record and return the value updated
-var CreateQueryUpdate = (id, name, password, email, photo, birthday, description, canEdit, callback) => {
+var CreateQueryUpdate = (id, name, password, email, birthday, description, canEdit, callback) => {
 	return new Promise((resolve, reject) => {
-		HandleUpdateData(id, name, password, email, photo, birthday, description, canEdit, (error, result) => {
+		HandleUpdateData(id, name, password, email, birthday, description, canEdit, (error, result) => {
 			error 
 			? reject(db.message.dataError) 
 			: resolve(`UPDATE ${table.table} SET ${result} WHERE ${table.id} = ${id}`)
@@ -285,17 +272,17 @@ var CreateQueryDelete = (id, callback) => {
 	)
 }
 
-var CreateQuery = ( id, name, password, email, photo, birthday, description, canEdit, action, callback) => {
+var CreateQuery = ( id, name, password, email, birthday, description, canEdit, action, callback) => {
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 
 				CreateQuerySelect(id, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'create': 
-                CreateQueryInsert(name, password, email, photo, birthday, description, (error, result) => error ? reject(error) : resolve(result) )
+                CreateQueryInsert(name, password, email, birthday, description, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'update':
-                CreateQueryUpdate(id, name, password, email, photo, birthday, description, canEdit , (error, result) => error ? reject(error) : resolve(result) )
+                CreateQueryUpdate(id, name, password, email, birthday, description, canEdit , (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'delete':
                 CreateQueryDelete(id, (error, result) => error ? reject(error) : resolve(result) )
@@ -316,8 +303,7 @@ var GetUser = (emailUser, userPassword, id, callback) => {
 		UserAutentication(emailUser, userPassword, (error, result) => {
 			if (error) reject(error)
 			else {
-				CreateQuery( id, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 'get', (error, result) => {
-					console.log(error, result)
+				CreateQuery( id, undefined, undefined, undefined, undefined, undefined, undefined, 'get', (error, result) => {
 					error ? reject(error) :	db.query(result, (error, result) => {
 						if (error) reject(db.message.internalError)
 						else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -332,10 +318,9 @@ var GetUser = (emailUser, userPassword, id, callback) => {
 	)
 }		
 
-var CreateUser = (name, password, email, photo, birthday, description, callback) => {
+var CreateUser = (name, password, email, birthday, description, callback) => {
 	return new Promise((resolve, reject) => {
-		CreateQuery(undefined, name, password, email, photo, birthday, description, undefined, 'create', (error, result) => {
-			console.log(error, result)
+		CreateQuery(undefined, name, password, email, birthday, description, undefined, 'create', (error, result) => {
 			error ? reject(error) : db.query(result, (error, result) => {
 				error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate})
 			})
@@ -346,15 +331,14 @@ var CreateUser = (name, password, email, photo, birthday, description, callback)
 	)
 }
 
-var UpdateUser = (emailUser, userPassword, id, name, password, email, photo, birthday, description, canEdit, callback) => {
+var UpdateUser = (emailUser, userPassword, id, name, password, email, birthday, description, canEdit, callback) => {
 	return new Promise((resolve, reject) => {
 		UserAutentication(emailUser, userPassword, (error, result) => {
 			if (error) reject(error)
 			else {
 				if(result[0].id == id) {
-					CreateQuery(id, name, password, email, photo, birthday, description, undefined, 'update', (error, result) => {
-						console.log(error, result)
-						error ? reject(error) : CheckForUnregularData( id, name, password, email, photo, birthday, description, (error) => {
+					CreateQuery(id, name, password, email, birthday, description, undefined, 'update', (error, result) => {
+						error ? reject(error) : CheckForUnregularData( id, name, password, email, birthday, description, (error) => {
 							error ? reject('Tentativa de violação dos dados sem sucesso') : db.query(result, (error, result) => {
 								error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate}) 
 							})
@@ -364,8 +348,7 @@ var UpdateUser = (emailUser, userPassword, id, name, password, email, photo, bir
 					IsUserSystemAdmin(emailUser, userPassword, (error, result) => {
 						if (error) reject(error)
 						else if(result) {
-							CreateQuery(id, name, password, email, photo, birthday, description, canEdit, 'update', (error, result) => {
-								console.log(error, result)
+							CreateQuery(id, name, password, email, birthday, description, canEdit, 'update', (error, result) => {
 								error ? reject(error) : db.query(result, (error, result) => {
 									error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate}) 
 								})

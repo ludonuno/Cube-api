@@ -20,7 +20,7 @@ var HandleSelectData = (celebrityId, assignmentId, seriesId, callback) => {
 
         if(celebrityId) {
             if (!isNaN(Number(celebrityId))) {
-				fields = `${assignmentTable.table}.${assignmentTable.id}, ${assignmentTable.table}.${assignmentTable.description}, ${seriesTable.table}.${seriesTable.id}, ${seriesTable.table}.${seriesTable.title}, ${seriesTable.table}.${seriesTable.photo}, ${seriesTable.table}.${seriesTable.releaseDate}, ${seriesTable.table}.${seriesTable.synopsis}, ${seriesTable.table}.${seriesTable.parentAdvisoryId}, ${seriesTable.table}.${seriesTable.sagaId}`
+				fields = `${assignmentTable.table}.${assignmentTable.id}, ${assignmentTable.table}.${assignmentTable.description}, ${seriesTable.table}.${seriesTable.id}, ${seriesTable.table}.${seriesTable.title}, ${seriesTable.table}.${seriesTable.releaseDate}, ${seriesTable.table}.${seriesTable.synopsis}, ${seriesTable.table}.${seriesTable.parentAdvisoryId}, ${seriesTable.table}.${seriesTable.sagaId}`
 				searchFor += `${table.celebrityId} = ${celebrityId}`
                 numberParameters++;
             } else reject(db.message.dataError)            
@@ -28,7 +28,7 @@ var HandleSelectData = (celebrityId, assignmentId, seriesId, callback) => {
 		
 		if(assignmentId) {
             if (!isNaN(Number(assignmentId))) {
-				fields = `${celebrityTable.table}.${celebrityTable.id}, ${celebrityTable.table}.${celebrityTable.name}, ${celebrityTable.table}.${celebrityTable.photo}, ${celebrityTable.table}.${celebrityTable.birthday}, ${celebrityTable.table}.${celebrityTable.biography}, ${seriesTable.table}.${seriesTable.id}, ${seriesTable.table}.${seriesTable.title}, ${seriesTable.table}.${seriesTable.photo}, ${seriesTable.table}.${seriesTable.releaseDate}, ${seriesTable.table}.${seriesTable.synopsis}, ${seriesTable.table}.${seriesTable.parentAdvisoryId}, ${seriesTable.table}.${seriesTable.sagaId}`
+				fields = `${celebrityTable.table}.${celebrityTable.id}, ${celebrityTable.table}.${celebrityTable.name}, ${celebrityTable.table}.${celebrityTable.birthday}, ${celebrityTable.table}.${celebrityTable.biography}, ${seriesTable.table}.${seriesTable.id}, ${seriesTable.table}.${seriesTable.title}, ${seriesTable.table}.${seriesTable.releaseDate}, ${seriesTable.table}.${seriesTable.synopsis}, ${seriesTable.table}.${seriesTable.parentAdvisoryId}, ${seriesTable.table}.${seriesTable.sagaId}`
 				if (numberParameters) searchFor += ' AND '
 				searchFor += `${table.assignmentId} = ${assignmentId}`
 				numberParameters++
@@ -37,7 +37,7 @@ var HandleSelectData = (celebrityId, assignmentId, seriesId, callback) => {
 
 		if(seriesId) {
             if (!isNaN(Number(seriesId))) {
-				fields = `${celebrityTable.table}.${celebrityTable.id}, ${celebrityTable.table}.${celebrityTable.name}, ${celebrityTable.table}.${celebrityTable.photo}, ${celebrityTable.table}.${celebrityTable.birthday}, ${celebrityTable.table}.${celebrityTable.biography}, ${assignmentTable.table}.${assignmentTable.id}, ${assignmentTable.table}.${assignmentTable.description}`
+				fields = `${celebrityTable.table}.${celebrityTable.id}, ${celebrityTable.table}.${celebrityTable.name}, ${celebrityTable.table}.${celebrityTable.birthday}, ${celebrityTable.table}.${celebrityTable.biography}, ${assignmentTable.table}.${assignmentTable.id}, ${assignmentTable.table}.${assignmentTable.description}`
 				if (numberParameters) searchFor += ' AND '
 				searchFor += `${table.seriesId} = ${seriesId}`
             } else reject(db.message.dataError)            
@@ -158,7 +158,6 @@ var CreateQuery = (celebrityId, assignmentId, seriesId, action, callback) => {
 var GetCelebrityAssignmentSeries = (celebrityId, assignmentId, seriesId, callback) => {
   	return new Promise((resolve, reject) => {
 		CreateQuery(celebrityId, assignmentId, seriesId, 'get', (error, result) => {
-			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -177,7 +176,6 @@ var CreateCelebrityAssignmentSeries = (userEmail, userPassword, celebrityId, ass
 			if (error) reject(error)
 			else if(result) {
 				CreateQuery(celebrityId, assignmentId, seriesId, 'create', (error, result) => {
-					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
 					})

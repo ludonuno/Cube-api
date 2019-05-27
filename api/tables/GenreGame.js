@@ -26,7 +26,7 @@ var HandleSelectData = (gameId, genreId, callback) => {
 		
 		if(genreId) {
             if (!isNaN(Number(genreId))) {
-				fields = `${gameTable.table}.${gameTable.id}, ${gameTable.table}.${gameTable.title}, ${gameTable.table}.${gameTable.photo}, ${gameTable.table}.${gameTable.releaseDate}, ${gameTable.table}.${gameTable.synopsis}, ${gameTable.table}.${gameTable.engineId}, ${gameTable.table}.${gameTable.parentAdvisoryId}, ${gameTable.table}.${gameTable.publicadorId}, ${gameTable.table}.${gameTable.sagaId}`
+				fields = `${gameTable.table}.${gameTable.id}, ${gameTable.table}.${gameTable.title}, ${gameTable.table}.${gameTable.releaseDate}, ${gameTable.table}.${gameTable.synopsis}, ${gameTable.table}.${gameTable.engineId}, ${gameTable.table}.${gameTable.parentAdvisoryId}, ${gameTable.table}.${gameTable.publicadorId}, ${gameTable.table}.${gameTable.sagaId}`
 				if (numberParameters) searchFor += ' AND '
 				searchFor += `${table.genreId} = ${genreId}`
             } else reject(db.message.dataError)            
@@ -152,7 +152,6 @@ var CreateGenreGame = (userEmail, userPassword, gameId, genreId, callback) => {
 			if (error) reject(error)
 			else if(result) {
 				CreateQuery(gameId, genreId, 'create', (error, result) => {
-					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
 					})
@@ -171,7 +170,6 @@ var DeleteGenreGame = (userEmail, userPassword, gameId, genreId, callback) => {
 			if (error) reject(error)
 			else if(result) {
 				CreateQuery(gameId, genreId, 'delete', (error, result) => {
-					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
 					})

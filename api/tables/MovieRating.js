@@ -143,7 +143,6 @@ var CreateQuery = (userId, movieId, rate, action, callback) => {
 var GetMovieRating = (movieId, callback) => {
   	return new Promise((resolve, reject) => {
 		CreateQuery(undefined, movieId, undefined, 'get', (error, result) => {
-			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -162,7 +161,6 @@ var CreateMovieRating = (userEmail, userPassword, userId, movieId, rate, callbac
 			if (error) reject(error)
 			else if(result[0].id == userId) {
 				CreateQuery(userId, movieId, rate, 'create', (error, result) => {
-					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
 					})
@@ -181,7 +179,6 @@ var UpdateMovieRating = (userEmail, userPassword, userId, movieId, rate, callbac
 			if (error) reject(error)
 			else if(result[0].id == userId) {
 				CreateQuery(userId, movieId, rate, 'update', (error, result) => {
-					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
 					})

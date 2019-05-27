@@ -110,7 +110,6 @@ var CreateQuery = (id, genre, action, callback) => {
 var GetGenres = (id, genre, callback) => {
   	return new Promise((resolve, reject) => {
 		CreateQuery(id, genre, 'get', (error, result) => {
-			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -131,7 +130,6 @@ var CreateGenres = (userEmail, userPassword, genre, callback) => {
 				GetGenres(undefined, genre, (error, result) => {
 					if(error == db.message.dataNotFound) {
 						CreateQuery(undefined, genre, 'create', (error, result) => {
-							console.log(error, result)
 							error ? reject(error) : db.query(result, (error, result) => {
 								error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
 							})
@@ -153,7 +151,6 @@ var DeleteGenres = (userEmail, userPassword, id, callback) => {
 			if (error) reject(error)
 			else if(result) {
 				CreateQuery(id, undefined, 'delete', (error, result) => {
-					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
 					})

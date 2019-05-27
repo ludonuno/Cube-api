@@ -128,7 +128,6 @@ var CreateQuery = (id, link, seasonId, action, callback) => {
 var GetVideoSeason = (id, seasonId, callback) => {
   	return new Promise((resolve, reject) => {
 		CreateQuery(id, undefined, seasonId, 'get', (error, result) => {
-			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -147,7 +146,6 @@ var CreateVideoSeason = (userEmail, userPassword, link, seasonId, callback) => {
 			if (error) reject(error)
 			else if(result) {
 				CreateQuery(undefined, link, seasonId, 'create', (error, result) => {
-					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
 					})
@@ -166,7 +164,6 @@ var DeleteVideoSeason = (userEmail, userPassword, id, callback) => {
 			if (error) reject(error)
 			else if(result) {
 				CreateQuery(id, undefined, undefined, 'delete', (error, result) => {
-					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
 					})

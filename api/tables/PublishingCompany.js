@@ -145,7 +145,6 @@ var CreateQuery = (id, name, action, callback) => {
 var GetPublishingCompany = (id, name, callback) => {
   	return new Promise((resolve, reject) => {
 		CreateQuery(id, name, 'get', (error, result) => {
-			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -164,7 +163,6 @@ var CreatePublishingCompany = (userEmail, userPassword, name, callback) => {
 			if (error) reject(error)
 			else if(result) {
 				CreateQuery(undefined, name, 'create', (error, result) => {
-					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
 					})
@@ -183,7 +181,6 @@ var UpdatePublishingCompany = (userEmail, userPassword, id, name, callback) => {
 			if (error) reject(error)
 			else if(result) {
 				CreateQuery(id, name, 'update', (error, result) => {
-					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
 					})

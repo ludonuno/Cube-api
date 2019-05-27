@@ -158,7 +158,6 @@ var CreateQuery = (userId, seriesId, seasonId, episodeId, rate, action, callback
 var GetEpisodeRating = (seriesId, seasonId, episodeId, callback) => {
   	return new Promise((resolve, reject) => {
 		CreateQuery(undefined, seriesId, seasonId, episodeId, undefined, 'get', (error, result) => {
-			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -177,7 +176,6 @@ var CreateEpisodeRating = (userEmail, userPassword, userId, episodeId, rate, cal
 			if (error) reject(error)
 			else if(result[0].id == userId) {
 				CreateQuery(userId, undefined, undefined, episodeId, rate, 'create', (error, result) => {
-					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
 					})
@@ -196,7 +194,6 @@ var UpdateEpisodeRating = (userEmail, userPassword, userId, episodeId, rate, cal
 			if (error) reject(error)
 			else if(result[0].id == userId) {
 				CreateQuery(userId, undefined, undefined, episodeId, rate, 'update', (error, result) => {
-					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
 					})

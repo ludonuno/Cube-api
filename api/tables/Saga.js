@@ -169,7 +169,6 @@ var CreateQuery = (id, name, description, action, callback) => {
 var GetSaga = (id, name, callback) => {
   	return new Promise((resolve, reject) => {
 		CreateQuery(id, name, undefined, 'get', (error, result) => {
-			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -190,7 +189,6 @@ var CreateSaga = (userEmail, userPassword, name, description, callback) => {
 				GetSaga(undefined, name, (error, result) => {
 					if(error == db.message.dataNotFound) {
 						CreateQuery(undefined, name, description, 'create', (error, result) => {
-							console.log(error, result)
 							error ? reject(error) : db.query(result, (error, result) => {
 								error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
 							})
@@ -212,7 +210,6 @@ var UpdateSaga = (userEmail, userPassword, id, name, description, callback) => {
 			if (error) reject(error)
 			else if(result) {
 				CreateQuery(id, name, description, 'update', (error, result) => {
-					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
 					})
@@ -231,7 +228,6 @@ var DeleteSaga = (userEmail, userPassword, id, callback) => {
 			if (error) reject(error)
 			else if(result) {
 				CreateQuery(id, undefined, undefined, 'delete', (error, result) => {
-					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
 					})

@@ -143,7 +143,6 @@ var CreateQuery = (id, userId, seriesId, comment, responseTo, action, callback) 
 var GetSeriesComments = (seriesId, responseTo, callback) => {
   	return new Promise((resolve, reject) => {
 		CreateQuery(undefined, undefined, seriesId, undefined, responseTo, 'get', (error, result) => {
-			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -162,7 +161,6 @@ var CreateSeriesComments = (userEmail, userPassword, userId, seriesId, comment, 
 			if (error) reject(error)
 			else if(result[0].id == userId) {
 				CreateQuery(undefined, userId, seriesId, comment, responseTo, 'create', (error, result) => {
-					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
 					})
@@ -181,7 +179,6 @@ var DeleteSeriesComments = (userEmail, userPassword, userId, id, callback) => {
 			if (error) reject(error)
 			else if(result[0].id == userId) {
 				CreateQuery(id, undefined, undefined, undefined, undefined, 'delete', (error, result) => {
-					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
 					})
