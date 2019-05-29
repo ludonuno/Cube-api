@@ -20,7 +20,7 @@ const table = {
 var UserAutentication = (email, password, callback) => {
 	return new Promise((resolve,reject) => {
 		if(email && password) {
-			let fields = `${table.id}, ${table.name}, ${table.password}, ${table.email}, ${table.birthday}, ${table.description}, ${table.creationDate}`
+			let fields = `${table.id}, ${table.name}, ${table.password}, ${table.email}, ${table.birthday}, ${table.description}, ${table.creationDate}, ${table.canEdit}`
 			let query = `SELECT ${fields} FROM ${table.table} WHERE ${table.email} = '${email}'`
 			db.query(query, (error, result) => {
 				if (error) reject(db.message.internalError)
