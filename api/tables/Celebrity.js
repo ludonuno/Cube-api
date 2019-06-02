@@ -4,7 +4,7 @@ const sizeOf = require('object-sizeof')
 const { CanUserEdit } = require('./User')
 
 const table = {
-    table: 'my_Celebrity',
+    table: 'my_celebrity',
     id: 'id',
 	name: 'name',
 	birthday: 'birthday',
@@ -193,7 +193,7 @@ var CreateQuery = (id, name, birthday, biography, action, callback) => {
 //Exports
 var GetCelebrity = (id, name, birthday, callback) => {
   	return new Promise((resolve, reject) => {
-		CreateQuery(id, name, undefined, birthday, undefined, 'get', (error, result) => {
+		CreateQuery(id, name, undefined, birthday, 'get', (error, result) => {
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
