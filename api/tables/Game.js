@@ -309,7 +309,7 @@ var CreateQuery = (id, title, releaseDate, synopsis, engineId, parentAdvisoryId,
 //Exports
 var GetGame = (id, title, releaseDate, engineId, parentAdvisoryId, publicadorId, sagaId, callback) => {
   	return new Promise((resolve, reject) => {
-		CreateQuery(id, title, undefined, releaseDate, undefined, engineId, parentAdvisoryId, publicadorId, sagaId, 'get', (error, result) => {
+		CreateQuery(id, title, releaseDate, undefined, engineId, parentAdvisoryId, publicadorId, sagaId, 'get', (error, result) => {
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
