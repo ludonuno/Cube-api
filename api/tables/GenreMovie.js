@@ -148,15 +148,20 @@ var GetGenreMovie = (movieId, genreId, callback) => {
 
 var CreateGenreMovie = (userEmail, userPassword, movieId, genreId, callback) => {
 	return new Promise((resolve, reject) => {
-		CanUserEdit(userEmail, userPassword, (error, result) => {
-			if (error) reject(error)
-			else if(result) {
-				CreateQuery(movieId, genreId, 'create', (error, result) => {
-					error ? reject(error) : db.query(result, (error, result) => {
-						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
-					})
+		GetGenreMovie(movieId, genreId, (error, result) => {
+			if(error == db.message.dataNotFound) {
+				CanUserEdit(userEmail, userPassword, (error, result) => {
+					if (error) reject(error)
+					else if(result) {
+						CreateQuery(movieId, genreId, 'create', (error, result) => {
+							error ? reject(error) : db.query(result, (error, result) => {
+								error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
+							})
+						})
+					} else reject('Não tem permissões')
 				})
-			} else reject('Não tem permissões')
+			} else if(result) reject(db.message.dataFound)
+			else reject(error)
 		})
 	}).then(
 		resolve => callback(undefined, resolve),

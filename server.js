@@ -129,23 +129,23 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			: res.json(errorList.parameters)
 			break
 		case routeList.genresGame: // DONE
-			(((req.query.gameId && !req.query.genreId) || (!req.query.gameId && req.query.genreId)) || !sizeOf(req.query)) 
-			? api.genresGame.GetGenreGame( req.query.gameId, req.query.genreId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			(((req.query.gameId && !req.query.genresId) || (!req.query.gameId && req.query.genresId)) || !sizeOf(req.query)) 
+			? api.genresGame.GetGenreGame( req.query.gameId, req.query.genresId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.genresMovie: // DONE
-			(((req.query.movieId && !req.query.genreId) || (!req.query.movieId && req.query.genreId)) || !sizeOf(req.query)) 
-			? api.genresMovie.GetGenreMovie( req.query.movieId, req.query.genreId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			(((req.query.movieId && !req.query.genresId) || (!req.query.movieId && req.query.genresId)) || !sizeOf(req.query)) 
+			? api.genresMovie.GetGenreMovie( req.query.movieId, req.query.genresId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.genresBook: // DONE
-			(((req.query.bookId && !req.query.genreId) || (!req.query.bookId && req.query.genreId)) || !sizeOf(req.query)) 
-			? api.genresBook.GetGenreBook( req.query.bookId, req.query.genreId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			(((req.query.bookId && !req.query.genresId) || (!req.query.bookId && req.query.genresId)) || !sizeOf(req.query)) 
+			? api.genresBook.GetGenreBook( req.query.bookId, req.query.genresId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.genresSeries: // DONE
-			(((req.query.seriesId && !req.query.genreId) || (!req.query.seriesId && req.query.genreId)) || !sizeOf(req.query)) 
-			? api.genresSeries.GetGenreSeries( req.query.seriesId, req.query.genreId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			(((req.query.seriesId && !req.query.genresId) || (!req.query.seriesId && req.query.genresId)) || !sizeOf(req.query)) 
+			? api.genresSeries.GetGenreSeries( req.query.seriesId, req.query.genresId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.videoGame: // DONE
@@ -340,28 +340,28 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			: res.json(errorList.parameters)
 			break
 		case routeList.genres: // DONE
-			(req.query.userEmail && req.query.userPassword && req.query.genre) 
-			? api.genres.CreateGenres( req.query.userEmail, req.query.userPassword, req.query.genre, (error, result) => res.json( error ? { error } : { result } ) ) 
+			(req.query.userEmail && req.query.userPassword && req.query.genres) 
+			? api.genres.CreateGenres( req.query.userEmail, req.query.userPassword, req.query.genres, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.genresGame: // DONE
-			(req.query.userEmail && req.query.userPassword && req.query.gameId && req.query.genreId) 
-			? api.genresGame.CreateGenreGame( req.query.userEmail, req.query.userPassword, req.query.gameId, req.query.genreId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			(req.query.userEmail && req.query.userPassword && req.query.gameId && req.query.genresId) 
+			? api.genresGame.CreateGenreGame( req.query.userEmail, req.query.userPassword, req.query.gameId, req.query.genresId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.genresMovie: // DONE
-			(req.query.userEmail && req.query.userPassword && req.query.movieId && req.query.genreId) 
-			? api.genresMovie.CreateGenreMovie( req.query.userEmail, req.query.userPassword, req.query.movieId, req.query.genreId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			(req.query.userEmail && req.query.userPassword && req.query.movieId && req.query.genresId) 
+			? api.genresMovie.CreateGenreMovie( req.query.userEmail, req.query.userPassword, req.query.movieId, req.query.genresId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.genresBook: // DONE
-			(req.query.userEmail && req.query.userPassword && req.query.bookId && req.query.genreId) 
-			? api.genresBook.CreateGenreBook( req.query.userEmail, req.query.userPassword, req.query.bookId, req.query.genreId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			(req.query.userEmail && req.query.userPassword && req.query.bookId && req.query.genresId) 
+			? api.genresBook.CreateGenreBook( req.query.userEmail, req.query.userPassword, req.query.bookId, req.query.genresId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.genresSeries: // DONE
-			(req.query.userEmail && req.query.userPassword && req.query.seriesId && req.query.genreId) 
-			? api.genresSeries.CreateGenreSeries( req.query.userEmail, req.query.userPassword, req.query.seriesId, req.query.genreId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			(req.query.userEmail && req.query.userPassword && req.query.seriesId && req.query.genresId) 
+			? api.genresSeries.CreateGenreSeries( req.query.userEmail, req.query.userPassword, req.query.seriesId, req.query.genresId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.videoGame: // DONE
@@ -642,23 +642,23 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			: res.json(errorList.parameters)
 			break
 		case routeList.genresGame:
-			(req.query.userEmail && req.query.userPassword && req.query.gameId && req.query.genreId)
-			? api.genresGame.DeleteGenreGame( req.query.userEmail, req.query.userPassword, req.query.gameId, req.query.genreId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			(req.query.userEmail && req.query.userPassword && req.query.gameId && req.query.genresId)
+			? api.genresGame.DeleteGenreGame( req.query.userEmail, req.query.userPassword, req.query.gameId, req.query.genresId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.genresMovie:
-			(req.query.userEmail && req.query.userPassword && req.query.movieId && req.query.genreId)
-			? api.genresMovie.DeleteGenreMovie( req.query.userEmail, req.query.userPassword, req.query.movieId, req.query.genreId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			(req.query.userEmail && req.query.userPassword && req.query.movieId && req.query.genresId)
+			? api.genresMovie.DeleteGenreMovie( req.query.userEmail, req.query.userPassword, req.query.movieId, req.query.genresId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.genresBook:
-			(req.query.userEmail && req.query.userPassword && req.query.bookId && req.query.genreId)
-			? api.genresBook.DeleteGenreBook( req.query.userEmail, req.query.userPassword, req.query.bookId, req.query.genreId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			(req.query.userEmail && req.query.userPassword && req.query.bookId && req.query.genresId)
+			? api.genresBook.DeleteGenreBook( req.query.userEmail, req.query.userPassword, req.query.bookId, req.query.genresId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.genresSeries:
-			(req.query.userEmail && req.query.userPassword && req.query.seriesId && req.query.genreId)
-			? api.genresSeries.DeleteGenreSeries( req.query.userEmail, req.query.userPassword, req.query.seriesId, req.query.genreId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			(req.query.userEmail && req.query.userPassword && req.query.seriesId && req.query.genresId)
+			? api.genresSeries.DeleteGenreSeries( req.query.userEmail, req.query.userPassword, req.query.seriesId, req.query.genresId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.videoGame:

@@ -15,11 +15,11 @@ const season = require('./tables/Season')
 // 15
 const episode = require('./tables/Episode')
 const genres = require('./tables/Genres')
-const genreGame = require('./tables/GenreGame')
-const genreMovie = require('./tables/GenreMovie')
+const genresGame = require('./tables/GenreGame')
+const genresMovie = require('./tables/GenreMovie')
 // 20
-const genreBook = require('./tables/GenreBook')
-const genreSeries = require('./tables/GenreSeries')
+const genresBook = require('./tables/GenreBook')
+const genresSeries = require('./tables/GenreSeries')
 const videoGame = require('./tables/VideoGame')
 const videoMovie = require('./tables/VideoMovie')
 const videoBook = require('./tables/VideoBook')
@@ -61,10 +61,10 @@ module.exports = {
 	season,
 	episode,
 	genres,
-	genreGame,
-	genreMovie,
-	genreBook,
-	genreSeries,
+	genresGame,
+	genresMovie,
+	genresBook,
+	genresSeries,
 	videoGame,
 	videoMovie,
 	videoBook,
