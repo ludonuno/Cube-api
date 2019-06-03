@@ -40,7 +40,9 @@ var HandleSelectData = (gameId, companyId, callback) => {
 
 var CreateQuerySelect = (gameId, companyId, callback) => {
 	return new Promise((resolve, reject) => {
-		if (gameId || companyId) {
+		if(gameId && companyId) {
+			resolve(`select * from ${table.table} where ${table.gameId} = ${gameId} AND ${table.companyId} = ${companyId}`)
+		} else if (gameId || companyId) {
 			HandleSelectData(gameId, companyId, (error, result) => {
 				error ? reject(error) : resolve(`SELECT ${result.fields} FROM ${table.table} INNER JOIN ${gameTable.table} ON ${gameTable.table}.${gameTable.id} = ${table.gameId} INNER JOIN ${companyTable.table} ON ${companyTable.table}.${companyTable.id} = ${table.companyId}  WHERE ${result.searchFor} ORDER BY (${table.gameId}, ${table.companyId})`)
 			})

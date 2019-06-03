@@ -289,7 +289,6 @@ var CreateQuery = (id, title, releaseDate, synopsis, duration, durationMin, dura
 var GetMovie = (id, title, releaseDate, durationMin, durationMax, parentAdvisoryId, sagaId, callback) => {
   	return new Promise((resolve, reject) => {
 		CreateQuery(id, title, releaseDate, undefined, undefined, durationMin, durationMax, parentAdvisoryId, sagaId, 'get', (error, result) => {
-			console.log(error, result)
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -308,7 +307,6 @@ var CreateMovie = (userEmail, userPassword, title, releaseDate, synopsis, durati
 			if (error) reject(error)
 			else if(result) {
 				CreateQuery(undefined, title, releaseDate, synopsis, duration, undefined, undefined, parentAdvisoryId, sagaId, 'create', (error, result) => {
-					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
 					})
@@ -327,7 +325,6 @@ var UpdateMovie = (userEmail, userPassword, id, title, releaseDate, synopsis, du
 			if (error) reject(error)
 			else if(result) {
 				CreateQuery(id, title, releaseDate, synopsis, duration, undefined, undefined, parentAdvisoryId, sagaId, 'update', (error, result) => {
-					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
 					})
@@ -346,7 +343,6 @@ var DeleteMovie = (userEmail, userPassword, id, callback) => {
 			if (error) reject(error)
 			else if(result) {
 				CreateQuery(id, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 'delete', (error, result) => {
-					console.log(error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
 					})
