@@ -187,7 +187,6 @@ var CreateCelebrityAssignmentGame = (userEmail, userPassword, celebrityId, assig
 			} else if(result) reject(db.message.dataFound)
 			else reject(error)
 		})
-		
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
