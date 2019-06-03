@@ -1,3 +1,4 @@
+const db = require('./../../db')
 const sizeOf = require('object-sizeof')
 
 //TODO: Adicionar o campo title e description para todos deste tipo
