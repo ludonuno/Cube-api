@@ -172,16 +172,22 @@ var GetCelebrityAssignmentMovie = (celebrityId, assignmentId, movieId, callback)
 
 var CreateCelebrityAssignmentMovie = (userEmail, userPassword, celebrityId, assignmentId, movieId, callback) => {
 	return new Promise((resolve, reject) => {
-		CanUserEdit(userEmail, userPassword, (error, result) => {
-			if (error) reject(error)
-			else if(result) {
-				CreateQuery(celebrityId, assignmentId, movieId, 'create', (error, result) => {
-					error ? reject(error) : db.query(result, (error, result) => {
-						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
-					})
+		GetCelebrityAssignmentMovie(celebrityId, assignmentId, movieId, (error, result) => {
+			if(error == db.message.dataNotFound) {
+				CanUserEdit(userEmail, userPassword, (error, result) => {
+					if (error) reject(error)
+					else if(result) {
+						CreateQuery(celebrityId, assignmentId, movieId, 'create', (error, result) => {
+							error ? reject(error) : db.query(result, (error, result) => {
+								error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
+							})
+						})
+					} else reject('Não tem permissões')
 				})
-			} else reject('Não tem permissões')
+			} else if(result) reject(db.message.dataFound)
+			else reject(error)
 		})
+		
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
