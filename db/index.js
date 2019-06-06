@@ -1,6 +1,6 @@
 const { Pool } = require('pg')
 
-const pool = process.env.DATABASE_URL ? new Pool({ connectionString: process.env.DATABASE_URL, ssl: true }) : new Pool({ user: 'postgres', password: 'asop3396', port: 5432, host: 'localhost', database: 'cube'})
+const pool = process.env.DATABASE_URL ? new Pool({ connectionString: process.env.DATABASE_URL, ssl: true }) : undefined
 
 query = (text, callback) => {
 	return new Promise((resolve, reject) => {
