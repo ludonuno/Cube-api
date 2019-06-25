@@ -2,6 +2,7 @@ const db = require('../../db')
 const sizeOf = require('object-sizeof')
 
 const { UserAutentication } = require('./User')
+const userTable = require('./User').table
 
 const table = {
 	table: 'my_SeriesComments',
@@ -33,7 +34,7 @@ var HandleSelectData = (seriesId, responseTo, callback) => {
 var CreateQuerySelect = (seriesId, responseTo, callback) => {
 	return new Promise((resolve, reject) => {
 		HandleSelectData(seriesId, responseTo, (error, result) => {
-			error ? reject(error) : resolve(`SELECT * FROM ${table.table} WHERE ${result}`)
+			error ? reject(error) : resolve(`SELECT * FROM ${table.table} INNER JOIN ${userTable.table} ON ${userTable.table}.${userTable.id} = ${table.table}.${table.userId} WHERE ${result}`)
 		})
 	}).then(
 		resolve => callback(undefined, resolve),
