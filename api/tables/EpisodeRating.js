@@ -179,7 +179,7 @@ var CreateEpisodeRating = (userEmail, userPassword, userId, episodeId, rate, cal
 		UserAutentication(userEmail, userPassword, (error, result) => {
 			if (error) reject(error)
 			else if(result[0].id == userId) {
-				GetEpisodeRating(undefined, undefined, episodeId, userId, (err, res) => {
+				GetEpisodeRating(undefined, undefined, episodeId, userId, (error, result) => {
 					if(error == db.message.dataNotFound) {
 						CreateQuery(userId, undefined, undefined, episodeId, rate, 'create', (error, result) => {
 							error ? reject(error) : db.query(result, (error, result) => {

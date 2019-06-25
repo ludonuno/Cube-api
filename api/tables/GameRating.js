@@ -164,7 +164,7 @@ var CreateGameRating = (userEmail, userPassword, userId, gameId, rate, callback)
 		UserAutentication(userEmail, userPassword, (error, result) => {
 			if (error) reject(error)
 			else if(result[0].id == userId) {
-				GetGameRating(gameId, userId, (err, res) => {
+				GetGameRating(gameId, userId, (error, result) => {
 					if(error == db.message.dataNotFound) {
 						CreateQuery(userId, gameId, rate, 'create', (error, result) => {
 							error ? reject(error) : db.query(result, (error, result) => {
