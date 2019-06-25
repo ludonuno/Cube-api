@@ -441,7 +441,7 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			break
 		case routeList.bookRating: // DONE
 			(req.query.userEmail && req.query.userPassword && req.query.userId && req.query.bookId && req.query.rate)
-			? api.bookRating.CreateMovieRating(req.query.userEmail, req.query.userPassword, req.query.userId, req.query.bookId, req.query.rate, (error, result) => res.json( error ? { error } : { result } ) ) 
+			? api.bookRating.CreateBookRating(req.query.userEmail, req.query.userPassword, req.query.userId, req.query.bookId, req.query.rate, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.episodeRating: // DONE
