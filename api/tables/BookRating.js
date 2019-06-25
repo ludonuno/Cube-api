@@ -166,7 +166,7 @@ var CreateBookRating = (userEmail, userPassword, userId, bookId, rate, callback)
 		UserAutentication(userEmail, userPassword, (error, result) => {
 			if (error) reject(error)
 			else if(result[0].id == userId) {
-				GetBookRating(movieId, userId, (err, res) => {
+				GetBookRating(bookId, userId, (err, res) => {
 					if(error == db.message.dataNotFound) {
 						CreateQuery(userId, bookId, rate, 'create', (error, result) => {
 							error ? reject(error) : db.query(result, (error, result) => {
