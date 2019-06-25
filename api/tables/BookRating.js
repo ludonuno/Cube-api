@@ -25,11 +25,15 @@ var HandleSelectData = (bookId, callback) => {
 	)
 }
 
-var CreateQuerySelect = (bookId, callback) => {
+var CreateQuerySelect = (userId, bookId, callback) => {
 	return new Promise((resolve, reject) => {
-		HandleSelectData(bookId, (error, result) => {
-			error ? reject(error) : resolve(`SELECT AVG(${table.rate}), COUNT(${table.rate}) FROM ${table.table} WHERE ${result}`)
-		})
+		if(userId) {
+			resolve(`SELECT * FROM ${table.table} WHERE ${table.userId} = ${userId} AND ${table.bookId} = ${bookId}`)
+		} else {
+			HandleSelectData(bookId, (error, result) => {
+				error ? reject(error) : resolve(`SELECT AVG(${table.rate}), COUNT(${table.rate}) FROM ${table.table} WHERE ${result}`)
+			})
+		}
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
@@ -123,7 +127,7 @@ var CreateQuery = (userId, bookId, rate, action, callback) => {
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 
-				CreateQuerySelect(bookId, (error, result) => error ? reject(error) : resolve(result) )
+				CreateQuerySelect(userId, bookId, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'create': 
                 CreateQueryInsert(userId, bookId, rate, (error, result) => error ? reject(error) : resolve(result) )
@@ -142,9 +146,9 @@ var CreateQuery = (userId, bookId, rate, action, callback) => {
 }
 
 //Exports
-var GetBookRating = (bookId, callback) => {
+var GetBookRating = (bookId, userId, callback) => {
   	return new Promise((resolve, reject) => {
-		CreateQuery(undefined, bookId, undefined, 'get', (error, result) => {
+		CreateQuery(userId, bookId, undefined, 'get', (error, result) => {
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -162,29 +166,23 @@ var CreateBookRating = (userEmail, userPassword, userId, bookId, rate, callback)
 		UserAutentication(userEmail, userPassword, (error, result) => {
 			if (error) reject(error)
 			else if(result[0].id == userId) {
-				CreateQuery(userId, bookId, rate, 'create', (error, result) => {
-					error ? reject(error) : db.query(result, (error, result) => {
-						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
-					})
+				GetBookRating(movieId, userId, (err, res) => {
+					if(error == db.message.dataNotFound) {
+						CreateQuery(userId, bookId, rate, 'create', (error, result) => {
+							error ? reject(error) : db.query(result, (error, result) => {
+								error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
+							})
+						})
+					} else if(result) {
+						CreateQuery(userId, bookId, rate, 'update', (error, result) => {
+							error ? reject(error) : db.query(result, (error, result) => {
+								error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
+							})
+						})
+					}
+                    else reject(error)
 				})
-			} else reject('Não tem permissões')
-		})
-	}).then(
-		resolve => callback(undefined, resolve),
-		reject => callback(reject, undefined)
-	)
-}
-
-var UpdateBookRating = (userEmail, userPassword, userId, bookId, rate, callback) => {
-	return new Promise((resolve, reject) => {
-		UserAutentication(userEmail, userPassword, (error, result) => {
-			if (error) reject(error)
-			else if(result[0].id == userId) {
-				CreateQuery(userId, bookId, rate, 'update', (error, result) => {
-					error ? reject(error) : db.query(result, (error, result) => {
-						error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
-					})
-				})
+				
 			} else reject('Não tem permissões')
 		})
 	}).then(
@@ -195,7 +193,5 @@ var UpdateBookRating = (userEmail, userPassword, userId, bookId, rate, callback)
 
 module.exports = {
   GetBookRating,
-  CreateBookRating,
-  UpdateBookRating,
-  table
+  CreateBookRating,  table
 }

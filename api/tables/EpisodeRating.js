@@ -39,11 +39,15 @@ var HandleSelectData = (seriesId, seasonId, episodeId, callback) => {
 	)
 }
 
-var CreateQuerySelect = (seriesId, seasonId, episodeId, callback) => {
+var CreateQuerySelect = (userId, seriesId, seasonId, episodeId, callback) => {
 	return new Promise((resolve, reject) => {
-		HandleSelectData(seriesId, seasonId, episodeId, (error, result) => {
-			error ? reject(error) : resolve(`SELECT AVG(${table.table}.${table.rate}), COUNT(${table.rate}) FROM ${table.table} ${result}`)
-		})
+		if(userId) {
+			resolve(`SELECT * FROM ${table.table} WHERE ${table.userId} = ${userId} AND ${table.episodeId} = ${episodeId}`)
+		} else {
+			HandleSelectData(seriesId, seasonId, episodeId, (error, result) => {
+				error ? reject(error) : resolve(`SELECT AVG(${table.table}.${table.rate}), COUNT(${table.rate}) FROM ${table.table} ${result}`)
+			})
+		}
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
@@ -136,7 +140,7 @@ var CreateQuery = (userId, seriesId, seasonId, episodeId, rate, action, callback
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 
-				CreateQuerySelect(seriesId, seasonId, episodeId, (error, result) => error ? reject(error) : resolve(result) )
+				CreateQuerySelect(userId, seriesId, seasonId, episodeId, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'create': 
                 CreateQueryInsert(userId, episodeId, rate, (error, result) => error ? reject(error) : resolve(result) )
@@ -155,12 +159,12 @@ var CreateQuery = (userId, seriesId, seasonId, episodeId, rate, action, callback
 }
 
 //Exports
-var GetEpisodeRating = (seriesId, seasonId, episodeId, callback) => {
+var GetEpisodeRating = (seriesId, seasonId, episodeId, userId, callback) => {
   	return new Promise((resolve, reject) => {
-		CreateQuery(undefined, seriesId, seasonId, episodeId, undefined, 'get', (error, result) => {
+		CreateQuery(userId, seriesId, seasonId, episodeId, undefined, 'get', (error, result) => {
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
-				else if (!sizeOf(result)) reject(db.message.dataNotFound)
+				else if (result &&  !Number(result[0].count)) reject(db.message.dataNotFound)
 				else resolve(result)
 			})
 		})
@@ -175,28 +179,21 @@ var CreateEpisodeRating = (userEmail, userPassword, userId, episodeId, rate, cal
 		UserAutentication(userEmail, userPassword, (error, result) => {
 			if (error) reject(error)
 			else if(result[0].id == userId) {
-				CreateQuery(userId, undefined, undefined, episodeId, rate, 'create', (error, result) => {
-					error ? reject(error) : db.query(result, (error, result) => {
-						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
-					})
-				})
-			} else reject('Não tem permissões')
-		})
-	}).then(
-		resolve => callback(undefined, resolve),
-		reject => callback(reject, undefined)
-	)
-}
-
-var UpdateEpisodeRating = (userEmail, userPassword, userId, episodeId, rate, callback) => {
-	return new Promise((resolve, reject) => {
-		UserAutentication(userEmail, userPassword, (error, result) => {
-			if (error) reject(error)
-			else if(result[0].id == userId) {
-				CreateQuery(userId, undefined, undefined, episodeId, rate, 'update', (error, result) => {
-					error ? reject(error) : db.query(result, (error, result) => {
-						error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
-					})
+				GetEpisodeRating(undefined, undefined, episodeId, userId, (err, res) => {
+					if(error == db.message.dataNotFound) {
+						CreateQuery(userId, undefined, undefined, episodeId, rate, 'create', (error, result) => {
+							error ? reject(error) : db.query(result, (error, result) => {
+								error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
+							})
+						})
+					} else if(result) {
+						CreateQuery(userId, undefined, undefined, episodeId, rate, 'update', (error, result) => {
+							error ? reject(error) : db.query(result, (error, result) => {
+								error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
+							})
+						})
+					}
+					else reject(error)
 				})
 			} else reject('Não tem permissões')
 		})
@@ -209,6 +206,5 @@ var UpdateEpisodeRating = (userEmail, userPassword, userId, episodeId, rate, cal
 module.exports = {
   GetEpisodeRating,
   CreateEpisodeRating,
-  UpdateEpisodeRating,
   table
 }

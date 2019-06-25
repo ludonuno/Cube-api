@@ -23,11 +23,15 @@ var HandleSelectData = (movieId, callback) => {
 	)
 }
 
-var CreateQuerySelect = (movieId, callback) => {
+var CreateQuerySelect = (userId, movieId, callback) => {
 	return new Promise((resolve, reject) => {
-		HandleSelectData(movieId, (error, result) => {
-			error ? reject(error) : resolve(`SELECT AVG(${table.rate}), COUNT(${table.rate}) FROM ${table.table} WHERE ${result}`)
-		})
+		if(userId) {
+			resolve(`SELECT * FROM ${table.table} WHERE ${table.userId} = ${userId} AND ${table.movieId} = ${movieId}`)
+		} else {
+			HandleSelectData(movieId, (error, result) => {
+				error ? reject(error) : resolve(`SELECT AVG(${table.rate}), COUNT(${table.rate}) FROM ${table.table} WHERE ${result}`)
+			})
+		}
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
@@ -121,7 +125,7 @@ var CreateQuery = (userId, movieId, rate, action, callback) => {
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 
-				CreateQuerySelect(movieId, (error, result) => error ? reject(error) : resolve(result) )
+				CreateQuerySelect(userId, movieId, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'create': 
                 CreateQueryInsert(userId, movieId, rate, (error, result) => error ? reject(error) : resolve(result) )
@@ -140,9 +144,9 @@ var CreateQuery = (userId, movieId, rate, action, callback) => {
 }
 
 //Exports
-var GetMovieRating = (movieId, callback) => {
+var GetMovieRating = (movieId, userId, callback) => {
   	return new Promise((resolve, reject) => {
-		CreateQuery(undefined, movieId, undefined, 'get', (error, result) => {
+		CreateQuery(userId, movieId, undefined, 'get', (error, result) => {
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -160,29 +164,23 @@ var CreateMovieRating = (userEmail, userPassword, userId, movieId, rate, callbac
 		UserAutentication(userEmail, userPassword, (error, result) => {
 			if (error) reject(error)
 			else if(result[0].id == userId) {
-				CreateQuery(userId, movieId, rate, 'create', (error, result) => {
-					error ? reject(error) : db.query(result, (error, result) => {
-						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
-					})
+				GetMovieRating(movieId, userId, (err, res) => {
+					if(error == db.message.dataNotFound) {
+                        CreateQuery(userId, movieId, rate, 'create', (error, result) => {
+							error ? reject(error) : db.query(result, (error, result) => {
+								error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
+							})
+						})
+                    } else if(result) {
+						CreateQuery(userId, movieId, rate, 'update', (error, result) => {
+							error ? reject(error) : db.query(result, (error, result) => {
+								error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
+							})
+						})
+					}
+                    else reject(error)
 				})
-			} else reject('Não tem permissões')
-		})
-	}).then(
-		resolve => callback(undefined, resolve),
-		reject => callback(reject, undefined)
-	)
-}
-
-var UpdateMovieRating = (userEmail, userPassword, userId, movieId, rate, callback) => {
-	return new Promise((resolve, reject) => {
-		UserAutentication(userEmail, userPassword, (error, result) => {
-			if (error) reject(error)
-			else if(result[0].id == userId) {
-				CreateQuery(userId, movieId, rate, 'update', (error, result) => {
-					error ? reject(error) : db.query(result, (error, result) => {
-						error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
-					})
-				})
+				
 			} else reject('Não tem permissões')
 		})
 	}).then(
@@ -194,6 +192,5 @@ var UpdateMovieRating = (userEmail, userPassword, userId, movieId, rate, callbac
 module.exports = {
   GetMovieRating,
   CreateMovieRating,
-  UpdateMovieRating,
   table
 }

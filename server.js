@@ -220,32 +220,32 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			break
 		case routeList.gameRating: // DONE
 			(req.query.gameId)
-			? api.gameRating.GetGameRating( req.query.gameId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			? api.gameRating.GetGameRating( req.query.gameId, undefined, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.movieRating: // DONE
 			(req.query.movieId)
-			? api.movieRating.GetMovieRating( req.query.movieId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			? api.movieRating.GetMovieRating( req.query.movieId, undefined, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.bookRating: // DONE
 			(req.query.bookId)
-			? api.bookRating.GetBookRating( req.query.bookId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			? api.bookRating.GetBookRating( req.query.bookId, undefined, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.seriesRating: // DONE TODO: Aceita ids que não existem
 			(req.query.seriesId)
-			? api.episodeRating.GetEpisodeRating( req.query.seriesId, undefined, undefined, (error, result) => res.json( error ? { error } : { result } ) ) 
+			? api.episodeRating.GetEpisodeRating( req.query.seriesId, undefined, undefined, undefined, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.seasonRating: // DONE TODO: Aceita ids que não existem
 			(req.query.seasonId)
-			? api.episodeRating.GetEpisodeRating( undefined, req.query.seasonId, undefined, (error, result) => res.json( error ? { error } : { result } ) ) 
+			? api.episodeRating.GetEpisodeRating( undefined, req.query.seasonId, undefined, undefined, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.episodeRating: // DONE TODO: Aceita ids que não existem
 			(req.query.episodeId)
-			? api.episodeRating.GetEpisodeRating( undefined, undefined, req.query.episodeId, (error, result) => res.json( error ? { error } : { result } ) ) 
+			? api.episodeRating.GetEpisodeRating( undefined, undefined, req.query.episodeId, undefined, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.gameComments: // DONE
@@ -548,26 +548,6 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 		case routeList.user:
 			(req.query.userEmail && req.query.userPassword && req.query.id && (req.query.name || req.query.password || req.query.email || req.query.birthday || req.query.description || req.query.canEdit)) 
 			? api.user.UpdateUser( req.query.userEmail, req.query.userPassword, req.query.id, req.query.name, req.query.password, req.query.email, req.query.birthday, req.query.description, req.query.canEdit, (error, result) => res.json( error ? { error } : { result } ) ) 
-			: res.json(errorList.parameters)
-			break
-		case routeList.gameRating: // DONE
-			(req.query.userEmail && req.query.userPassword && req.query.userId && req.query.gameId && req.query.rate)
-			? api.gameRating.UpdateGameRating(req.query.userEmail, req.query.userPassword, req.query.userId, req.query.gameId, req.query.rate, (error, result) => res.json( error ? { error } : { result } ) ) 
-			: res.json(errorList.parameters)
-			break
-		case routeList.movieRating: // DONE
-			(req.query.userEmail && req.query.userPassword && req.query.userId && req.query.movieId && req.query.rate)
-			? api.movieRating.UpdateMovieRating(req.query.userEmail, req.query.userPassword, req.query.userId, req.query.movieId, req.query.rate, (error, result) => res.json( error ? { error } : { result } ) ) 
-			: res.json(errorList.parameters)
-			break
-		case routeList.bookRating: // DONE
-			(req.query.userEmail && req.query.userPassword && req.query.userId && req.query.bookId && req.query.rate)
-			? api.bookRating.UpdateBookRating(req.query.userEmail, req.query.userPassword, req.query.userId, req.query.bookId, req.query.rate, (error, result) => res.json( error ? { error } : { result } ) ) 
-			: res.json(errorList.parameters)
-			break
-		case routeList.episodeRating: // DONE
-			(req.query.userEmail && req.query.userPassword && req.query.userId && req.query.episodeId && req.query.rate)
-			? api.episodeRating.UpdateEpisodeRating(req.query.userEmail, req.query.userPassword, req.query.userId, req.query.episodeId, req.query.rate, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		default:

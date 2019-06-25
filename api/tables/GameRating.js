@@ -23,11 +23,15 @@ var HandleSelectData = (gameId, callback) => {
 	)
 }
 
-var CreateQuerySelect = (gameId, callback) => {
+var CreateQuerySelect = (userId, gameId, callback) => {
 	return new Promise((resolve, reject) => {
-		HandleSelectData(gameId, (error, result) => {
-			error ? reject(error) : resolve(`SELECT AVG(${table.rate}), COUNT(${table.rate}) FROM ${table.table} WHERE ${result}`)
-		})
+		if(userId) {
+			resolve(`SELECT * FROM ${table.table} WHERE ${table.userId} = ${userId} AND ${table.gameId} = ${gameId}`)
+		} else {
+			HandleSelectData(gameId, (error, result) => {
+				error ? reject(error) : resolve(`SELECT AVG(${table.rate}), COUNT(${table.rate}) FROM ${table.table} WHERE ${result}`)
+			})
+		}
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
@@ -121,7 +125,7 @@ var CreateQuery = (userId, gameId, rate, action, callback) => {
   	return new Promise ((resolve, reject) => {
 		switch (action) {
 			case 'get': 
-				CreateQuerySelect(gameId, (error, result) => error ? reject(error) : resolve(result) )
+				CreateQuerySelect(userId, gameId, (error, result) => error ? reject(error) : resolve(result) )
 				break;
 			case 'create': 
                 CreateQueryInsert(userId, gameId, rate, (error, result) => error ? reject(error) : resolve(result) )
@@ -140,9 +144,9 @@ var CreateQuery = (userId, gameId, rate, action, callback) => {
 }
 
 //Exports
-var GetGameRating = (gameId, callback) => {
+var GetGameRating = (gameId, userId, callback) => {
   	return new Promise((resolve, reject) => {
-		CreateQuery(undefined, gameId, undefined, 'get', (error, result) => {
+		CreateQuery(userId, gameId, undefined, 'get', (error, result) => {
 			error ? reject(error) :	db.query(result, (error, result) => {
 				if (error) reject(db.message.internalError)
 				else if (!sizeOf(result)) reject(db.message.dataNotFound)
@@ -160,28 +164,21 @@ var CreateGameRating = (userEmail, userPassword, userId, gameId, rate, callback)
 		UserAutentication(userEmail, userPassword, (error, result) => {
 			if (error) reject(error)
 			else if(result[0].id == userId) {
-				CreateQuery(userId, gameId, rate, 'create', (error, result) => {
-					error ? reject(error) : db.query(result, (error, result) => {
-						error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
-					})
-				})
-			} else reject('Não tem permissões')
-		})
-	}).then(
-		resolve => callback(undefined, resolve),
-		reject => callback(reject, undefined)
-	)
-}
-
-var UpdateGameRating = (userEmail, userPassword, userId, gameId, rate, callback) => {
-	return new Promise((resolve, reject) => {
-		UserAutentication(userEmail, userPassword, (error, result) => {
-			if (error) reject(error)
-			else if(result[0].id == userId) {
-				CreateQuery(userId, gameId, rate, 'update', (error, result) => {
-					error ? reject(error) : db.query(result, (error, result) => {
-						error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
-					})
+				GetGameRating(gameId, userId, (err, res) => {
+					if(error == db.message.dataNotFound) {
+						CreateQuery(userId, gameId, rate, 'create', (error, result) => {
+							error ? reject(error) : db.query(result, (error, result) => {
+								error ? reject(db.message.internalError) : resolve({message: db.message.successfulCreate, data: result})
+							})
+						})
+					} else if(result) {
+						CreateQuery(userId, gameId, rate, 'update', (error, result) => {
+							error ? reject(error) : db.query(result, (error, result) => {
+								error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
+							})
+						})
+					}
+					else reject(error)
 				})
 			} else reject('Não tem permissões')
 		})
@@ -194,6 +191,5 @@ var UpdateGameRating = (userEmail, userPassword, userId, gameId, rate, callback)
 module.exports = {
   GetGameRating,
   CreateGameRating,
-  UpdateGameRating,
   table
 }
