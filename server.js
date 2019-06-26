@@ -233,17 +233,17 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			? api.bookRating.GetBookRating( req.query.bookId, undefined, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.seriesRating: // DONE TODO: Aceita ids que não existem
+		case routeList.seriesRating: // DONE
 			(req.query.seriesId)
 			? api.episodeRating.GetEpisodeRating( req.query.seriesId, undefined, undefined, undefined, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.seasonRating: // DONE TODO: Aceita ids que não existem
+		case routeList.seasonRating: // DONE
 			(req.query.seasonId)
 			? api.episodeRating.GetEpisodeRating( undefined, req.query.seasonId, undefined, undefined, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.episodeRating: // DONE TODO: Aceita ids que não existem
+		case routeList.episodeRating: // DONE
 			(req.query.episodeId)
 			? api.episodeRating.GetEpisodeRating( undefined, undefined, req.query.episodeId, undefined, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
