@@ -34,7 +34,7 @@ var HandleSelectData = (movieId, responseTo, callback) => {
 var CreateQuerySelect = (movieId, responseTo, callback) => {
 	return new Promise((resolve, reject) => {
 		HandleSelectData(movieId, responseTo, (error, result) => {
-			error ? reject(error) : resolve(`SELECT ${table.table}.${table.userId}, ${table.table}.${table.movieId}, ${table.table}.${table.comment}, ${table.table}.${table.responseTo}, ${userTable
+			error ? reject(error) : resolve(`SELECT ${table.table}.${table.id}, ${table.table}.${table.userId}, ${table.table}.${table.movieId}, ${table.table}.${table.comment}, ${table.table}.${table.responseTo}, ${userTable
 				.table}.${userTable.name} FROM ${table.table} INNER JOIN ${userTable.table} ON ${userTable.table}.${userTable.id} = ${table.table}.${table.userId} WHERE ${result}`)
 		})
 	}).then(
