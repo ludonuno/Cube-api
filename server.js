@@ -450,27 +450,27 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			: res.json(errorList.parameters)
 			break
 		case routeList.gameComments: // DONE
-			(req.query.userEmail && req.query.userPassword && req.query.userId && req.query.gameId && req.query.comment)
+			(req.query.userEmail && req.query.userPassword && req.query.userId && req.query.gameId && req.query.comment || req.query.responseTo)
 			? api.gameComments.CreateGameComments(req.query.userEmail, req.query.userPassword, req.query.userId, req.query.gameId, req.query.comment, req.query.responseTo, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.movieComments: // DONE
-			(req.query.userEmail && req.query.userPassword && req.query.userId && req.query.movieId && req.query.comment)
+			(req.query.userEmail && req.query.userPassword && req.query.userId && req.query.movieId && req.query.comment || req.query.responseTo)
 			? api.movieComments.CreateMovieComments(req.query.userEmail, req.query.userPassword, req.query.userId, req.query.movieId, req.query.comment, req.query.responseTo, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.bookComments: // DONE
-			(req.query.userEmail && req.query.userPassword && req.query.userId && req.query.bookId && req.query.comment)
+			(req.query.userEmail && req.query.userPassword && req.query.userId && req.query.bookId && req.query.comment || req.query.responseTo)
 			? api.bookComments.CreateBookComments(req.query.userEmail, req.query.userPassword, req.query.userId, req.query.bookId, req.query.comment, req.query.responseTo, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.seriesComments: // DONE
-			(req.query.userEmail && req.query.userPassword && req.query.userId && req.query.seriesId && req.query.comment)
+			(req.query.userEmail && req.query.userPassword && req.query.userId && req.query.seriesId && req.query.comment || req.query.responseTo)
 			? api.seriesComments.CreateSeriesComments(req.query.userEmail, req.query.userPassword, req.query.userId, req.query.seriesId, req.query.comment, req.query.responseTo, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.episodeComments: // DONE
-			(req.query.userEmail && req.query.userPassword && req.query.userId && req.query.episodeId && req.query.comment)
+			(req.query.userEmail && req.query.userPassword && req.query.userId && req.query.episodeId && req.query.comment || req.query.responseTo)
 			? api.episodeComments.CreateEpisodeComments(req.query.userEmail, req.query.userPassword, req.query.userId, req.query.episodeId, req.query.comment, req.query.responseTo, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
