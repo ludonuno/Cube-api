@@ -702,28 +702,28 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			: res.json(errorList.parameters)
 			break
 		case routeList.gameComments: // DONE
-			(req.query.id)
-			? api.gameComments.DeleteGameComments(req.query.id, (error, result) => res.json( error ? { error } : { result } ) ) 
+			(req.query.userEmail && req.query.userPassword && req.query.userId && req.query.id)
+			? api.gameComments.DeleteGameComments(req.query.userEmail, req.query.userPassword, req.query.userId, req.query.id, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.movieComments: // DONE
-			(req.query.mid)
-			? api.movieComments.DeleteMovieComments(req.query.id, (error, result) => res.json( error ? { error } : { result } ) ) 
+			(req.query.userEmail && req.query.userPassword && req.query.userId && req.query.mid)
+			? api.movieComments.DeleteMovieComments(req.query.userEmail, req.query.userPassword, req.query.userId, req.query.id, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.bookComments: // DONE
-			(req.query.id)
-			? api.bookComments.DeleteBookComments(req.query.id, (error, result) => res.json( error ? { error } : { result } ) ) 
+			(req.query.userEmail && req.query.userPassword && req.query.userId && req.query.id)
+			? api.bookComments.DeleteBookComments(req.query.userEmail, req.query.userPassword, req.query.userId, req.query.id, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.seriesComments: // DONE
-			(req.query.id)
-			? api.seriesComments.DeleteSeriesComments(req.query.id, (error, result) => res.json( error ? { error } : { result } ) ) 
+			(req.query.userEmail && req.query.userPassword && req.query.userId && req.query.id)
+			? api.seriesComments.DeleteSeriesComments(req.query.userEmail, req.query.userPassword, req.query.userId, req.query.id, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.episodeComments: // DONE
-			(req.query.id)
-			? api.episodeComments.DeleteEpisodeComments(req.query.id, (error, result) => res.json( error ? { error } : { result } ) ) 
+			(req.query.userEmail && req.query.userPassword && req.query.userId && req.query.id)
+			? api.episodeComments.DeleteEpisodeComments(req.query.userEmail, req.query.userPassword, req.query.userId, req.query.id, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		default:
