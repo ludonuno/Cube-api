@@ -707,7 +707,7 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			: res.json(errorList.parameters)
 			break
 		case routeList.movieComments: // DONE
-			(req.query.userEmail && req.query.userPassword && req.query.userId && req.query.mid)
+			(req.query.userEmail && req.query.userPassword && req.query.userId && req.query.id)
 			? api.movieComments.DeleteMovieComments(req.query.userEmail, req.query.userPassword, req.query.userId, req.query.id, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
