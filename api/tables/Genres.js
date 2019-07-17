@@ -23,7 +23,7 @@ var HandleSelectData = (id, genre, callback) => {
         if (genre) {
 			if (numberParameters) searchFor += ' AND '
 			genre = genre.replace( new RegExp("'", 'g') , '%27')
-			searchFor += `${table.genre} LIKE '%${genre}%'`
+			searchFor += `${table.genre} = '${genre}'`
 		}
 		resolve(searchFor)
 	}).then(

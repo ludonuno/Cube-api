@@ -25,7 +25,7 @@ var HandleSelectData = (id, name, callback) => {
         if (name) {
 			if (numberParameters) searchFor += ' AND '
 			name = name.replace( new RegExp("'", 'g') , '%27')
-			searchFor += `${table.name} LIKE '%${name}%'`
+			searchFor += `${table.name} = '${name}'`
 		}
 		resolve(searchFor)
 	}).then(
