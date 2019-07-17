@@ -58,13 +58,13 @@ const app = express()
 const port = process.env.PORT || 3000
 
 const corsOptions = {
-	"origin": ["http://localhost:3000", "https://ludonuno-cube.herokuapp.com/"],
+	"origin": "*",
 	"methods": "GET,PUT,POST,DELETE",
 }
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
-//app.use(cors())
+app.use(cors())
 
 app.get("/API/:tabela", cors(corsOptions), (req, res, next) => { //Search
 	switch (req.params.tabela) {
