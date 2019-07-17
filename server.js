@@ -58,7 +58,7 @@ const app = express()
 const port = process.env.PORT || 3000
 
 const corsOptions = {
-	"origin": "*",
+	"origin": ["http://localhost:3000", "https://ludonuno-cube.herokuapp.com/"],
 	"methods": "GET,PUT,POST,DELETE",
 }
 
