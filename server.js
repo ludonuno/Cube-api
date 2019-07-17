@@ -483,7 +483,7 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			res.json(errorList.route)
 			break
 	}
-}).head("/API/:tabela", (req, res, next) => { //Update
+}).patch("/API/:tabela", (req, res, next) => { //Update
 	switch (req.params.tabela) {
 		case routeList.company:
 			(req.query.userEmail && req.query.userPassword && req.query.id && req.query.name) 
