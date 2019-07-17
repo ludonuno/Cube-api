@@ -483,7 +483,7 @@ app.get("/API/:tabela", cors(corsOptions), (req, res, next) => { //Search
 			res.json(errorList.route)
 			break
 	}
-}).put("/API/:tabela", cors(corsOptions), (req, res, next) => { //Update
+}).head("/API/:tabela", cors(corsOptions), (req, res, next) => { //Update
 	switch (req.params.tabela) {
 		case routeList.company:
 			(req.query.userEmail && req.query.userPassword && req.query.id && req.query.name) 
