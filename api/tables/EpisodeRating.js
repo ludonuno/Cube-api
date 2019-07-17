@@ -163,9 +163,8 @@ var GetEpisodeRating = (seriesId, seasonId, episodeId, userId, callback) => {
   	return new Promise((resolve, reject) => {
 		CreateQuery(userId, seriesId, seasonId, episodeId, undefined, 'get', (error, result) => {
 			error ? reject(error) :	db.query(result, (error, result) => {
-				console.log(result)
 				if (error) reject(db.message.internalError)
-				else if (result && !Number(result[0].count)) reject(db.message.dataNotFound)
+				else if (!sizeOf(result)) reject(db.message.dataNotFound)
 				else resolve(result)
 			})
 		})
