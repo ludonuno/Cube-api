@@ -57,14 +57,14 @@ const routeList = {
 const app = express()
 const port = process.env.PORT || 3000
 
-// const corsOptions = {
-// 	"origin": "*",
-// 	"methods": "GET,PUT,POST,DELETE",
-// }
+const corsOptions = {
+	"origin": "*",
+	"methods": "GET,PUT,POST,DELETE",
+}
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
-app.use(cors())
+app.use(cors(corsOptions))
 
 app.get("/API/:tabela", (req, res, next) => { //Search
 	switch (req.params.tabela) {
@@ -483,7 +483,7 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			res.json(errorList.route)
 			break
 	}
-}).patch("/API/:tabela", (req, res, next) => { //Update
+}).put("/API/:tabela", (req, res, next) => { //Update
 	switch (req.params.tabela) {
 		case routeList.company:
 			(req.query.userEmail && req.query.userPassword && req.query.id && req.query.name) 
