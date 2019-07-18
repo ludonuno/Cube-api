@@ -290,7 +290,9 @@ var UpdateBook = (userEmail, userPassword, id, title, releaseDate, synopsis, pub
 			if (error) reject(error)
 			else if(result) {
 				CreateQuery(id, title, releaseDate, synopsis, publishingCompanyId, sagaId, 'update', (error, result) => {
+					console.log(293, error, result)
 					error ? reject(error) : db.query(result, (error, result) => {
+						console.log(295, error, result)
 						error ? reject(db.message.internalError) : resolve({message: db.message.successfulUpdate, data: result}) 
 					})
 				})

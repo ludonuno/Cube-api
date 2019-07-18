@@ -334,8 +334,10 @@ var CreateUser = (name, password, email, birthday, description, callback) => {
 var UpdateUser = (emailUser, userPassword, id, name, password, email, birthday, description, canEdit, callback) => {
 	return new Promise((resolve, reject) => {
 		UserAutentication(emailUser, userPassword, (error, result) => {
+			console.log(337, error, result)
 			if (error) reject(error)
 			else {
+				console.log(340, 'result[0].id == id', result[0].id == id )
 				if(result[0].id == id) {
 					CreateQuery(id, name, password, email, birthday, description, undefined, 'update', (error, result) => {
 						error ? reject(error) : CheckForUnregularData( id, name, password, email, birthday, description, (error) => {
