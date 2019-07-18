@@ -102,6 +102,7 @@ var CheckForUnregularData = (id, name, password, email, birthday, description, c
 		if (email && (email.toLowerCase().includes("canedit") || email.toLowerCase().includes("issystemadmin"))) reject(true)
 		if (birthday && (birthday.toLowerCase().includes("canedit") || birthday.toLowerCase().includes("issystemadmin"))) reject(true)
 		if (description && (description.toLowerCase().includes("canedit") || description.toLowerCase().includes("issystemadmin"))) reject(true)
+		resolve(true)
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
