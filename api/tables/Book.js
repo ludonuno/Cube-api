@@ -174,7 +174,7 @@ var HandleUpdateData = (id, title, releaseDate, synopsis, publishingCompanyId, s
 		if (synopsis) {
 			if (numberParameters) updateTo += ', '
 			synopsis = synopsis.replace( new RegExp("'", 'g') , '%27')
-			updateTo += `${table.description} = '${synopsis}'`
+			updateTo += `${table.synopsis} = '${synopsis}'`
 			numberParameters++
 		}
 
