@@ -98,7 +98,7 @@ var HandleUpdateData = (id, rate, description, callback) => {
 		
 		if (rate) {
 			rate = rate.replace( new RegExp("'", 'g') , '%27')
-			updateTo += `${table.rate} = ${rate}`
+			updateTo += `${table.rate} = '${rate}'`
 			numberParameters++;
 		}
 
