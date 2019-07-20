@@ -167,10 +167,10 @@ var CreateQuery = (id, assignment, description, action, callback) => {
 }
 
 //Exports
-var GetAssignment = (id, assignment,  callback) => {
+var GetAssignment = (id, assignment, callback) => {
    return new Promise((resolve, reject) => {
       CreateQuery(id, assignment, undefined, 'get', (error, result) => {
-         error ? reject(error) :	db.query(result, (error, result) => {
+         error ? reject(error) : db.query(result, (error, result) => {
                if (error) reject(db.message.internalError)
                else if (!sizeOf(result)) reject(db.message.dataNotFound)
                else resolve(result)
@@ -228,7 +228,7 @@ var DeleteAssignment = (userEmail, userPassword, id, callback) => {
         CanUserEdit(userEmail, userPassword, (error, result) => {
             if (error) reject(error)
             else if(result) {
-                GetAssignment(id, (error, result) => {
+                GetAssignment(id, undefined, (error, result) => {
                     error ? reject(error) :	CreateQuery(id, undefined, undefined, 'delete', (error, result) => {
                         error ? reject(error) : db.query(result, (error, result) => {
                             error ? reject(db.message.internalError) : resolve({message: db.message.successfulDelete, data: result}) 
