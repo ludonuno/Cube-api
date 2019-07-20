@@ -99,7 +99,7 @@ var HandleUpdateData = (id, assignment, description, callback) => {
         
         if (assignment) {
             assignment = assignment.replace( new RegExp("'", 'g') , '%27')
-            updateTo += `${table.assignment} = ${assignment}`
+            updateTo += `${table.assignment} = '${assignment}'`
             numberParameters++;
         }
 
