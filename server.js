@@ -507,7 +507,7 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			break
 		case routeList.saga:
 			(req.query.userEmail && req.query.userPassword && req.query.id && (req.query.name || req.query.description)) 
-			? api.saga.UpdateSaga( req.query.userEmail, req.query.userPassword, req.query.id,  req.query.rate, req.query.description, (error, result) => res.json( error ? { error } : { result } ) ) 
+			? api.saga.UpdateSaga( req.query.userEmail, req.query.userPassword, req.query.id,  req.query.name, req.query.description, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
 		case routeList.game:
