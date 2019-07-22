@@ -2,6 +2,7 @@ const db = require('./../../db')
 const sizeOf = require('object-sizeof')
 
 const { CanUserEdit } = require('./User')
+const gameTable = require('./Game').table
 
 const table = {
     table: 'my_VideoGame',
@@ -42,7 +43,7 @@ var CreateQuerySelect = (id, gameId, callback) => {
 				? reject(error) 
 				: resolve(`SELECT * FROM ${table.table} WHERE ${result}`)
 			})
-		} else resolve(`SELECT * FROM ${table.table}`)
+		} else resolve(`SELECT ${table.table}.${table.id}, ${table.table}.${table.link}, ${table.table}.${table.gameId}, ${gameTable.table}.${gameTable.title}, ${gameTable.table}.${gameTable.releaseDate}, ${gameTable.table}.${gameTable.synopsis}, ${gameTable.table}.${gameTable.parentAdvisoryId}, ${gameTable.table}.${gameTable.sagaId} FROM ${table.table} INNER JOIN ${gameTable.table} ON ${gameTable.table}.${gameTable.id}=${table.table}.${table.gameId}`)
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
