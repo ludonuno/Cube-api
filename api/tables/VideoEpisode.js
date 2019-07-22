@@ -43,7 +43,7 @@ var CreateQuerySelect = (id, episodeId, callback) => {
 				? reject(error) 
 				: resolve(`SELECT * FROM ${table.table} WHERE ${result}`)
 			})
-		} else resolve(`SELECT ${table.table}.${table.id}, ${table.table}.${table.link}, ${table.table}.${table.episodeId}, ${episodeTable.table}.${episodeTable.title}, ${episodeTable.table}.${episodeTable.releaseDate}, ${episodeTable.table}.${episodeTable.synopsis}, ${episodeTable.table}.${episodeTable.duration}, ${episodeTable.table}.${episodeTable.parentAdvisoryId}, ${episodeTable.table}.${episodeTable.sagaId} FROM ${table.table} INNER JOIN ${episodeTable.table} ON ${episodeTable.table}.${episodeTable.id}=${table.table}.${table.episodeId}`)
+		} else resolve(`SELECT ${table.table}.${table.id}, ${table.table}.${table.link}, ${table.table}.${table.episodeId}, ${episodeTable.table}.${episodeTable.title}, ${episodeTable.table}.${episodeTable.releaseDate}, ${episodeTable.table}.${episodeTable.synopsis} FROM ${table.table} INNER JOIN ${episodeTable.table} ON ${episodeTable.table}.${episodeTable.id}=${table.table}.${table.episodeId}`)
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
