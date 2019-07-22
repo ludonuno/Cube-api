@@ -98,7 +98,7 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			? api.game.GetGame( req.query.id, req.query.title, req.query.releaseDate, req.query.engineId, req.query.parentAdvisoryId, req.query.publicadorId, req.query.sagaId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.developers: // DONE
+		case routeList.developers: // DONE //TODO:
 			(((req.query.gameId && !req.query.companyId) || (!req.query.gameId && req.query.companyId)) || !sizeOf(req.query)) 
 			? api.developers.GetDevelopers( req.query.gameId, req.query.companyId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
@@ -133,57 +133,57 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			? api.episode.GetEpisode( req.query.id, req.query.title, req.query.releaseDate, req.query.seasonId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.genres: // DONE
+		case routeList.genres: // DONE//TODO:
 			(req.query.id || !sizeOf(req.query)) 
 			? api.genres.GetGenres( req.query.id, undefined, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.genresGame: // DONE
+		case routeList.genresGame: // DONE//TODO:
 			(((req.query.gameId && !req.query.genresId) || (!req.query.gameId && req.query.genresId)) || !sizeOf(req.query)) 
 			? api.genresGame.GetGenreGame( req.query.gameId, req.query.genresId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.genresMovie: // DONE
+		case routeList.genresMovie: // DONE//TODO:
 			(((req.query.movieId && !req.query.genresId) || (!req.query.movieId && req.query.genresId)) || !sizeOf(req.query)) 
 			? api.genresMovie.GetGenreMovie( req.query.movieId, req.query.genresId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.genresBook: // DONE
+		case routeList.genresBook: // DONE//TODO:
 			(((req.query.bookId && !req.query.genresId) || (!req.query.bookId && req.query.genresId)) || !sizeOf(req.query)) 
 			? api.genresBook.GetGenreBook( req.query.bookId, req.query.genresId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.genresSeries: // DONE
+		case routeList.genresSeries: // DONE//TODO:
 			(((req.query.seriesId && !req.query.genresId) || (!req.query.seriesId && req.query.genresId)) || !sizeOf(req.query)) 
 			? api.genresSeries.GetGenreSeries( req.query.seriesId, req.query.genresId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.videoGame: // DONE
+		case routeList.videoGame: // DONE//TODO:
 			(req.query.id || req.query.gameId || !sizeOf(req.query)) 
 			? api.videoGame.GetVideoGame( req.query.id, req.query.gameId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.videoBook: // DONE
+		case routeList.videoBook: // DONE//TODO:
 			(req.query.id || req.query.bookId || !sizeOf(req.query)) 
 			? api.videoBook.GetVideoBook( req.query.id, req.query.bookId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.videoMovie: // DONE
+		case routeList.videoMovie: // DONE//TODO:
 			(req.query.id || req.query.movieId || !sizeOf(req.query)) 
 			? api.videoMovie.GetVideoMovie( req.query.id, req.query.movieId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.videoSeries: // DONE
+		case routeList.videoSeries: // DONE//TODO:
 			(req.query.id || req.query.seriesId || !sizeOf(req.query)) 
 			? api.videoSeries.GetVideoSeries( req.query.id, req.query.seriesId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.videoSeason: // DONE
+		case routeList.videoSeason: // DONE//TODO:
 			(req.query.id || req.query.seasonId || !sizeOf(req.query)) 
 			? api.videoSeason.GetVideoSeason( req.query.id, req.query.seasonId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.videoEpisode: // DONE
+		case routeList.videoEpisode: // DONE//TODO:
 			(req.query.id || req.query.episodeId || !sizeOf(req.query)) 
 			? api.videoEpisode.GetVideoEpisode( req.query.id, req.query.episodeId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
@@ -198,22 +198,22 @@ app.get("/API/:tabela", (req, res, next) => { //Search
 			? api.celebrity.GetCelebrity( req.query.id, req.query.name, req.query.birthday, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.celebrityAssignmentGame: // DONE
+		case routeList.celebrityAssignmentGame: // DONE//TODO:
 			(((req.query.celebrityId && !req.query.assignmentId && !req.query.gameId) || (!req.query.celebrityId && req.query.assignmentId && !req.query.gameId) || (!req.query.celebrityId && !req.query.assignmentId && req.query.gameId)) || !sizeOf(req.query)) 
 			? api.celebrityAssignmentGame.GetCelebrityAssignmentGame( req.query.celebrityId, req.query.assignmentId, req.query.gameId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.celebrityAssignmentMovie: // DONE
+		case routeList.celebrityAssignmentMovie: // DONE//TODO:
 			(((req.query.celebrityId && !req.query.assignmentId && !req.query.movieId) || (!req.query.celebrityId && req.query.assignmentId && !req.query.movieId) || (!req.query.celebrityId && !req.query.assignmentId && req.query.movieId)) || !sizeOf(req.query)) 
 			? api.celebrityAssignmentMovie.GetCelebrityAssignmentMovie( req.query.celebrityId, req.query.assignmentId, req.query.movieId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.celebrityAssignmentSeries: // DONE
+		case routeList.celebrityAssignmentSeries: // DONE//TODO:
 			(((req.query.celebrityId && !req.query.assignmentId && !req.query.seriesId) || (!req.query.celebrityId && req.query.assignmentId && !req.query.seriesId) || (!req.query.celebrityId && !req.query.assignmentId && req.query.seriesId)) || !sizeOf(req.query)) 
 			? api.celebrityAssignmentSeries.GetCelebrityAssignmentSeries( req.query.celebrityId, req.query.assignmentId, req.query.seriesId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)
 			break
-		case routeList.celebrityAssignmentBook: // DONE
+		case routeList.celebrityAssignmentBook: // DONE//TODO:
 			(((req.query.celebrityId && !req.query.assignmentId && !req.query.bookId) || (!req.query.celebrityId && req.query.assignmentId && !req.query.bookId) || (!req.query.celebrityId && !req.query.assignmentId && req.query.bookId)) || !sizeOf(req.query)) 
 			? api.celebrityAssignmentBook.GetCelebrityAssignmentBook( req.query.celebrityId, req.query.assignmentId, req.query.bookId, (error, result) => res.json( error ? { error } : { result } ) ) 
 			: res.json(errorList.parameters)

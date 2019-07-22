@@ -40,7 +40,7 @@ var CreateQuerySelect = (id, movieId, callback) => {
 			HandleSelectData(id, movieId, (error, result) => {
 				error 
 				? reject(error) 
-				: resolve(`SELECT * FROM ${table.table} WHERE ${result}`)
+				: resolve(`SELECT * FROM ${table.table} INNER JOIN ${movieTable.table} ON ${movieTable.table}.${movieTable.id} = ${table.table}.${table.movieId} WHERE ${result}`)
 			})
 		} else resolve(`SELECT * FROM ${table.table}`)
 	}).then(

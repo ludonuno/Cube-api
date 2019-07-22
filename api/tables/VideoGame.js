@@ -1,10 +1,8 @@
 const db = require('./../../db')
 const sizeOf = require('object-sizeof')
 
-//TODO: Adicionar o campo title e description para todos deste tipo
-//TODO: Ativar o Update caso faça o TODO anterior
-
 const { CanUserEdit } = require('./User')
+const gameTable = require('./Game').table
 
 const table = {
     table: 'my_VideoGame',
@@ -43,7 +41,7 @@ var CreateQuerySelect = (id, gameId, callback) => {
 			HandleSelectData(id, gameId, (error, result) => {
 				error 
 				? reject(error) 
-				: resolve(`SELECT * FROM ${table.table} WHERE ${result}`)
+				: resolve(`SELECT * FROM ${table.table} INNER JOIN ${gameTable.table} ON ${gameTable.table}.${gameTable.id} = ${table.table}.${table.gameId} WHERE ${result}`)
 			})
 		} else resolve(`SELECT * FROM ${table.table}`)
 	}).then(

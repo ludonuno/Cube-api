@@ -193,5 +193,6 @@ var CreateBookRating = (userEmail, userPassword, userId, bookId, rate, callback)
 
 module.exports = {
   GetBookRating,
-  CreateBookRating,  table
+  CreateBookRating,
+  table
 }
