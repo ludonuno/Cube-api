@@ -2,6 +2,8 @@ const db = require('../../db')
 const sizeOf = require('object-sizeof')
 
 const { CanUserEdit } = require('./User')
+const sagaTable = require('./Saga').table
+const parentAdvisoryTable = require('./ParentAdvisory').table
 
 const table = {
     table: 'my_Movie',
@@ -20,7 +22,7 @@ var HandleSelectData = (id, title, releaseDate, durationMin, durationMax, parent
 		
         if(id) {
             if (!isNaN(Number(id))) {
-				searchFor += `${table.id} = ${id}`
+				searchFor += `${table.table}.${table.id} = ${id}`
 				numberParameters++
             } else reject(db.message.dataError)            
 		}
@@ -28,27 +30,27 @@ var HandleSelectData = (id, title, releaseDate, durationMin, durationMax, parent
         if (title) {
 			if (numberParameters) searchFor += ' AND '
 			title = title.replace( new RegExp("'", 'g') , '%27')
-			searchFor += `${table.title} LIKE '%${title}%'`
+			searchFor += `${table.table}.${table.title} LIKE '%${title}%'`
 		}
 
 		if (releaseDate) {
 			if (numberParameters) searchFor += ' AND '
 			relereleaseDate = releaseDate.replace( new RegExp("'", 'g') , '%27')
-			searchFor += `${table.releaseDate} = '${releaseDate}'`
+			searchFor += `${table.table}.${table.releaseDate} = '${releaseDate}'`
 		}
 
 		if (durationMin || durationMax) {
 			if (!isNaN(Number(durationMin)) && !isNaN(Number(durationMax))) {
 				if (numberParameters) searchFor += ' AND '
-				searchFor += `${table.duration} BETWEEN ${durationMin} AND ${durationMax}`
+				searchFor += `${table.table}.${table.duration} BETWEEN ${durationMin} AND ${durationMax}`
 				numberParameters++
             } else if (!isNaN(Number(durationMin))) {
 				if (numberParameters) searchFor += ' AND '
-				searchFor += `${table.duration} >= ${durationMin}`
+				searchFor += `${table.table}.${table.duration} >= ${durationMin}`
 				numberParameters++
 			} else if (!isNaN(Number(durationMax))) {
 				if (numberParameters) searchFor += ' AND '
-				searchFor += `${table.duration} <= ${durationMax}`
+				searchFor += `${table.table}.${table.duration} <= ${durationMax}`
 				numberParameters++
 			} else reject(db.message.dataError)
 		}
@@ -56,7 +58,7 @@ var HandleSelectData = (id, title, releaseDate, durationMin, durationMax, parent
 		if (parentAdvisoryId) {
 			if (!isNaN(Number(parentAdvisoryId))) {
 				if (numberParameters) searchFor += ' AND '
-				searchFor += `${table.parentAdvisoryId} = ${parentAdvisoryId}`
+				searchFor += `${table.table}.${table.parentAdvisoryId} = ${parentAdvisoryId}`
 				numberParameters++
             } else reject(db.message.dataError)
 		}
@@ -64,7 +66,7 @@ var HandleSelectData = (id, title, releaseDate, durationMin, durationMax, parent
 		if (sagaId) {
 			if (!isNaN(Number(sagaId))) {
 				if (numberParameters) searchFor += ' AND '
-				searchFor += `${table.sagaId} = ${sagaId}`
+				searchFor += `${table.table}.${table.sagaId} = ${sagaId}`
 				numberParameters++
             } else reject(db.message.dataError)
 		}
@@ -80,9 +82,9 @@ var CreateQuerySelect = (id, title, releaseDate, durationMin, durationMax, paren
 	return new Promise((resolve, reject) => {
 		if (id || title || releaseDate || durationMin || durationMax || parentAdvisoryId || sagaId) {
 			HandleSelectData(id, title, releaseDate, durationMin, durationMax, parentAdvisoryId, sagaId, (error, result) => {
-				error ? reject(error) : resolve(`SELECT * FROM ${table.table} WHERE ${result}`)
+				error ? reject(error) : resolve(`SELECT ${table.table}.${table.id}, ${table.table}.${table.title}, ${table.table}.${table.releaseDate}, ${table.table}.${table.synopsis}, ${table.table}.${table.duration}, ${table.table}.${table.sagaId}, ${sagaTable.table}.${sagaTable.name} as "sagaName", ${sagaTable.table}.${sagaTable.description} as "sagaDescription", ${table.table}.${table.parentAdvisoryId}, ${parentAdvisoryTable.table}.${parentAdvisoryTable.rate} as "parentAdvisoryRate", ${parentAdvisoryTable.table}.${parentAdvisoryTable.description} as "parentAdvisoryDescription" FROM ${table.table} INNER JOIN ${sagaTable.table} ON ${sagaTable.table}.${sagaTable.id} = ${table.table}.${table.sagaId} INNER JOIN ${parentAdvisoryTable.table} ON ${parentAdvisoryTable.table}.${parentAdvisoryTable.id} = ${table.table}.${table.parentAdvisoryId} WHERE ${result}`)
 			})
-		} else resolve(`SELECT * FROM ${table.table}`)
+		} else resolve(`SELECT ${table.table}.${table.id}, ${table.table}.${table.title}, ${table.table}.${table.releaseDate}, ${table.table}.${table.synopsis}, ${table.table}.${table.duration}, ${table.table}.${table.sagaId}, ${sagaTable.table}.${sagaTable.name} as "sagaName", ${sagaTable.table}.${sagaTable.description} as "sagaDescription", ${table.table}.${table.parentAdvisoryId}, ${parentAdvisoryTable.table}.${parentAdvisoryTable.rate} as "parentAdvisoryRate", ${parentAdvisoryTable.table}.${parentAdvisoryTable.description} as "parentAdvisoryDescription" FROM ${table.table} INNER JOIN ${sagaTable.table} ON ${sagaTable.table}.${sagaTable.id} = ${table.table}.${table.sagaId} INNER JOIN ${parentAdvisoryTable.table} ON ${parentAdvisoryTable.table}.${parentAdvisoryTable.id} = ${table.table}.${table.parentAdvisoryId}`)
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)

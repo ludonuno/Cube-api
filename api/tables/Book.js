@@ -2,6 +2,8 @@ const db = require('../../db')
 const sizeOf = require('object-sizeof')
 
 const { CanUserEdit } = require('./User')
+const sagaTable = require('./Saga').table
+const publishingCompanyTable = require('./PublishingCompany').table
 
 const table = {
     table: 'my_Book',
@@ -19,7 +21,7 @@ var HandleSelectData = (id, title, releaseDate, publishingCompanyId, sagaId, cal
 		
         if(id) {
             if (!isNaN(Number(id))) {
-				searchFor += `${table.id} = ${id}`
+				searchFor += `${table.table}.${table.id} = ${id}`
 				numberParameters++
             } else reject(db.message.dataError)            
 		}
@@ -27,21 +29,21 @@ var HandleSelectData = (id, title, releaseDate, publishingCompanyId, sagaId, cal
         if (title) {
 			if (numberParameters) searchFor += ' AND '
 			title = title.replace( new RegExp("'", 'g') , '%27')
-			searchFor += `${table.title} LIKE '%${title}%'`
+			searchFor += `${table.table}.${table.title} LIKE '%${title}%'`
 			numberParameters++
 		}
 
 		if (releaseDate) {
 			if (numberParameters) searchFor += ' AND '
 			releaseDate = releaseDate.replace( new RegExp("'", 'g') , '%27')
-			searchFor += `${table.releaseDate} = '${releaseDate}'`
+			searchFor += `${table.table}.${table.releaseDate} = '${releaseDate}'`
 			numberParameters++
 		}
 
 		if (publishingCompanyId) {
 			if (!isNaN(Number(publishingCompanyId))) {
 				if (numberParameters) searchFor += ' AND '
-				searchFor += `${table.publishingCompanyId} = ${publishingCompanyId}`
+				searchFor += `${table.table}.${table.publishingCompanyId} = ${publishingCompanyId}`
 				numberParameters++
             } else reject(db.message.dataError)
 		}
@@ -49,7 +51,7 @@ var HandleSelectData = (id, title, releaseDate, publishingCompanyId, sagaId, cal
 		if (sagaId) {
 			if (!isNaN(Number(sagaId))) {
 				if (numberParameters) searchFor += ' AND '
-				searchFor += `${table.sagaId} = ${sagaId}`
+				searchFor += `${table.table}.${table.sagaId} = ${sagaId}`
 				numberParameters++
             } else reject(db.message.dataError)
 		}
@@ -65,9 +67,9 @@ var CreateQuerySelect = (id, title, releaseDate, publishingCompanyId, sagaId, ca
 	return new Promise((resolve, reject) => {
 		if (id || title || releaseDate || publishingCompanyId || sagaId) {
 			HandleSelectData(id, title, releaseDate, publishingCompanyId, sagaId, (error, result) => {
-				error ? reject(error) : resolve(`SELECT * FROM ${table.table} WHERE ${result}`)
+				error ? reject(error) : resolve(`SELECT ${table.table}.${table.id}, ${table.table}.${table.title}, ${table.table}.${table.releaseDate}, ${table.table}.${table.synopsis}, ${table.table}.${table.sagaId}, ${sagaTable.table}.${sagaTable.name} as "sagaName", ${sagaTable.table}.${sagaTable.description} as "sagaDescription", ${table.table}.${table.publishingCompanyId}, ${publishingCompanyTable.table}.${publishingCompanyTable.name} as "publishingCompanyName" FROM ${table.table} INNER JOIN ${sagaTable.table} ON ${sagaTable.table}.${sagaTable.id} = ${table.table}.${table.sagaId} INNER JOIN ${publishingCompanyTable.table} ON ${publishingCompanyTable.table}.${publishingCompanyTable.id} = ${table.table}.${table.publishingCompanyId} WHERE ${result}`)
 			})
-		} else resolve(`SELECT * FROM ${table.table}`)
+		} else resolve(`SELECT ${table.table}.${table.id}, ${table.table}.${table.title}, ${table.table}.${table.releaseDate}, ${table.table}.${table.synopsis}, ${table.table}.${table.sagaId}, ${sagaTable.table}.${sagaTable.name} as "sagaName", ${sagaTable.table}.${sagaTable.description} as "sagaDescription", ${table.table}.${table.publishingCompanyId}, ${publishingCompanyTable.table}.${publishingCompanyTable.name} as "publishingCompanyName" FROM ${table.table} INNER JOIN ${sagaTable.table} ON ${sagaTable.table}.${sagaTable.id} = ${table.table}.${table.sagaId} INNER JOIN ${publishingCompanyTable.table} ON ${publishingCompanyTable.table}.${publishingCompanyTable.id} = ${table.table}.${table.publishingCompanyId}`)
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
