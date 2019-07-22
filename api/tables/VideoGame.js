@@ -43,7 +43,7 @@ var CreateQuerySelect = (id, gameId, callback) => {
 				? reject(error) 
 				: resolve(`SELECT * FROM ${table.table} INNER JOIN ${gameTable.table} ON ${gameTable.table}.${gameTable.id} = ${table.table}.${table.gameId} WHERE ${result}`)
 			})
-		} else resolve(`SELECT * FROM ${table.table}`)
+		} else resolve(`SELECT * FROM ${table.table} INNER JOIN ${gameTable.table} ON ${gameTable.table}.${gameTable.id} = ${table.table}.${table.gameId}`)
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)

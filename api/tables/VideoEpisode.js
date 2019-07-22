@@ -43,7 +43,10 @@ var CreateQuerySelect = (id, episodeId, callback) => {
 				? reject(error) 
 				: resolve(`SELECT * FROM ${table.table} INNER JOIN ${episodeTable.table} ON ${episodeTable.table}.${episodeTable.id} = ${table.table}.${table.episodeId} WHERE ${result}`)
 			})
-		} else resolve(`SELECT * FROM ${table.table}`)
+		} else resolve(`SELECT * FROM ${table.table}
+		const { CanUserEdit } = require('./User')
+		const episodeTable = require('./Episode').table
+		 INNER JOIN ${episodeTable.table} ON ${episodeTable.table}.${episodeTable.id} = ${table.table}.${table.episodeId}`)
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
