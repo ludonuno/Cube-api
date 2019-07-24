@@ -67,10 +67,10 @@ var CreateQuerySelect = (id, title, releaseDate, parentAdvisoryId, sagaId, callb
 		if (id || title || releaseDate || parentAdvisoryId || sagaId) {
 			HandleSelectData(id, title, releaseDate, parentAdvisoryId, sagaId, (error, result) => {
 				error ? reject(error) : resolve(`SELECT 
-				${table.table}.${table.id} as "seriesId",
-				${table.table}.${table.title} as "seriesTitle",
-				${table.table}.${table.releaseDate} as "seriesReleaseDate",
-				${table.table}.${table.synopsis} as "seriesSynopsis",
+				${table.table}.${table.id} as "id",
+				${table.table}.${table.title} as "title",
+				${table.table}.${table.releaseDate} as "releaseDate",
+				${table.table}.${table.synopsis} as "synopsis",
 				${sagaTable.table}.${sagaTable.id} as "sagaId",
 				${sagaTable.table}.${sagaTable.name} as "sagaName",
 				${sagaTable.table}.${sagaTable.description} as "sagaDescription",
@@ -84,10 +84,10 @@ var CreateQuerySelect = (id, title, releaseDate, parentAdvisoryId, sagaId, callb
 				ORDER BY (${table.table}.${table.id}) ASC`)
 			})
 		} else resolve(`SELECT 
-		${table.table}.${table.id} as "seriesId",
-		${table.table}.${table.title} as "seriesTitle",
-		${table.table}.${table.releaseDate} as "seriesReleaseDate",
-		${table.table}.${table.synopsis} as "seriesSynopsis",
+		${table.table}.${table.id} as "id",
+		${table.table}.${table.title} as "title",
+		${table.table}.${table.releaseDate} as "releaseDate",
+		${table.table}.${table.synopsis} as "synopsis",
 		${sagaTable.table}.${sagaTable.id} as "sagaId",
 		${sagaTable.table}.${sagaTable.name} as "sagaName",
 		${sagaTable.table}.${sagaTable.description} as "sagaDescription",

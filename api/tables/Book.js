@@ -68,10 +68,10 @@ var CreateQuerySelect = (id, title, releaseDate, publishingCompanyId, sagaId, ca
 		if (id || title || releaseDate || publishingCompanyId || sagaId) {
 			HandleSelectData(id, title, releaseDate, publishingCompanyId, sagaId, (error, result) => {
 				error ? reject(error) : resolve(`SELECT
-				${table.table}.${table.id} as "bookId",
-				${table.table}.${table.title} as "bookTitle",
-				${table.table}.${table.releaseDate} as "bookReleaseDate",
-				${table.table}.${table.synopsis} as "bookSynopsis",
+				${table.table}.${table.id} as "id",
+				${table.table}.${table.title} as "title",
+				${table.table}.${table.releaseDate} as "releaseDate",
+				${table.table}.${table.synopsis} as "synopsis",
 				${sagaTable.table}.${sagaTable.id} as "sagaId",
 				${sagaTable.table}.${sagaTable.name} as "sagaName",
 				${sagaTable.table}.${sagaTable.description} as "sagaDescription",
@@ -83,10 +83,10 @@ var CreateQuerySelect = (id, title, releaseDate, publishingCompanyId, sagaId, ca
 				WHERE ${result}`)
 			})
 		} else resolve(`SELECT
-		${table.table}.${table.id} as "bookId",
-		${table.table}.${table.title} as "bookTitle",
-		${table.table}.${table.releaseDate} as "bookReleaseDate",
-		${table.table}.${table.synopsis} as "bookSynopsis",
+		${table.table}.${table.id} as "id",
+		${table.table}.${table.title} as "title",
+		${table.table}.${table.releaseDate} as "releaseDate",
+		${table.table}.${table.synopsis} as "synopsis",
 		${sagaTable.table}.${sagaTable.id} as "sagaId",
 		${sagaTable.table}.${sagaTable.name} as "sagaName",
 		${sagaTable.table}.${sagaTable.description} as "sagaDescription",

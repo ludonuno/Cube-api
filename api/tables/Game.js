@@ -86,10 +86,10 @@ var CreateQuerySelect = (id, title, releaseDate, engineId, parentAdvisoryId, pub
 		if (id || title || releaseDate || engineId || parentAdvisoryId || publicadorId || sagaId) {
 			HandleSelectData(id, title, releaseDate, engineId, parentAdvisoryId, publicadorId, sagaId, (error, result) => {
 				error ? reject(error) : resolve(`SELECT
-				${table.table}.${table.id} as "gameId",
-				${table.table}.${table.title} as "gameTitle",
-				${table.table}.${table.releaseDate} as "gameReleaseDate",
-				${table.table}.${table.synopsis} as "gameSynopsis",
+				${table.table}.${table.id} as "id",
+				${table.table}.${table.title} as "title",
+				${table.table}.${table.releaseDate} as "releaseDate",
+				${table.table}.${table.synopsis} as "synopsis",
 				${sagaTable.table}.${sagaTable.id} as "sagaId",
 				${sagaTable.table}.${sagaTable.name} as "sagaName",
 				${sagaTable.table}.${sagaTable.description} as "sagaDescription",
@@ -108,10 +108,10 @@ var CreateQuerySelect = (id, title, releaseDate, engineId, parentAdvisoryId, pub
 				WHERE ${result}`)
 			})
 		} else resolve(`SELECT
-		${table.table}.${table.id} as "gameId",
-		${table.table}.${table.title} as "gameTitle",
-		${table.table}.${table.releaseDate} as "gameReleaseDate",
-		${table.table}.${table.synopsis} as "gameSynopsis",
+		${table.table}.${table.id} as "id",
+		${table.table}.${table.title} as "title",
+		${table.table}.${table.releaseDate} as "releaseDate",
+		${table.table}.${table.synopsis} as "synopsis",
 		${sagaTable.table}.${sagaTable.id} as "sagaId",
 		${sagaTable.table}.${sagaTable.name} as "sagaName",
 		${sagaTable.table}.${sagaTable.description} as "sagaDescription",

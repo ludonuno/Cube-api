@@ -83,11 +83,11 @@ var CreateQuerySelect = (id, title, releaseDate, durationMin, durationMax, paren
 		if (id || title || releaseDate || durationMin || durationMax || parentAdvisoryId || sagaId) {
 			HandleSelectData(id, title, releaseDate, durationMin, durationMax, parentAdvisoryId, sagaId, (error, result) => {
 				error ? reject(error) : resolve(`SELECT 
-				${table.table}.${table.id} as "movieId",
-				${table.table}.${table.title} as "movieTitle",
-				${table.table}.${table.releaseDate} as "movieReleaseDate",
-				${table.table}.${table.synopsis} as "movieSynopsis",
-				${table.table}.${table.duration} as "movieDuration",
+				${table.table}.${table.id} as "id",
+				${table.table}.${table.title} as "title",
+				${table.table}.${table.releaseDate} as "releaseDate",
+				${table.table}.${table.synopsis} as "synopsis",
+				${table.table}.${table.duration} as "duration",
 				${sagaTable.table}.${sagaTable.id} as "sagaId",
 				${sagaTable.table}.${sagaTable.name} as "sagaName",
 				${sagaTable.table}.${sagaTable.description} as "sagaDescription",
@@ -100,11 +100,11 @@ var CreateQuerySelect = (id, title, releaseDate, durationMin, durationMax, paren
 				WHERE ${result}`)
 			})
 		} else resolve(`SELECT 
-		${table.table}.${table.id} as "movieId",
-		${table.table}.${table.title} as "movieTitle",
-		${table.table}.${table.releaseDate} as "movieReleaseDate",
-		${table.table}.${table.synopsis} as "movieSynopsis",
-		${table.table}.${table.duration} as "movieDuration",
+		${table.table}.${table.id} as "id",
+		${table.table}.${table.title} as "title",
+		${table.table}.${table.releaseDate} as "releaseDate",
+		${table.table}.${table.synopsis} as "synopsis",
+		${table.table}.${table.duration} as "duration",
 		${sagaTable.table}.${sagaTable.id} as "sagaId",
 		${sagaTable.table}.${sagaTable.name} as "sagaName",
 		${sagaTable.table}.${sagaTable.description} as "sagaDescription",
