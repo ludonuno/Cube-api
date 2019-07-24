@@ -61,10 +61,10 @@ var CreateQuerySelect = (id, title, releaseDate, seasonId, callback) => {
 		if (id || title || releaseDate || seasonId) {
 			HandleSelectData(id, title, releaseDate, seasonId, (error, result) => {
 				error ? reject(error) : resolve(`SELECT
-				${table.table}.${table.id} as "episodeId",
-				${table.table}.${table.title}  as "episodeTitle", 
-				${table.table}.${table.releaseDate} as "episodeReleaseDate",
-				${table.table}.${table.synopsis} as "episodeSynopsis",
+				${table.table}.${table.id} as "id",
+				${table.table}.${table.title}  as "title", 
+				${table.table}.${table.releaseDate} as "releaseDate",
+				${table.table}.${table.synopsis} as "synopsis",
 				${seasonTable.table}.${seasonTable.id} as "seasonId",
 				${seasonTable.table}.${seasonTable.title} as "seasonTitle",
 				${seasonTable.table}.${seasonTable.releaseDate} as "seasonReleaseDate",
@@ -88,10 +88,10 @@ var CreateQuerySelect = (id, title, releaseDate, seasonId, callback) => {
 				ORDER BY (${seriesTable.table}.${seriesTable.id}, ${seasonTable.table}.${seasonTable.id}, ${table.table}.${table.id}) ASC`)
 			})
 		} else resolve(`SELECT
-		${table.table}.${table.id} as "episodeId",
-		${table.table}.${table.title}  as "episodeTitle", 
-		${table.table}.${table.releaseDate} as "episodeReleaseDate",
-		${table.table}.${table.synopsis} as "episodeSynopsis",
+		${table.table}.${table.id} as "id",
+		${table.table}.${table.title}  as "title", 
+		${table.table}.${table.releaseDate} as "releaseDate",
+		${table.table}.${table.synopsis} as "synopsis",
 		${seasonTable.table}.${seasonTable.id} as "seasonId",
 		${seasonTable.table}.${seasonTable.title} as "seasonTitle",
 		${seasonTable.table}.${seasonTable.releaseDate} as "seasonReleaseDate",
