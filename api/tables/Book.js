@@ -67,9 +67,34 @@ var CreateQuerySelect = (id, title, releaseDate, publishingCompanyId, sagaId, ca
 	return new Promise((resolve, reject) => {
 		if (id || title || releaseDate || publishingCompanyId || sagaId) {
 			HandleSelectData(id, title, releaseDate, publishingCompanyId, sagaId, (error, result) => {
-				error ? reject(error) : resolve(`SELECT ${table.table}.${table.id}, ${table.table}.${table.title}, ${table.table}.${table.releaseDate}, ${table.table}.${table.synopsis}, ${table.table}.${table.sagaId}, ${sagaTable.table}.${sagaTable.name} as "sagaName", ${sagaTable.table}.${sagaTable.description} as "sagaDescription", ${table.table}.${table.publishingCompanyId}, ${publishingCompanyTable.table}.${publishingCompanyTable.name} as "publishingCompanyName" FROM ${table.table} INNER JOIN ${sagaTable.table} ON ${sagaTable.table}.${sagaTable.id} = ${table.table}.${table.sagaId} INNER JOIN ${publishingCompanyTable.table} ON ${publishingCompanyTable.table}.${publishingCompanyTable.id} = ${table.table}.${table.publishingCompanyId} WHERE ${result}`)
+				error ? reject(error) : resolve(`SELECT
+				${table.table}.${table.id} as "bookId",
+				${table.table}.${table.title} as "bookTitle",
+				${table.table}.${table.releaseDate} as "bookReleaseDate",
+				${table.table}.${table.synopsis} as "bookSynopsis",
+				${sagaTable.table}.${sagaTable.id} as "sagaId",
+				${sagaTable.table}.${sagaTable.name} as "sagaName",
+				${sagaTable.table}.${sagaTable.description} as "sagaDescription",
+				${publishingCompanyTable.table}.${publishingCompanyTable.id} as "publishingCompanyId"
+				${publishingCompanyTable.table}.${publishingCompanyTable.name} as "publishingCompanyName"
+				FROM ${table.table}
+				INNER JOIN ${sagaTable.table} ON ${sagaTable.table}.${sagaTable.id} = ${table.table}.${table.sagaId}
+				INNER JOIN ${publishingCompanyTable.table} ON ${publishingCompanyTable.table}.${publishingCompanyTable.id} = ${table.table}.${table.publishingCompanyId}
+				WHERE ${result}`)
 			})
-		} else resolve(`SELECT ${table.table}.${table.id}, ${table.table}.${table.title}, ${table.table}.${table.releaseDate}, ${table.table}.${table.synopsis}, ${table.table}.${table.sagaId}, ${sagaTable.table}.${sagaTable.name} as "sagaName", ${sagaTable.table}.${sagaTable.description} as "sagaDescription", ${table.table}.${table.publishingCompanyId}, ${publishingCompanyTable.table}.${publishingCompanyTable.name} as "publishingCompanyName" FROM ${table.table} INNER JOIN ${sagaTable.table} ON ${sagaTable.table}.${sagaTable.id} = ${table.table}.${table.sagaId} INNER JOIN ${publishingCompanyTable.table} ON ${publishingCompanyTable.table}.${publishingCompanyTable.id} = ${table.table}.${table.publishingCompanyId}`)
+		} else resolve(`SELECT
+		${table.table}.${table.id} as "bookId",
+		${table.table}.${table.title} as "bookTitle",
+		${table.table}.${table.releaseDate} as "bookReleaseDate",
+		${table.table}.${table.synopsis} as "bookSynopsis",
+		${sagaTable.table}.${sagaTable.id} as "sagaId",
+		${sagaTable.table}.${sagaTable.name} as "sagaName",
+		${sagaTable.table}.${sagaTable.description} as "sagaDescription",
+		${publishingCompanyTable.table}.${publishingCompanyTable.id} as "publishingCompanyId"
+		${publishingCompanyTable.table}.${publishingCompanyTable.name} as "publishingCompanyName"
+		FROM ${table.table}
+		INNER JOIN ${sagaTable.table} ON ${sagaTable.table}.${sagaTable.id} = ${table.table}.${table.sagaId}
+		INNER JOIN ${publishingCompanyTable.table} ON ${publishingCompanyTable.table}.${publishingCompanyTable.id} = ${table.table}.${table.publishingCompanyId}`)
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)

@@ -85,9 +85,48 @@ var CreateQuerySelect = (id, title, releaseDate, engineId, parentAdvisoryId, pub
 	return new Promise((resolve, reject) => {
 		if (id || title || releaseDate || engineId || parentAdvisoryId || publicadorId || sagaId) {
 			HandleSelectData(id, title, releaseDate, engineId, parentAdvisoryId, publicadorId, sagaId, (error, result) => {
-				error ? reject(error) : resolve(`SELECT ${table.table}.${table.id}, ${table.table}.${table.title}, ${table.table}.${table.releaseDate}, ${table.table}.${table.synopsis}, ${table.table}.${table.sagaId}, ${sagaTable.table}.${sagaTable.name} as "sagaName", ${sagaTable.table}.${sagaTable.description} as "sagaDescription", ${table.table}.${table.parentAdvisoryId}, ${parentAdvisoryTable.table}.${parentAdvisoryTable.rate} as "parentAdvisoryRate", ${parentAdvisoryTable.table}.${parentAdvisoryTable.description} as "parentAdvisoryDescription", ${table.table}.${table.engineId}, ${engineTable.table}.${engineTable.name} as "engineName", ${table.table}.${table.publicadorId}, ${companyTable.table}.${companyTable.name} as "PublicadorName" FROM ${table.table} INNER JOIN ${sagaTable.table} ON ${sagaTable.table}.${sagaTable.id} = ${table.table}.${table.sagaId} INNER JOIN ${parentAdvisoryTable.table} ON ${parentAdvisoryTable.table}.${parentAdvisoryTable.id} = ${table.table}.${table.parentAdvisoryId} INNER JOIN ${engineTable.table} ON ${engineTable.table}.${engineTable.id} = ${table.table}.${table.engineId} INNER JOIN ${companyTable.table} ON ${companyTable.table}.${companyTable.id} = ${table.table}.${table.publicadorId} WHERE ${result}`)
+				error ? reject(error) : resolve(`SELECT
+				${table.table}.${table.id} as "gameId",
+				${table.table}.${table.title} as "gameTitle",
+				${table.table}.${table.releaseDate} as "gameReleaseDate",
+				${table.table}.${table.synopsis} as "gameSynopsis",
+				${sagaTable.table}.${sagaTable.id} as "sagaId",
+				${sagaTable.table}.${sagaTable.name} as "sagaName",
+				${sagaTable.table}.${sagaTable.description} as "sagaDescription",
+				${parentAdvisoryTable.table}.${parentAdvisoryTable.id} as "parentAdvisoryId",
+				${parentAdvisoryTable.table}.${parentAdvisoryTable.rate} as "parentAdvisoryRate",
+				${parentAdvisoryTable.table}.${parentAdvisoryTable.description} as "parentAdvisoryDescription",
+				${engineTable.table}.${engineTable.id} as "engineId",
+				${engineTable.table}.${engineTable.name} as "engineName",
+				${companyTable.table}.${companyTable.id} as "companyId"
+				${companyTable.table}.${companyTable.name} as "companyName"
+				FROM ${table.table}
+				INNER JOIN ${sagaTable.table} ON ${sagaTable.table}.${sagaTable.id} = ${table.table}.${table.sagaId}
+				INNER JOIN ${parentAdvisoryTable.table} ON ${parentAdvisoryTable.table}.${parentAdvisoryTable.id} = ${table.table}.${table.parentAdvisoryId}
+				INNER JOIN ${engineTable.table} ON ${engineTable.table}.${engineTable.id} = ${table.table}.${table.engineId}
+				INNER JOIN ${companyTable.table} ON ${companyTable.table}.${companyTable.id} = ${table.table}.${table.publicadorId}
+				WHERE ${result}`)
 			})
-		} else resolve(`SELECT ${table.table}.${table.id}, ${table.table}.${table.title}, ${table.table}.${table.releaseDate}, ${table.table}.${table.synopsis}, ${table.table}.${table.sagaId}, ${sagaTable.table}.${sagaTable.name} as "sagaName", ${sagaTable.table}.${sagaTable.description} as "sagaDescription", ${table.table}.${table.parentAdvisoryId}, ${parentAdvisoryTable.table}.${parentAdvisoryTable.rate} as "parentAdvisoryRate", ${parentAdvisoryTable.table}.${parentAdvisoryTable.description} as "parentAdvisoryDescription", ${table.table}.${table.engineId}, ${engineTable.table}.${engineTable.name} as "engineName", ${table.table}.${table.publicadorId}, ${companyTable.table}.${companyTable.name} as "PublicadorName" FROM ${table.table} INNER JOIN ${sagaTable.table} ON ${sagaTable.table}.${sagaTable.id} = ${table.table}.${table.sagaId} INNER JOIN ${parentAdvisoryTable.table} ON ${parentAdvisoryTable.table}.${parentAdvisoryTable.id} = ${table.table}.${table.parentAdvisoryId} INNER JOIN ${engineTable.table} ON ${engineTable.table}.${engineTable.id} = ${table.table}.${table.engineId} INNER JOIN ${companyTable.table} ON ${companyTable.table}.${companyTable.id} = ${table.table}.${table.publicadorId}`)
+		} else resolve(`SELECT
+		${table.table}.${table.id} as "gameId",
+		${table.table}.${table.title} as "gameTitle",
+		${table.table}.${table.releaseDate} as "gameReleaseDate",
+		${table.table}.${table.synopsis} as "gameSynopsis",
+		${sagaTable.table}.${sagaTable.id} as "sagaId",
+		${sagaTable.table}.${sagaTable.name} as "sagaName",
+		${sagaTable.table}.${sagaTable.description} as "sagaDescription",
+		${parentAdvisoryTable.table}.${parentAdvisoryTable.id} as "parentAdvisoryId",
+		${parentAdvisoryTable.table}.${parentAdvisoryTable.rate} as "parentAdvisoryRate",
+		${parentAdvisoryTable.table}.${parentAdvisoryTable.description} as "parentAdvisoryDescription",
+		${engineTable.table}.${engineTable.id} as "engineId",
+		${engineTable.table}.${engineTable.name} as "engineName",
+		${companyTable.table}.${companyTable.id} as "companyId"
+		${companyTable.table}.${companyTable.name} as "companyName"
+		FROM ${table.table}
+		INNER JOIN ${sagaTable.table} ON ${sagaTable.table}.${sagaTable.id} = ${table.table}.${table.sagaId}
+		INNER JOIN ${parentAdvisoryTable.table} ON ${parentAdvisoryTable.table}.${parentAdvisoryTable.id} = ${table.table}.${table.parentAdvisoryId}
+		INNER JOIN ${engineTable.table} ON ${engineTable.table}.${engineTable.id} = ${table.table}.${table.engineId}
+		INNER JOIN ${companyTable.table} ON ${companyTable.table}.${companyTable.id} = ${table.table}.${table.publicadorId}`)
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)

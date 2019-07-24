@@ -82,9 +82,38 @@ var CreateQuerySelect = (id, title, releaseDate, durationMin, durationMax, paren
 	return new Promise((resolve, reject) => {
 		if (id || title || releaseDate || durationMin || durationMax || parentAdvisoryId || sagaId) {
 			HandleSelectData(id, title, releaseDate, durationMin, durationMax, parentAdvisoryId, sagaId, (error, result) => {
-				error ? reject(error) : resolve(`SELECT ${table.table}.${table.id}, ${table.table}.${table.title}, ${table.table}.${table.releaseDate}, ${table.table}.${table.synopsis}, ${table.table}.${table.duration}, ${table.table}.${table.sagaId}, ${sagaTable.table}.${sagaTable.name} as "sagaName", ${sagaTable.table}.${sagaTable.description} as "sagaDescription", ${table.table}.${table.parentAdvisoryId}, ${parentAdvisoryTable.table}.${parentAdvisoryTable.rate} as "parentAdvisoryRate", ${parentAdvisoryTable.table}.${parentAdvisoryTable.description} as "parentAdvisoryDescription" FROM ${table.table} INNER JOIN ${sagaTable.table} ON ${sagaTable.table}.${sagaTable.id} = ${table.table}.${table.sagaId} INNER JOIN ${parentAdvisoryTable.table} ON ${parentAdvisoryTable.table}.${parentAdvisoryTable.id} = ${table.table}.${table.parentAdvisoryId} WHERE ${result}`)
+				error ? reject(error) : resolve(`SELECT 
+				${table.table}.${table.id} as "movieId",
+				${table.table}.${table.title} as "movieTitle",
+				${table.table}.${table.releaseDate} as "movieReleaseDate",
+				${table.table}.${table.synopsis} as "movieSynopsis",
+				${table.table}.${table.duration} as "movieDuration",
+				${sagaTable.table}.${sagaTable.id} as "sagaId",
+				${sagaTable.table}.${sagaTable.name} as "sagaName",
+				${sagaTable.table}.${sagaTable.description} as "sagaDescription",
+				${parentAdvisoryTable.table}.${parentAdvisoryTable.id} as "parentAdvisoryId",
+				${parentAdvisoryTable.table}.${parentAdvisoryTable.rate} as "parentAdvisoryRate",
+				${parentAdvisoryTable.table}.${parentAdvisoryTable.description} as "parentAdvisoryDescription"
+				FROM ${table.table} 
+				INNER JOIN ${sagaTable.table} ON ${sagaTable.table}.${sagaTable.id} = ${table.table}.${table.sagaId}
+				INNER JOIN ${parentAdvisoryTable.table} ON ${parentAdvisoryTable.table}.${parentAdvisoryTable.id} = ${table.table}.${table.parentAdvisoryId} 
+				WHERE ${result}`)
 			})
-		} else resolve(`SELECT ${table.table}.${table.id}, ${table.table}.${table.title}, ${table.table}.${table.releaseDate}, ${table.table}.${table.synopsis}, ${table.table}.${table.duration}, ${table.table}.${table.sagaId}, ${sagaTable.table}.${sagaTable.name} as "sagaName", ${sagaTable.table}.${sagaTable.description} as "sagaDescription", ${table.table}.${table.parentAdvisoryId}, ${parentAdvisoryTable.table}.${parentAdvisoryTable.rate} as "parentAdvisoryRate", ${parentAdvisoryTable.table}.${parentAdvisoryTable.description} as "parentAdvisoryDescription" FROM ${table.table} INNER JOIN ${sagaTable.table} ON ${sagaTable.table}.${sagaTable.id} = ${table.table}.${table.sagaId} INNER JOIN ${parentAdvisoryTable.table} ON ${parentAdvisoryTable.table}.${parentAdvisoryTable.id} = ${table.table}.${table.parentAdvisoryId}`)
+		} else resolve(`SELECT 
+		${table.table}.${table.id} as "movieId",
+		${table.table}.${table.title} as "movieTitle",
+		${table.table}.${table.releaseDate} as "movieReleaseDate",
+		${table.table}.${table.synopsis} as "movieSynopsis",
+		${table.table}.${table.duration} as "movieDuration",
+		${sagaTable.table}.${sagaTable.id} as "sagaId",
+		${sagaTable.table}.${sagaTable.name} as "sagaName",
+		${sagaTable.table}.${sagaTable.description} as "sagaDescription",
+		${parentAdvisoryTable.table}.${parentAdvisoryTable.id} as "parentAdvisoryId",
+		${parentAdvisoryTable.table}.${parentAdvisoryTable.rate} as "parentAdvisoryRate",
+		${parentAdvisoryTable.table}.${parentAdvisoryTable.description} as "parentAdvisoryDescription"
+		FROM ${table.table} 
+		INNER JOIN ${sagaTable.table} ON ${sagaTable.table}.${sagaTable.id} = ${table.table}.${table.sagaId}
+		INNER JOIN ${parentAdvisoryTable.table} ON ${parentAdvisoryTable.table}.${parentAdvisoryTable.id} = ${table.table}.${table.parentAdvisoryId}`)
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
