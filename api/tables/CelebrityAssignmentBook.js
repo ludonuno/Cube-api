@@ -20,26 +20,45 @@ var HandleSelectData = (celebrityId, assignmentId, bookId, callback) => {
 
         if(celebrityId) {
             if (!isNaN(Number(celebrityId))) {
-				fields = `${assignmentTable.table}.${assignmentTable.id}, ${assignmentTable.table}.${assignmentTable.description}, ${bookTable.table}.${bookTable.id}, ${bookTable.table}.${bookTable.title}, ${bookTable.table}.${bookTable.releaseDate}, ${bookTable.table}.${bookTable.synopsis}, ${bookTable.table}.${bookTable.publishingCompanyId}, ${bookTable.table}.${bookTable.sagaId}`
-				searchFor += `${table.celebrityId} = ${celebrityId}`
+				fields = `${assignmentTable.table}.${assignmentTable.id} as "assignmentId",
+				${assignmentTable.table}.${assignmentTable.assignment} as "assignmentName",
+				${assignmentTable.table}.${assignmentTable.description} as "assignmentDescription",
+				${bookTable.table}.${bookTable.id} as "bookId",
+				${bookTable.table}.${bookTable.title} as "bookTitle",
+				${bookTable.table}.${bookTable.releaseDate} as "bookReleaseDate",
+				${bookTable.table}.${bookTable.synopsis} as "bookSynopsis"`
+				searchFor += `${table.table}.${table.celebrityId} = ${celebrityId}`
                 numberParameters++;
             } else reject(db.message.dataError)            
 		}
 		
 		if(assignmentId) {
             if (!isNaN(Number(assignmentId))) {
-				fields = `${celebrityTable.table}.${celebrityTable.id}, ${celebrityTable.table}.${celebrityTable.name}, ${celebrityTable.table}.${celebrityTable.birthday}, ${celebrityTable.table}.${celebrityTable.biography}, ${bookTable.table}.${bookTable.id}, ${bookTable.table}.${bookTable.title}, ${bookTable.table}.${bookTable.releaseDate}, ${bookTable.table}.${bookTable.synopsis}, ${bookTable.table}.${bookTable.publishingCompanyId}, ${bookTable.table}.${bookTable.sagaId}`
+				fields = `${celebrityTable.table}.${celebrityTable.id} as "celebrityId",
+				${celebrityTable.table}.${celebrityTable.name} as "celebrityName",
+				${celebrityTable.table}.${celebrityTable.birthday} as "celebrityBirthday",
+				${celebrityTable.table}.${celebrityTable.biography} as "celebrityBiography",
+				${bookTable.table}.${bookTable.id} as "bookId",
+				${bookTable.table}.${bookTable.title} as "bookTitle",
+				${bookTable.table}.${bookTable.releaseDate} as "bookReleaseDate",
+				${bookTable.table}.${bookTable.synopsis} as "bookSynopsis"`
 				if (numberParameters) searchFor += ' AND '
-				searchFor += `${table.assignmentId} = ${assignmentId}`
+				searchFor += `${table.table}.${table.assignmentId} = ${assignmentId}`
 				numberParameters++
             } else reject(db.message.dataError)            
 		}
 
 		if(bookId) {
             if (!isNaN(Number(bookId))) {
-				fields = `${celebrityTable.table}.${celebrityTable.id}, ${celebrityTable.table}.${celebrityTable.name}, ${celebrityTable.table}.${celebrityTable.birthday}, ${celebrityTable.table}.${celebrityTable.biography}, ${assignmentTable.table}.${assignmentTable.id}, ${assignmentTable.table}.${assignmentTable.description}`
+				fields = `${celebrityTable.table}.${celebrityTable.id} as "celebrityId",
+				${celebrityTable.table}.${celebrityTable.name} as "celebrityName",
+				${celebrityTable.table}.${celebrityTable.birthday} as "celebrityBirthday",
+				${celebrityTable.table}.${celebrityTable.biography} as "celebrityBiography",
+				${assignmentTable.table}.${assignmentTable.id} as "assignmentId",
+				${assignmentTable.table}.${assignmentTable.assignment} as "assignmentName",
+				${assignmentTable.table}.${assignmentTable.description} as "assignmentDescription"`
 				if (numberParameters) searchFor += ' AND '
-				searchFor += `${table.bookId} = ${bookId}`
+				searchFor += `${table.table}.${table.bookId} = ${bookId}`
             } else reject(db.message.dataError)            
 		}
 
@@ -54,9 +73,31 @@ var CreateQuerySelect = (celebrityId, assignmentId, bookId, callback) => {
 	return new Promise((resolve, reject) => {
 		if (celebrityId || assignmentId || bookId) {
 			HandleSelectData(celebrityId, assignmentId, bookId, (error, result) => {
-				error ? reject(error) : resolve(`SELECT ${result.fields} FROM ${table.table} INNER JOIN ${celebrityTable.table} ON ${celebrityTable.table}.${celebrityTable.id} = ${table.celebrityId} INNER JOIN ${assignmentTable.table} ON ${assignmentTable.table}.${assignmentTable.id} = ${table.assignmentId} INNER JOIN ${bookTable.table} ON ${bookTable.table}.${bookTable.id} = ${table.bookId} WHERE ${result.searchFor} ORDER BY (${table.celebrityId}, ${table.assignmentId}, ${table.bookId})`)
+				error ? reject(error) : resolve(`SELECT ${result.fields}
+				FROM ${table.table}
+				INNER JOIN ${celebrityTable.table} ON ${celebrityTable.table}.${celebrityTable.id} = ${table.celebrityId}
+				INNER JOIN ${assignmentTable.table} ON ${assignmentTable.table}.${assignmentTable.id} = ${table.assignmentId}
+				INNER JOIN ${bookTable.table} ON ${bookTable.table}.${bookTable.id} = ${table.bookId}
+				WHERE ${result.searchFor}
+				ORDER BY (${table.celebrityId}, ${table.assignmentId}, ${table.bookId})`)
 			})
-		} else resolve(`SELECT * FROM ${table.table} INNER JOIN ${celebrityTable.table} ON ${celebrityTable.table}.${celebrityTable.id} = ${table.celebrityId} INNER JOIN ${assignmentTable.table} ON ${assignmentTable.table}.${assignmentTable.id} = ${table.assignmentId} INNER JOIN ${bookTable.table} ON ${bookTable.table}.${bookTable.id} = ${table.bookId} ORDER BY (${table.celebrityId}, ${table.assignmentId})`)
+		} else resolve(`SELECT
+		${celebrityTable.table}.${celebrityTable.id} as "celebrityId",
+		${celebrityTable.table}.${celebrityTable.name} as "celebrityName",
+		${celebrityTable.table}.${celebrityTable.birthday} as "celebrityBirthday",
+		${celebrityTable.table}.${celebrityTable.biography} as "celebrityBiography",
+		${assignmentTable.table}.${assignmentTable.id} as "assignmentId",
+		${assignmentTable.table}.${assignmentTable.assignment} as "assignmentName",
+		${assignmentTable.table}.${assignmentTable.description} as "assignmentDescription",
+		${bookTable.table}.${bookTable.id} as "bookId",
+		${bookTable.table}.${bookTable.title} as "bookTitle",
+		${bookTable.table}.${bookTable.releaseDate} as "bookReleaseDate",
+		${bookTable.table}.${bookTable.synopsis} as "bookSynopsis"
+		FROM ${table.table}
+		INNER JOIN ${celebrityTable.table} ON ${celebrityTable.table}.${celebrityTable.id} = ${table.celebrityId}
+		INNER JOIN ${assignmentTable.table} ON ${assignmentTable.table}.${assignmentTable.id} = ${table.assignmentId}
+		INNER JOIN ${bookTable.table} ON ${bookTable.table}.${bookTable.id} = ${table.bookId}
+		ORDER BY (${table.celebrityId}, ${table.assignmentId}, ${table.bookId})`)
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)

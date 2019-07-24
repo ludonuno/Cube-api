@@ -20,7 +20,12 @@ var HandleSelectData = (celebrityId, assignmentId, seriesId, callback) => {
 
         if(celebrityId) {
             if (!isNaN(Number(celebrityId))) {
-				fields = `${assignmentTable.table}.${assignmentTable.id}, ${assignmentTable.table}.${assignmentTable.description}, ${seriesTable.table}.${seriesTable.id}, ${seriesTable.table}.${seriesTable.title}, ${seriesTable.table}.${seriesTable.releaseDate}, ${seriesTable.table}.${seriesTable.synopsis}, ${seriesTable.table}.${seriesTable.parentAdvisoryId}, ${seriesTable.table}.${seriesTable.sagaId}`
+				fields = `${assignmentTable.table}.${assignmentTable.id} as "assignmentId",
+				${assignmentTable.table}.${assignmentTable.description} as "assignmentDescription",
+				${seriesTable.table}.${seriesTable.id} as "seriesId",
+				${seriesTable.table}.${seriesTable.title} as "seriesTitle",
+				${seriesTable.table}.${seriesTable.releaseDate} as "seriesReleaseDate",
+				${seriesTable.table}.${seriesTable.synopsis} as "seriesSynopsis"`
 				searchFor += `${table.celebrityId} = ${celebrityId}`
                 numberParameters++;
             } else reject(db.message.dataError)            
@@ -28,7 +33,14 @@ var HandleSelectData = (celebrityId, assignmentId, seriesId, callback) => {
 		
 		if(assignmentId) {
             if (!isNaN(Number(assignmentId))) {
-				fields = `${celebrityTable.table}.${celebrityTable.id}, ${celebrityTable.table}.${celebrityTable.name}, ${celebrityTable.table}.${celebrityTable.birthday}, ${celebrityTable.table}.${celebrityTable.biography}, ${seriesTable.table}.${seriesTable.id}, ${seriesTable.table}.${seriesTable.title}, ${seriesTable.table}.${seriesTable.releaseDate}, ${seriesTable.table}.${seriesTable.synopsis}, ${seriesTable.table}.${seriesTable.parentAdvisoryId}, ${seriesTable.table}.${seriesTable.sagaId}`
+				fields = `${celebrityTable.table}.${celebrityTable.id} as "celebrityId",
+				${celebrityTable.table}.${celebrityTable.name} as "celebrityName",
+				${celebrityTable.table}.${celebrityTable.birthday} as "celebrityBirthday",
+				${celebrityTable.table}.${celebrityTable.biography} as "celebrityBiography",
+				${seriesTable.table}.${seriesTable.id} as "seriesId",
+				${seriesTable.table}.${seriesTable.title} as "seriesTitle",
+				${seriesTable.table}.${seriesTable.releaseDate} as "seriesReleaseDate",
+				${seriesTable.table}.${seriesTable.synopsis} as "seriesSynopsis"`
 				if (numberParameters) searchFor += ' AND '
 				searchFor += `${table.assignmentId} = ${assignmentId}`
 				numberParameters++
@@ -37,7 +49,12 @@ var HandleSelectData = (celebrityId, assignmentId, seriesId, callback) => {
 
 		if(seriesId) {
             if (!isNaN(Number(seriesId))) {
-				fields = `${celebrityTable.table}.${celebrityTable.id}, ${celebrityTable.table}.${celebrityTable.name}, ${celebrityTable.table}.${celebrityTable.birthday}, ${celebrityTable.table}.${celebrityTable.biography}, ${assignmentTable.table}.${assignmentTable.id}, ${assignmentTable.table}.${assignmentTable.description}`
+				fields = `${celebrityTable.table}.${celebrityTable.id} as "celebrityId",
+				${celebrityTable.table}.${celebrityTable.name} as "celebrityName",
+				${celebrityTable.table}.${celebrityTable.birthday} as "celebrityBirthday",
+				${celebrityTable.table}.${celebrityTable.biography} as "celebrityBiography",
+				${assignmentTable.table}.${assignmentTable.id} as "assignmentId",
+				${assignmentTable.table}.${assignmentTable.description} as "assignmentDescription"`
 				if (numberParameters) searchFor += ' AND '
 				searchFor += `${table.seriesId} = ${seriesId}`
             } else reject(db.message.dataError)            
@@ -54,9 +71,31 @@ var CreateQuerySelect = (celebrityId, assignmentId, seriesId, callback) => {
 	return new Promise((resolve, reject) => {
 		if (celebrityId || assignmentId || seriesId) {
 			HandleSelectData(celebrityId, assignmentId, seriesId, (error, result) => {
-				error ? reject(error) : resolve(`SELECT ${result.fields} FROM ${table.table} INNER JOIN ${celebrityTable.table} ON ${celebrityTable.table}.${celebrityTable.id} = ${table.celebrityId} INNER JOIN ${assignmentTable.table} ON ${assignmentTable.table}.${assignmentTable.id} = ${table.assignmentId} INNER JOIN ${seriesTable.table} ON ${seriesTable.table}.${seriesTable.id} = ${table.seriesId} WHERE ${result.searchFor} ORDER BY (${table.celebrityId}, ${table.assignmentId}, ${table.seriesId})`)
+				error ? reject(error) : resolve(`SELECT ${result.fields} 
+				FROM ${table.table} 
+				INNER JOIN ${celebrityTable.table} ON ${celebrityTable.table}.${celebrityTable.id} = ${table.celebrityId} 
+				INNER JOIN ${assignmentTable.table} ON ${assignmentTable.table}.${assignmentTable.id} = ${table.assignmentId} 
+				INNER JOIN ${seriesTable.table} ON ${seriesTable.table}.${seriesTable.id} = ${table.seriesId} 
+				WHERE ${result.searchFor} 
+				ORDER BY (${table.celebrityId}, ${table.assignmentId}, ${table.seriesId})`)
 			})
-		} else resolve(`SELECT * FROM ${table.table} INNER JOIN ${celebrityTable.table} ON ${celebrityTable.table}.${celebrityTable.id} = ${table.celebrityId} INNER JOIN ${assignmentTable.table} ON ${assignmentTable.table}.${assignmentTable.id} = ${table.assignmentId} INNER JOIN ${seriesTable.table} ON ${seriesTable.table}.${seriesTable.id} = ${table.seriesId} ORDER BY (${table.celebrityId}, ${table.assignmentId})`)
+		} else resolve(`SELECT
+		${celebrityTable.table}.${celebrityTable.id} as "celebrityId",
+		${celebrityTable.table}.${celebrityTable.name} as "celebrityName",
+		${celebrityTable.table}.${celebrityTable.birthday} as "celebrityBirthday",
+		${celebrityTable.table}.${celebrityTable.biography} as "celebrityBiography",
+		${assignmentTable.table}.${assignmentTable.id} as "assignmentId",
+		${assignmentTable.table}.${assignmentTable.assignment} as "assignmentName",
+		${assignmentTable.table}.${assignmentTable.description} as "assignmentDescription",
+		${seriesTable.table}.${seriesTable.id} as "seriesId",
+		${seriesTable.table}.${seriesTable.title} as "seriesTitle",
+		${seriesTable.table}.${seriesTable.releaseDate} as "seriesReleaseDate",
+		${seriesTable.table}.${seriesTable.synopsis} as "seriesSynopsis" 
+		FROM ${table.table}
+		INNER JOIN ${celebrityTable.table} ON ${celebrityTable.table}.${celebrityTable.id} = ${table.celebrityId} 
+		INNER JOIN ${assignmentTable.table} ON ${assignmentTable.table}.${assignmentTable.id} = ${table.assignmentId} 
+		INNER JOIN ${seriesTable.table} ON ${seriesTable.table}.${seriesTable.id} = ${table.seriesId} 
+		ORDER BY (${table.celebrityId}, ${table.assignmentId})`)
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)

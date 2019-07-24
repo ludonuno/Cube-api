@@ -20,7 +20,13 @@ var HandleSelectData = (celebrityId, assignmentId, movieId, callback) => {
 
         if(celebrityId) {
             if (!isNaN(Number(celebrityId))) {
-				fields = `${assignmentTable.table}.${assignmentTable.id}, ${assignmentTable.table}.${assignmentTable.description}, ${movieTable.table}.${movieTable.id}, ${movieTable.table}.${movieTable.title}, ${movieTable.table}.${movieTable.releaseDate}, ${movieTable.table}.${movieTable.synopsis}, ${movieTable.table}.${movieTable.duration}, ${movieTable.table}.${movieTable.parentAdvisoryId}, ${movieTable.table}.${movieTable.sagaId}`
+				fields = `${assignmentTable.table}.${assignmentTable.id} as "assignmentId",
+				${assignmentTable.table}.${assignmentTable.description} as "assignmentDescription",
+				${movieTable.table}.${movieTable.id} as "movieId",
+				${movieTable.table}.${movieTable.title} as "movieTitle",
+				${movieTable.table}.${movieTable.releaseDate} as "movieReleaseDate",
+				${movieTable.table}.${movieTable.synopsis} as "movieSynopsis",
+				${movieTable.table}.${movieTable.duration} as "movieDuration"`
 				searchFor += `${table.celebrityId} = ${celebrityId}`
                 numberParameters++;
             } else reject(db.message.dataError)            
@@ -28,7 +34,15 @@ var HandleSelectData = (celebrityId, assignmentId, movieId, callback) => {
 		
 		if(assignmentId) {
             if (!isNaN(Number(assignmentId))) {
-				fields = `${celebrityTable.table}.${celebrityTable.id}, ${celebrityTable.table}.${celebrityTable.name}, ${celebrityTable.table}.${celebrityTable.birthday}, ${celebrityTable.table}.${celebrityTable.biography}, ${movieTable.table}.${movieTable.id}, ${movieTable.table}.${movieTable.title}, ${movieTable.table}.${movieTable.releaseDate}, ${movieTable.table}.${movieTable.synopsis}, ${movieTable.table}.${movieTable.duration}, ${movieTable.table}.${movieTable.parentAdvisoryId}, ${movieTable.table}.${movieTable.sagaId}`
+				fields = `${celebrityTable.table}.${celebrityTable.id} as "celebrityId",
+				${celebrityTable.table}.${celebrityTable.name} as "celebrityName",
+				${celebrityTable.table}.${celebrityTable.birthday} as "celebrityBirthday",
+				${celebrityTable.table}.${celebrityTable.biography} as "celebrityBiography",
+				${movieTable.table}.${movieTable.id} as "movieId",
+				${movieTable.table}.${movieTable.title} as "movieTitle",
+				${movieTable.table}.${movieTable.releaseDate} as "movieReleaseDate",
+				${movieTable.table}.${movieTable.synopsis} as "movieSynopsis",
+				${movieTable.table}.${movieTable.duration} as "movieDuration"`
 				if (numberParameters) searchFor += ' AND '
 				searchFor += `${table.assignmentId} = ${assignmentId}`
 				numberParameters++
@@ -37,7 +51,12 @@ var HandleSelectData = (celebrityId, assignmentId, movieId, callback) => {
 
 		if(movieId) {
             if (!isNaN(Number(movieId))) {
-				fields = `${celebrityTable.table}.${celebrityTable.id}, ${celebrityTable.table}.${celebrityTable.name}, ${celebrityTable.table}.${celebrityTable.birthday}, ${celebrityTable.table}.${celebrityTable.biography}, ${assignmentTable.table}.${assignmentTable.id}, ${assignmentTable.table}.${assignmentTable.description}`
+				fields = `${celebrityTable.table}.${celebrityTable.id} as "celebrityId",
+				${celebrityTable.table}.${celebrityTable.name} as "celebrityName",
+				${celebrityTable.table}.${celebrityTable.birthday} as "celebrityBirthday",
+				${celebrityTable.table}.${celebrityTable.biography} as "celebrityBiography",
+				${assignmentTable.table}.${assignmentTable.id} as "assignmentId",
+				${assignmentTable.table}.${assignmentTable.description} as "assignmentDescription"`
 				if (numberParameters) searchFor += ' AND '
 				searchFor += `${table.movieId} = ${movieId}`
             } else reject(db.message.dataError)            
@@ -54,9 +73,32 @@ var CreateQuerySelect = (celebrityId, assignmentId, movieId, callback) => {
 	return new Promise((resolve, reject) => {
 		if (celebrityId || assignmentId || movieId) {
 			HandleSelectData(celebrityId, assignmentId, movieId, (error, result) => {
-				error ? reject(error) : resolve(`SELECT ${result.fields} FROM ${table.table} INNER JOIN ${celebrityTable.table} ON ${celebrityTable.table}.${celebrityTable.id} = ${table.celebrityId} INNER JOIN ${assignmentTable.table} ON ${assignmentTable.table}.${assignmentTable.id} = ${table.assignmentId} INNER JOIN ${movieTable.table} ON ${movieTable.table}.${movieTable.id} = ${table.movieId} WHERE ${result.searchFor} ORDER BY (${table.celebrityId}, ${table.assignmentId}, ${table.movieId})`)
+				error ? reject(error) : resolve(`SELECT ${result.fields}
+				FROM ${table.table}
+				INNER JOIN ${celebrityTable.table} ON ${celebrityTable.table}.${celebrityTable.id} = ${table.celebrityId}
+				INNER JOIN ${assignmentTable.table} ON ${assignmentTable.table}.${assignmentTable.id} = ${table.assignmentId}
+				INNER JOIN ${movieTable.table} ON ${movieTable.table}.${movieTable.id} = ${table.movieId}
+				WHERE ${result.searchFor}
+				ORDER BY (${table.celebrityId}, ${table.assignmentId}, ${table.movieId})`)
 			})
-		} else resolve(`SELECT * FROM ${table.table} INNER JOIN ${celebrityTable.table} ON ${celebrityTable.table}.${celebrityTable.id} = ${table.celebrityId} INNER JOIN ${assignmentTable.table} ON ${assignmentTable.table}.${assignmentTable.id} = ${table.assignmentId} INNER JOIN ${movieTable.table} ON ${movieTable.table}.${movieTable.id} = ${table.movieId} ORDER BY (${table.celebrityId}, ${table.assignmentId})`)
+		} else resolve(`SELECT
+		${celebrityTable.table}.${celebrityTable.id} as "celebrityId",
+		${celebrityTable.table}.${celebrityTable.name} as "celebrityName",
+		${celebrityTable.table}.${celebrityTable.birthday} as "celebrityBirthday",
+		${celebrityTable.table}.${celebrityTable.biography} as "celebrityBiography",
+		${assignmentTable.table}.${assignmentTable.id} as "assignmentId",
+		${assignmentTable.table}.${assignmentTable.assignment} as "assignmentName",
+		${assignmentTable.table}.${assignmentTable.description} as "assignmentDescription",
+		${movieTable.table}.${movieTable.id} as "movieId",
+		${movieTable.table}.${movieTable.title} as "movieTitle",
+		${movieTable.table}.${movieTable.releaseDate} as "movieReleaseDate",
+		${movieTable.table}.${movieTable.synopsis} as "movieSynopsis",
+		${movieTable.table}.${movieTable.duration} as "movieDuration" 
+		FROM ${table.table}
+		INNER JOIN ${celebrityTable.table} ON ${celebrityTable.table}.${celebrityTable.id} = ${table.celebrityId}
+		INNER JOIN ${assignmentTable.table} ON ${assignmentTable.table}.${assignmentTable.id} = ${table.assignmentId}
+		INNER JOIN ${movieTable.table} ON ${movieTable.table}.${movieTable.id} = ${table.movieId}
+		ORDER BY (${table.celebrityId}, ${table.assignmentId})`)
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
