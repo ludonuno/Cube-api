@@ -2,6 +2,10 @@ const db = require('../../db')
 const sizeOf = require('object-sizeof')
 
 const { CanUserEdit } = require('./User')
+const seriesTable = require('./Series').table
+const seasonTable = require('./Season').table
+const sagaTable = require('./Saga').table
+const parentAdvisoryTable = require('./ParentAdvisory').table
 
 const table = {
     table: 'my_Episode',
@@ -18,7 +22,7 @@ var HandleSelectData = (id, title, releaseDate, seasonId, callback) => {
 		
         if(id) {
             if (!isNaN(Number(id))) {
-				searchFor += `${table.id} = ${id}`
+				searchFor += `${table.table}.${table.id} = ${id}`
 				numberParameters++
             } else reject(db.message.dataError)            
 		}
@@ -26,21 +30,21 @@ var HandleSelectData = (id, title, releaseDate, seasonId, callback) => {
         if (title) {
 			if (numberParameters) searchFor += ' AND '
 			title = title.replace( new RegExp("'", 'g') , '%27')
-			searchFor += `${table.title} LIKE '%${title}%'`
+			searchFor += `${table.table}.${table.title} LIKE '%${title}%'`
 			numberParameters++
 		}
 
 		if (releaseDate) {
 			if (numberParameters) searchFor += ' AND '
 			releaseDate = releaseDate.replace( new RegExp("'", 'g') , '%27')
-			searchFor += `${table.releaseDate} = '${releaseDate}'`
+			searchFor += `${table.table}.${table.releaseDate} = '${releaseDate}'`
 			numberParameters++
 		}
 
 		if (seasonId) {
 			if (!isNaN(Number(seasonId))) {
 				if (numberParameters) searchFor += ' AND '
-				searchFor += `${table.seasonId} = ${seasonId}`
+				searchFor += `${table.table}.${table.seasonId} = ${seasonId}`
 				numberParameters++
             } else reject(db.message.dataError)
 		}
@@ -56,9 +60,58 @@ var CreateQuerySelect = (id, title, releaseDate, seasonId, callback) => {
 	return new Promise((resolve, reject) => {
 		if (id || title || releaseDate || seasonId) {
 			HandleSelectData(id, title, releaseDate, seasonId, (error, result) => {
-				error ? reject(error) : resolve(`SELECT * FROM ${table.table} WHERE ${result}`)
+				error ? reject(error) : resolve(`SELECT
+				${table.table}.${table.id} as "episodeId",
+				${table.table}.${table.title}  as "episodeTitle", 
+				${table.table}.${table.releaseDate} as "episodeReleaseDate",
+				${table.table}.${table.synopsis} as "episodeSynopsis",
+				${seasonTable.table}.${seasonTable.id} as "seasonId",
+				${seasonTable.table}.${seasonTable.title} as "seasonTitle",
+				${seasonTable.table}.${seasonTable.releaseDate} as "seasonReleaseDate",
+				${seasonTable.table}.${seasonTable.synopsis} as "seasonSynopsis",
+				${seriesTable.table}.${seriesTable.id} as "seriesId",
+				${seriesTable.table}.${seriesTable.title} as "seriesTitle",
+				${seriesTable.table}.${seriesTable.releaseDate} as "seriesReleaseDate",
+				${seriesTable.table}.${seriesTable.synopsis} as "seriesSynopsis",
+				${sagaTable.table}.${sagaTable.id} as "sagaId",
+				${sagaTable.table}.${sagaTable.name} as "sagaName",
+				${sagaTable.table}.${sagaTable.description} as "sagaDescription",
+				${parentAdvisoryTable.table}.${parentAdvisoryTable.id} as "parentAdvisoryId",
+				${parentAdvisoryTable.table}.${parentAdvisoryTable.rate} as "parentAdvisoryRate",
+				${parentAdvisoryTable.table}.${parentAdvisoryTable.description} as "parentAdvisoryDescription"
+				FROM ${table.table}
+				INNER JOIN ${seasonTable.table} on ${table.table}.${table.seasonId} = ${seasonTable.table}.${seasonTable.id}
+				INNER JOIN ${seriesTable.table} on ${seasonTable.table}.${seasonTable.seriesId} = ${seriesTable.table}.${seriesTable.id}
+				INNER JOIN ${sagaTable.table} ON ${seriesTable.table}.${seriesTable.sagaId} = ${sagaTable.table}.${sagaTable.id}
+				INNER JOIN ${parentAdvisoryTable.table} ON ${seriesTable.table}.${seriesTable.parentAdvisoryId} = ${parentAdvisoryTable.table}.${parentAdvisoryTable.id}
+				WHERE ${result}
+				ORDER BY (${seriesTable.table}.${seriesTable.id}, ${seasonTable.table}.${seasonTable.id}, ${table.table}.${table.id}) ASC`)
 			})
-		} else resolve(`SELECT * FROM ${table.table}`)
+		} else resolve(`SELECT
+		${table.table}.${table.id} as "episodeId",
+		${table.table}.${table.title}  as "episodeTitle", 
+		${table.table}.${table.releaseDate} as "episodeReleaseDate",
+		${table.table}.${table.synopsis} as "episodeSynopsis",
+		${seasonTable.table}.${seasonTable.id} as "seasonId",
+		${seasonTable.table}.${seasonTable.title} as "seasonTitle",
+		${seasonTable.table}.${seasonTable.releaseDate} as "seasonReleaseDate",
+		${seasonTable.table}.${seasonTable.synopsis} as "seasonSynopsis",
+		${seriesTable.table}.${seriesTable.id} as "seriesId",
+		${seriesTable.table}.${seriesTable.title} as "seriesTitle",
+		${seriesTable.table}.${seriesTable.releaseDate} as "seriesReleaseDate",
+		${seriesTable.table}.${seriesTable.synopsis} as "seriesSynopsis",
+		${sagaTable.table}.${sagaTable.id} as "sagaId",
+		${sagaTable.table}.${sagaTable.name} as "sagaName",
+		${sagaTable.table}.${sagaTable.description} as "sagaDescription",
+		${parentAdvisoryTable.table}.${parentAdvisoryTable.id} as "parentAdvisoryId",
+		${parentAdvisoryTable.table}.${parentAdvisoryTable.rate} as "parentAdvisoryRate",
+		${parentAdvisoryTable.table}.${parentAdvisoryTable.description} as "parentAdvisoryDescription"
+		FROM ${table.table}
+		INNER JOIN ${seasonTable.table} on ${table.table}.${table.seasonId} = ${seasonTable.table}.${seasonTable.id}
+		INNER JOIN ${seriesTable.table} on ${seasonTable.table}.${seasonTable.seriesId} = ${seriesTable.table}.${seriesTable.id}
+		INNER JOIN ${sagaTable.table} ON ${seriesTable.table}.${seriesTable.sagaId} = ${sagaTable.table}.${sagaTable.id}
+		INNER JOIN ${parentAdvisoryTable.table} ON ${seriesTable.table}.${seriesTable.parentAdvisoryId} = ${parentAdvisoryTable.table}.${parentAdvisoryTable.id}
+		ORDER BY (${seriesTable.table}.${seriesTable.id}, ${seasonTable.table}.${seasonTable.id}, ${table.table}.${table.id}) ASC`)
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)

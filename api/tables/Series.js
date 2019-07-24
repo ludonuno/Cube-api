@@ -66,9 +66,38 @@ var CreateQuerySelect = (id, title, releaseDate, parentAdvisoryId, sagaId, callb
 	return new Promise((resolve, reject) => {
 		if (id || title || releaseDate || parentAdvisoryId || sagaId) {
 			HandleSelectData(id, title, releaseDate, parentAdvisoryId, sagaId, (error, result) => {
-				error ? reject(error) : resolve(`SELECT ${table.table}.${table.id}, ${table.table}.${table.title}, ${table.table}.${table.releaseDate}, ${table.table}.${table.synopsis}, ${table.table}.${table.sagaId}, ${sagaTable.table}.${sagaTable.name} as "sagaName", ${sagaTable.table}.${sagaTable.description} as "sagaDescription", ${table.table}.${table.parentAdvisoryId}, ${parentAdvisoryTable.table}.${parentAdvisoryTable.rate} as "parentAdvisoryRate", ${parentAdvisoryTable.table}.${parentAdvisoryTable.description} as "parentAdvisoryDescription" FROM ${table.table} INNER JOIN ${sagaTable.table} ON ${sagaTable.table}.${sagaTable.id} = ${table.table}.${table.sagaId} INNER JOIN ${parentAdvisoryTable.table} ON ${parentAdvisoryTable.table}.${parentAdvisoryTable.id} = ${table.table}.${table.parentAdvisoryId} WHERE ${result}`)
+				error ? reject(error) : resolve(`SELECT 
+				${table.table}.${table.id}, as "seriesId",
+				${table.table}.${table.title}, as "seriesTitle",
+				${table.table}.${table.releaseDate}, as "seriesReleaseDate",
+				${table.table}.${table.synopsis}, as "seriesSynopsis",
+				${sagaTable.table}.${sagaTable.id} as "sagaId",
+				${sagaTable.table}.${sagaTable.name} as "sagaName",
+				${sagaTable.table}.${sagaTable.description} as "sagaDescription",
+				${parentAdvisoryTable.table}.${parentAdvisoryTable.id} as "parentAdvisoryId",
+				${parentAdvisoryTable.table}.${parentAdvisoryTable.rate} as "parentAdvisoryRate",
+				${parentAdvisoryTable.table}.${parentAdvisoryTable.description} as "parentAdvisoryDescription"
+				FROM ${table.table}
+				INNER JOIN ${sagaTable.table} ON ${table.table}.${table.sagaId} = ${sagaTable.table}.${sagaTable.id}
+				INNER JOIN ${parentAdvisoryTable.table} ON ${table.table}.${table.parentAdvisoryId} = ${parentAdvisoryTable.table}.${parentAdvisoryTable.id}
+				WHERE ${result}
+				ORDER BY (${table.table}.${table.id}) ASC`)
 			})
-		} else resolve(`SELECT ${table.table}.${table.id}, ${table.table}.${table.title}, ${table.table}.${table.releaseDate}, ${table.table}.${table.synopsis}, ${table.table}.${table.sagaId}, ${sagaTable.table}.${sagaTable.name} as "sagaName", ${sagaTable.table}.${sagaTable.description} as "sagaDescription", ${table.table}.${table.parentAdvisoryId}, ${parentAdvisoryTable.table}.${parentAdvisoryTable.rate} as "parentAdvisoryRate", ${parentAdvisoryTable.table}.${parentAdvisoryTable.description} as "parentAdvisoryDescription" FROM ${table.table} INNER JOIN ${sagaTable.table} ON ${sagaTable.table}.${sagaTable.id} = ${table.table}.${table.sagaId} INNER JOIN ${parentAdvisoryTable.table} ON ${parentAdvisoryTable.table}.${parentAdvisoryTable.id} = ${table.table}.${table.parentAdvisoryId}`)
+		} else resolve(`SELECT 
+		${table.table}.${table.id}, as "seriesId",
+		${table.table}.${table.title}, as "seriesTitle",
+		${table.table}.${table.releaseDate}, as "seriesReleaseDate",
+		${table.table}.${table.synopsis}, as "seriesSynopsis",
+		${sagaTable.table}.${sagaTable.id} as "sagaId",
+		${sagaTable.table}.${sagaTable.name} as "sagaName",
+		${sagaTable.table}.${sagaTable.description} as "sagaDescription",
+		${parentAdvisoryTable.table}.${parentAdvisoryTable.id} as "parentAdvisoryId",
+		${parentAdvisoryTable.table}.${parentAdvisoryTable.rate} as "parentAdvisoryRate",
+		${parentAdvisoryTable.table}.${parentAdvisoryTable.description} as "parentAdvisoryDescription"
+		FROM ${table.table}
+		INNER JOIN ${sagaTable.table} ON ${table.table}.${table.sagaId} = ${sagaTable.table}.${sagaTable.id}
+		INNER JOIN ${parentAdvisoryTable.table} ON ${table.table}.${table.parentAdvisoryId} = ${parentAdvisoryTable.table}.${parentAdvisoryTable.id}
+		ORDER BY (${table.table}.${table.id}) ASC`)
 	}).then(
 		resolve => callback(undefined, resolve),
 		reject => callback(reject, undefined)
