@@ -21,6 +21,7 @@ var HandleSelectData = (celebrityId, assignmentId, movieId, callback) => {
         if(celebrityId) {
             if (!isNaN(Number(celebrityId))) {
 				fields = `${assignmentTable.table}.${assignmentTable.id} as "assignmentId",
+				${assignmentTable.table}.${assignmentTable.assignment} as "assignmentName",
 				${assignmentTable.table}.${assignmentTable.description} as "assignmentDescription",
 				${movieTable.table}.${movieTable.id} as "movieId",
 				${movieTable.table}.${movieTable.title} as "movieTitle",
@@ -56,6 +57,7 @@ var HandleSelectData = (celebrityId, assignmentId, movieId, callback) => {
 				${celebrityTable.table}.${celebrityTable.birthday} as "celebrityBirthday",
 				${celebrityTable.table}.${celebrityTable.biography} as "celebrityBiography",
 				${assignmentTable.table}.${assignmentTable.id} as "assignmentId",
+				${assignmentTable.table}.${assignmentTable.assignment} as "assignmentName",
 				${assignmentTable.table}.${assignmentTable.description} as "assignmentDescription"`
 				if (numberParameters) searchFor += ' AND '
 				searchFor += `${table.movieId} = ${movieId}`
