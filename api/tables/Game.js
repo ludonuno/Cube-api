@@ -98,7 +98,7 @@ var CreateQuerySelect = (id, title, releaseDate, engineId, parentAdvisoryId, pub
 				${parentAdvisoryTable.table}.${parentAdvisoryTable.description} as "parentAdvisoryDescription",
 				${engineTable.table}.${engineTable.id} as "engineId",
 				${engineTable.table}.${engineTable.name} as "engineName",
-				${companyTable.table}.${companyTable.id} as "companyId"
+				${companyTable.table}.${companyTable.id} as "companyId",
 				${companyTable.table}.${companyTable.name} as "companyName"
 				FROM ${table.table}
 				INNER JOIN ${sagaTable.table} ON ${sagaTable.table}.${sagaTable.id} = ${table.table}.${table.sagaId}
@@ -120,7 +120,7 @@ var CreateQuerySelect = (id, title, releaseDate, engineId, parentAdvisoryId, pub
 		${parentAdvisoryTable.table}.${parentAdvisoryTable.description} as "parentAdvisoryDescription",
 		${engineTable.table}.${engineTable.id} as "engineId",
 		${engineTable.table}.${engineTable.name} as "engineName",
-		${companyTable.table}.${companyTable.id} as "companyId"
+		${companyTable.table}.${companyTable.id} as "companyId",
 		${companyTable.table}.${companyTable.name} as "companyName"
 		FROM ${table.table}
 		INNER JOIN ${sagaTable.table} ON ${sagaTable.table}.${sagaTable.id} = ${table.table}.${table.sagaId}

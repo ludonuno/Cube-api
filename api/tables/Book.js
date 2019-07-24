@@ -75,7 +75,7 @@ var CreateQuerySelect = (id, title, releaseDate, publishingCompanyId, sagaId, ca
 				${sagaTable.table}.${sagaTable.id} as "sagaId",
 				${sagaTable.table}.${sagaTable.name} as "sagaName",
 				${sagaTable.table}.${sagaTable.description} as "sagaDescription",
-				${publishingCompanyTable.table}.${publishingCompanyTable.id} as "publishingCompanyId"
+				${publishingCompanyTable.table}.${publishingCompanyTable.id} as "publishingCompanyId",
 				${publishingCompanyTable.table}.${publishingCompanyTable.name} as "publishingCompanyName"
 				FROM ${table.table}
 				INNER JOIN ${sagaTable.table} ON ${sagaTable.table}.${sagaTable.id} = ${table.table}.${table.sagaId}
@@ -90,7 +90,7 @@ var CreateQuerySelect = (id, title, releaseDate, publishingCompanyId, sagaId, ca
 		${sagaTable.table}.${sagaTable.id} as "sagaId",
 		${sagaTable.table}.${sagaTable.name} as "sagaName",
 		${sagaTable.table}.${sagaTable.description} as "sagaDescription",
-		${publishingCompanyTable.table}.${publishingCompanyTable.id} as "publishingCompanyId"
+		${publishingCompanyTable.table}.${publishingCompanyTable.id} as "publishingCompanyId",
 		${publishingCompanyTable.table}.${publishingCompanyTable.name} as "publishingCompanyName"
 		FROM ${table.table}
 		INNER JOIN ${sagaTable.table} ON ${sagaTable.table}.${sagaTable.id} = ${table.table}.${table.sagaId}
