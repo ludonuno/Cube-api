@@ -1,13 +1,33 @@
+
+
+/*
+	Table [Location] is a new table that will store the location of places like:
+		Where Entities are from,
+		Where was the opening of a Entertainment
+*/
+CREATE TABLE Location
+(
+	Id			SERIAL,
+	Country		VARCHAR(32) 	NOT NULL,
+	City		VARCHAR(32)		NULL,
+	Abrev		VARCHAR(4)		NULL,
+	Longitude	FLOAT(8)		NULL,
+	Latitude	FLOAT(8)		NULL
+)
+GO
 /*
 	Table [Entity] will replace the following tables from the older Database Model:
 		- my_Company
-		- my_S+tar
+		- my_Star
 */
-CREATE TABLE [Entity]
+CREATE TABLE Entity
 (
-
+	Id			SERIAL,
+	Name		NVARCHAR(64) 	NOT NULL,
+	Biography	TEXT			NULL,
+	Birthday	DATE			NULL,
+	LocationId 	INT				NULL 		--Birth location
 )
-
 
 /*
 	Table [EntertainmentType] works as a Enumrable:
@@ -26,30 +46,24 @@ ELSE
 	BEGIN
 		CREATE TABLE [dbo].[EntertainmentType]
 		(
-			Id 		INT				NOT NULL,
-			Abrev	NVARCHAR(40)	NOT NULL
+			[Id] 		INT				NOT NULL,
+			[Abrev]		NVARCHAR(40)	NOT NULL
 			CONSTRAINT PK_EntertainmentType PRIMARY KEY (Id)
 		)
 
 		INSERT INTO 
 			[EntertainmentType]
 			(
-				Id,
-				Abrev
+				[Id]
+				,[Abrev]
 			)
 		VALUES
-			(1
-			,'Game'),
-			(2
-			,'Movie'),
-			(3
-			,'Book'),
-			(4
-			,'Series'),
-			(5
-			,'Season'),
-			(6
-			,'Episode')
+			(1, 'Game'		),
+			(2, 'Movie'		),
+			(3, 'Book'		),
+			(4, 'Series'	),
+			(5, 'Season'	),
+			(6, 'Episode'	)
 	END
 /*
 	<Title>
@@ -89,12 +103,12 @@ ELSE
 		IF OBJECT('[dbo].[Entertainment]', 'U') IS NOT NULL
 			BEGIN
 				--ADD CONSTRAINTS
-				ALTER TABLE Entertainment ADD CONSTRAINT FK_EntertainmentTypeId		FOREIGN KEY (EntertainmentTypeId)		REFERENCES EntertainmentType(Id);
-				ALTER TABLE Entertainment ADD CONSTRAINT FK_EngineId				FOREIGN KEY (EngineId)					REFERENCES Engine(Id);
-				ALTER TABLE Entertainment ADD CONSTRAINT FK_ParentAdvisoryId		FOREIGN KEY (ParentAdvisoryId)			REFERENCES ParentAdvisory(Id);
-				ALTER TABLE Entertainment ADD CONSTRAINT FK_PublisherId				FOREIGN KEY (PublisherId)				REFERENCES Company(Id);
-				ALTER TABLE Entertainment ADD CONSTRAINT FK_PublishingCompanyId		FOREIGN KEY (PublishingCompanyId)		REFERENCES PublishingCompany(Id);
-				ALTER TABLE Entertainment ADD CONSTRAINT FK_SagaId					FOREIGN KEY (SagaId)					REFERENCES Saga(Id);
+				ALTER TABLE [Entertainment] ADD CONSTRAINT [FK_EntertainmentTypeId]		FOREIGN KEY ([EntertainmentTypeId])		REFERENCES [EntertainmentType]([Id]);
+				ALTER TABLE [Entertainment] ADD CONSTRAINT [FK_EngineId]				FOREIGN KEY ([EngineId])				REFERENCES [Engine]([Id]);
+				ALTER TABLE [Entertainment] ADD CONSTRAINT [FK_ParentAdvisoryId]		FOREIGN KEY ([ParentAdvisoryId])		REFERENCES [ParentAdvisory]([Id]);
+				ALTER TABLE [Entertainment] ADD CONSTRAINT [FK_PublisherId]				FOREIGN KEY ([PublisherId])				REFERENCES [Company]([Id]);
+				ALTER TABLE [Entertainment] ADD CONSTRAINT [FK_PublishingCompanyId]		FOREIGN KEY ([PublishingCompanyId])		REFERENCES [PublishingCompany]([Id]);
+				ALTER TABLE [Entertainment] ADD CONSTRAINT [FK_SagaId]					FOREIGN KEY ([SagaId])					REFERENCES [Saga]([Id]);
 				--PRINT MESSAGES
 				PRINT '    Created - FK_EngineId';
 				PRINT '    Created - FK_ParentAdvisoryId';
